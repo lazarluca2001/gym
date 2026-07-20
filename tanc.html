@@ -15,9 +15,12 @@
     <div class="topbar-left">
       <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
       <nav class="page-nav">
+        <a href="kezdolap.html">Kezdőlap</a>
         <a href="index.html">Életmód</a>
         <a href="erszint.html">Erőszint</a>
         <a href="tanc.html" class="active">Tánc</a>
+        <a href="naptar.html">Naptár</a>
+        <a href="trendek.html">Trendek</a>
       </nav>
     </div>
     <div class="dark-toggle">
@@ -38,7 +41,7 @@
       <div class="today-pill" id="maiDatum">—</div>
     </div>
 
-    <div class="stat-row">
+    <div class="stat-cards-row">
       <div class="stat-card">
         <span class="stat-card-icon">💃</span>
         <div><p class="stat-card-label">Órák száma</p><p class="stat-card-value" id="statTancOraszam">—</p></div>
@@ -52,8 +55,8 @@
         <div><p class="stat-card-label">Táncsikolák</p><p class="stat-card-value" id="statTancIskolaSzam">—</p></div>
       </div>
       <div class="stat-card">
-        <span class="stat-card-icon">📅</span>
-        <div><p class="stat-card-label">Legutóbbi óra</p><p class="stat-card-value" id="statTancUtolso">—</p></div>
+        <span class="stat-card-icon">🔥</span>
+        <div><p class="stat-card-label">Heti sorozat</p><p class="stat-card-value" id="statTancSorozat">—</p></div>
       </div>
     </div>
 
@@ -66,7 +69,8 @@
 
     <div class="card-grid">
       <div class="data-card" style="--accent-c:var(--luteal)">
-        <p class="card-label">Percek óránként</p>
+        <p class="card-label">Percek naponta</p>
+        <p class="trend-line" id="tancTrend"></p>
         <div class="chart-box"><canvas id="tancPercChart"></canvas></div>
       </div>
       <div class="data-card" style="--accent-c:var(--ovulation)">
@@ -76,6 +80,11 @@
     </div>
 
     <div class="data-card" style="--accent-c:var(--menstrual)">
+      <p class="card-label">Iskolánkénti megoszlás (összesített percek)</p>
+      <div class="chart-box"><canvas id="tancIskolaChart"></canvas></div>
+    </div>
+
+    <div class="data-card" style="--accent-c:var(--follicular)">
       <p class="card-label">Órák listája</p>
       <div class="tanc-lista" id="tancLista"></div>
     </div>
