@@ -756,7 +756,7 @@ function tancDashboardRajzolasa(iskolaSzures){
 // ---------- NAPTÁR (csak a naptár oldalon létezik) ----------
 const HONAP_NEVEK = ['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
 const HONAP_NEVEK_ROVID_GEN = ['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
-const FAZIS_ROVID = { menstru:'Menstruáció', follik:'Follikuláris', ovul:'Ovuláció', luteal:'Luteális' };
+const NAPTAR_ELSO_EV = 2026;
 let naptarEv, naptarHonap, naptarNezet = 'racs', naptarKivalasztott = null;
 
 function naptarInit(){
@@ -773,14 +773,17 @@ function naptarInit(){
   const evValaszto = document.getElementById('naptarEvValaszto');
   const racsBtn = document.getElementById('naptarNezetRacs');
   const listaBtn = document.getElementById('naptarNezetLista');
+  const modalHatter = document.getElementById('napModalHatter');
+  const modalBezar = document.getElementById('napModalBezar');
 
   if(elozoBtn) elozoBtn.addEventListener('click', () => { naptarHonap--; if(naptarHonap < 0){ naptarHonap = 11; naptarEv--; } naptarRajzolas(); });
   if(kovetkezoBtn) kovetkezoBtn.addEventListener('click', () => { naptarHonap++; if(naptarHonap > 11){ naptarHonap = 0; naptarEv++; } naptarRajzolas(); });
-  if(maBtn) maBtn.addEventListener('click', () => { naptarEv = ma.getFullYear(); naptarHonap = ma.getMonth(); naptarKivalasztott = null; naptarRajzolas(); });
+  if(maBtn) maBtn.addEventListener('click', () => { naptarEv = ma.getFullYear(); naptarHonap = ma.getMonth(); naptarRajzolas(); });
 
   if(evValaszto){
     evValaszto.innerHTML = '';
-    for(let ev = ma.getFullYear() - 3; ev <= ma.getFullYear() + 1; ev++){
+    const utolsoEv = Math.max(ma.getFullYear(), NAPTAR_ELSO_EV) + 1;
+    for(let ev = NAPTAR_ELSO_EV; ev <= utolsoEv; ev++){
       const opt = document.createElement('option');
       opt.value = ev; opt.innerText = ev;
       evValaszto.appendChild(opt);
@@ -790,6 +793,8 @@ function naptarInit(){
 
   if(racsBtn) racsBtn.addEventListener('click', () => { naptarNezet = 'racs'; naptarNezetFrissit(); });
   if(listaBtn) listaBtn.addEventListener('click', () => { naptarNezet = 'lista'; naptarNezetFrissit(); });
+  if(modalHatter) modalHatter.addEventListener('click', (ev) => { if(ev.target === modalHatter) naptarModalBezaras(); });
+  if(modalBezar) modalBezar.addEventListener('click', naptarModalBezaras);
 
   naptarRajzolas();
 }
@@ -817,7 +822,7 @@ function naptarRajzolas(){
   if(evValaszto) evValaszto.value = naptarEv;
   naptarNezetFrissit();
 
-  // Térképek dátumkulcs → adatok (teljes bejegyzés-tömbök, hogy a napi részletpanel is tudjon belőlük dolgozni)
+  // Térképek dátumkulcs → adatok (teljes bejegyzés-tömbök, hogy a napi részletablak is tudjon belőlük dolgozni)
   const napiTerkep = {};
   napiAdatok.forEach(n => { const k = datumKulcs(mezo(n,'dátum')); if(k) napiTerkep[k] = n; });
 
@@ -837,17 +842,39 @@ function naptarRajzolas(){
   const kezdoOffszet = (elsoNap.getDay() + 6) % 7; // hétfővel kezdve
   const maKulcs = datumKulcs(new Date().toISOString());
 
-  // ---- havi összegzés ----
-  let honapEdzesNap = 0, honapTancPerc = 0, sulyOsszeg = 0, sulyDb = 0;
-  let elozoFazis = null;
+  // ---- havi összegzés (sport szerint, a táblázathoz) ----
+  let honapEdzesNap = 0, honapEdzesVolumen = 0, honapTancDb = 0, honapTancPerc = 0;
 
   let racsMarkup = '';
-  for(let i = 0; i < kezdoOffszet; i++){
-    racsMarkup += `<div class="nap-cella nap-ures"></div>`;
-  }
-
   let listaMarkup = '';
   let vanListaElem = false;
+
+  // hétsor-állapot: az aktuális hét napjainak dátumkulcsai, a heti "Összesen" cellához
+  let hetNapok = [];
+  for(let i = 0; i < kezdoOffszet; i++){
+    racsMarkup += `<div class="nap-cella nap-ures"></div>`;
+    hetNapok.push(null);
+  }
+
+  const hetOsszesenCella = () => {
+    let hetEdzesNap = 0, hetTancDb = 0, hetTancPerc = 0;
+    hetNapok.forEach(k => {
+      if(!k) return;
+      const edzesLista = edzesTerkep[k] || [];
+      const tancLista = tancTerkep[k] || [];
+      if(edzesLista.length) hetEdzesNap++;
+      hetTancDb += tancLista.length;
+      hetTancPerc += tancLista.reduce((s,t) => s + (szamErtek(mezo(t,'perc')) || 0), 0);
+    });
+    const vanAdat = hetEdzesNap || hetTancDb;
+    return `<div class="nap-cella nap-osszesen">
+      <span class="nap-osszesen-cim">Össz.</span>
+      ${vanAdat ? `
+        ${hetEdzesNap ? `<span class="nap-osszesen-sor">🏋️ ${hetEdzesNap}</span>` : ''}
+        ${hetTancDb ? `<span class="nap-osszesen-sor">💃 ${hetTancDb} · ${szamFormat(hetTancPerc,0)} p</span>` : ''}
+      ` : `<span class="nap-osszesen-ures">—</span>`}
+    </div>`;
+  };
 
   for(let nap = 1; nap <= napokSzama; nap++){
     const kulcs = `${naptarEv}${String(naptarHonap+1).padStart(2,'0')}${String(nap).padStart(2,'0')}`;
@@ -861,16 +888,9 @@ function naptarRajzolas(){
     const dow = new Date(naptarEv, naptarHonap, nap).getDay();
     const hetvege = dow === 0 || dow === 6;
 
-    if(edzesLista.length) honapEdzesNap++;
+    if(edzesLista.length){ honapEdzesNap++; edzesLista.forEach(e => { honapEdzesVolumen += (szamErtek(mezo(e,'széria'))||0) * (szamErtek(mezo(e,'ismétlés'))||0) * (szamErtek(mezo(e,'súly'))||0); }); }
+    honapTancDb += tancLista.length;
     honapTancPerc += tancPercOssz;
-    if(napiRek){ const s = szamErtek(mezo(napiRek,'testsúly')); if(!isNaN(s)){ sulyOsszeg += s; sulyDb++; } }
-
-    // fázisváltás jelzése
-    let fazisValtasCimke = '';
-    if(fazisKulcs && fazisKulcs !== elozoFazis){
-      fazisValtasCimke = `<span class="nap-fazis-jelzo">→ ${FAZIS_ROVID[fazisKulcs]}</span>`;
-    }
-    if(fazisKulcs) elozoFazis = fazisKulcs;
 
     // intenzitás-szintek
     const edzesSzint = edzesLista.length >= 2 ? 'szint-3' : edzesLista.length === 1 ? 'szint-2' : '';
@@ -880,17 +900,21 @@ function naptarRajzolas(){
       <div class="nap-cella${maE ? ' nap-ma' : ''}${hetvege ? ' nap-hetvege' : ''}${naptarKivalasztott === kulcs ? ' nap-kivalasztott' : ''}"
            ${fazisSzin ? `style="--fazis-szin:${fazisSzin}"` : ''} data-kulcs="${kulcs}">
         <span class="nap-szam">${nap}</span>
-        ${fazisValtasCimke}
         <div class="nap-jelolok">
-          ${edzesLista.length ? `<span class="nap-jelolo ${edzesSzint}" title="${edzesLista.length} edzés">🏋️${edzesLista.length > 1 ? '×'+edzesLista.length : ''}</span>` : ''}
+          ${edzesLista.length ? `<span class="nap-jelolo ${edzesSzint}" title="edzés">🏋️</span>` : ''}
           ${tancLista.length ? `<span class="nap-jelolo ${tancSzint}" title="${szamFormat(tancPercOssz,0)} perc tánc">💃${tancLista.length > 1 ? '×'+tancLista.length : ''}</span>` : ''}
         </div>
       </div>`;
 
+    hetNapok.push(kulcs);
+    if(hetNapok.length === 7){
+      racsMarkup += hetOsszesenCella();
+      hetNapok = [];
+    }
+
     // lista/agenda nézet: csak azok a napok, amikhez van bármilyen adat
     if(napiRek || edzesLista.length || tancLista.length){
       vanListaElem = true;
-      const datumSzoveg = `${naptarEv}. ${HONAP_NEVEK_ROVID_GEN[naptarHonap]} ${nap}.`;
       listaMarkup += `
         <div class="agenda-nap" data-kulcs="${kulcs}" ${fazisSzin ? `style="--fazis-szin:${fazisSzin}"` : ''}>
           <div class="agenda-datum">
@@ -898,7 +922,7 @@ function naptarRajzolas(){
             <span class="agenda-het">${['V','H','K','SZE','CS','P','SZO'][dow]}</span>
           </div>
           <div class="agenda-tartalom">
-            ${napiRek ? `<span class="agenda-sor">⚖️ ${szamFormat(szamErtek(mezo(napiRek,'testsúly')),1)} kg · 🔥 ${szamFormat(szamErtek(mezo(napiRek,'kalória','kcal')),0)} kcal${fazisKulcs ? ' · ' + FAZIS_ROVID[fazisKulcs] : ''}</span>` : ''}
+            ${napiRek ? `<span class="agenda-sor">⚖️ ${szamFormat(szamErtek(mezo(napiRek,'testsúly')),1)} kg · 🔥 ${szamFormat(szamErtek(mezo(napiRek,'kalória','kcal')),0)} kcal</span>` : ''}
             ${edzesLista.length ? `<span class="agenda-sor">🏋️ ${edzesLista.map(e => mezo(e,'gyakorlat')).join(', ')}</span>` : ''}
             ${tancLista.length ? `<span class="agenda-sor">💃 ${tancLista.map(t => `${mezo(t,'óra')} (${szamFormat(szamErtek(mezo(t,'perc')),0)} perc)`).join(', ')}</span>` : ''}
           </div>
@@ -906,11 +930,18 @@ function naptarRajzolas(){
     }
   }
 
+  // az utolsó, esetleg nem teljes hét lezárása + Összesen cella
+  if(hetNapok.length){
+    while(hetNapok.length < 7){ racsMarkup += `<div class="nap-cella nap-ures"></div>`; hetNapok.push(null); }
+    racsMarkup += hetOsszesenCella();
+  }
+
   racs.innerHTML = racsMarkup;
-  racs.querySelectorAll('.nap-cella:not(.nap-ures)').forEach(cella => {
+  racs.querySelectorAll('.nap-cella:not(.nap-ures):not(.nap-osszesen)').forEach(cella => {
     cella.addEventListener('click', () => {
-      naptarKivalasztott = naptarKivalasztott === cella.dataset.kulcs ? null : cella.dataset.kulcs;
+      naptarKivalasztott = cella.dataset.kulcs;
       naptarRajzolas();
+      naptarModalMegnyitasa();
     });
   });
 
@@ -918,41 +949,50 @@ function naptarRajzolas(){
   if(listaEl){
     listaEl.innerHTML = vanListaElem ? listaMarkup : `<p class="agenda-ures">Ebben a hónapban nincs rögzített adat.</p>`;
     listaEl.querySelectorAll('.agenda-nap').forEach(sor => {
-      sor.addEventListener('click', () => { naptarKivalasztott = sor.dataset.kulcs; naptarRajzolas(); naptarReszletMutat(); });
+      sor.addEventListener('click', () => { naptarKivalasztott = sor.dataset.kulcs; naptarRajzolas(); naptarModalMegnyitasa(); });
     });
   }
 
-  // ---- havi összegző sáv ----
-  const osszegzo = document.getElementById('naptarOsszegzo');
-  if(osszegzo){
-    osszegzo.innerHTML = `
-      <div><span class="osszegzo-cim">Edzésnapok</span><strong>${honapEdzesNap}</strong></div>
-      <div><span class="osszegzo-cim">Tánc percek</span><strong>${szamFormat(honapTancPerc,0)}</strong></div>
-      <div><span class="osszegzo-cim">Átlag testsúly</span><strong>${sulyDb ? szamFormat(sulyOsszeg/sulyDb,1) + ' kg' : '—'}</strong></div>
+  // ---- havi összesítő táblázat (sport szerint) ----
+  const honapTabla = document.getElementById('naptarHonapTabla');
+  if(honapTabla){
+    honapTabla.innerHTML = `
+      <p class="card-label">${HONAP_NEVEK[naptarHonap]} összesen</p>
+      <table class="naptar-tabla">
+        <thead><tr><th>Típus</th><th>Alkalom</th><th>Összesen</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tabla-pont" style="background:var(--ovulation)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${szamFormat(Math.round(honapEdzesVolumen),0)} kg</td></tr>
+          <tr><td><span class="tabla-pont" style="background:var(--luteal)"></span>Tánc</td><td>${honapTancDb}</td><td>${szamFormat(honapTancPerc,0)} perc</td></tr>
+        </tbody>
+      </table>
     `;
   }
 
   naptarReszletMutat();
 }
 
+function naptarModalMegnyitasa(){
+  const modal = document.getElementById('napModalHatter');
+  if(modal) modal.classList.add('nyitva');
+}
+function naptarModalBezaras(){
+  const modal = document.getElementById('napModalHatter');
+  if(modal) modal.classList.remove('nyitva');
+  naptarKivalasztott = null;
+}
+
 function naptarReszletMutat(){
   const panel = document.getElementById('napReszletPanel');
   if(!panel) return;
-
-  if(!naptarKivalasztott){
-    panel.style.display = 'none';
-    return;
-  }
-  panel.style.display = 'block';
+  if(!naptarKivalasztott) return;
 
   const k = naptarKivalasztott;
   const nap = +k.slice(6,8), honap = +k.slice(4,6), ev = k.slice(0,4);
   const napiRek = napiAdatok.find(n => datumKulcs(mezo(n,'dátum')) === k);
   const edzesek = edzesAdatok.filter(e => datumKulcs(mezo(e,'dátum')) === k);
   const tancok = tancAdatok.filter(t => datumKulcs(mezo(t,'dátum')) === k);
-  const fazis = napiRek ? fazisKulcsSzovegbol(mezo(napiRek,'ciklus')) : null;
 
-  let html = `<div class="reszlet-fejlec"><h3>${ev}. ${HONAP_NEVEK[honap-1]} ${nap}.</h3><button class="naptar-nav-btn" id="reszletBezar">✕</button></div>`;
+  let html = `<div class="reszlet-fejlec"><h3>${ev}. ${HONAP_NEVEK[honap-1]} ${nap}.</h3></div>`;
 
   if(!napiRek && !edzesek.length && !tancok.length){
     html += `<p class="agenda-ures">Erre a napra nincs rögzített adat.</p>`;
@@ -961,7 +1001,6 @@ function naptarReszletMutat(){
       html += `<div class="reszlet-blokk"><p class="reszlet-cim">⚖️ Életmód</p>
         <p class="reszlet-sor">Testsúly: <strong>${szamFormat(szamErtek(mezo(napiRek,'testsúly')),1)} kg</strong></p>
         <p class="reszlet-sor">Kalória: <strong>${szamFormat(szamErtek(mezo(napiRek,'kalória','kcal')),0)} kcal</strong></p>
-        ${fazis ? `<p class="reszlet-sor">Ciklusszakasz: <strong>${FAZIS_ROVID[fazis]}</strong></p>` : ''}
       </div>`;
     }
     if(edzesek.length){
@@ -977,8 +1016,6 @@ function naptarReszletMutat(){
   }
 
   panel.innerHTML = html;
-  const bezarBtn = document.getElementById('reszletBezar');
-  if(bezarBtn) bezarBtn.addEventListener('click', () => { naptarKivalasztott = null; naptarRajzolas(); });
 }
 
 // ---------- KEZDŐLAP (csak a kezdőlapon létezik — szándékosan nincs rajta ciklusadat) ----------
