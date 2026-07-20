@@ -3,168 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Napló — Ciklus & Teljesítmény</title>
+<title>Napló — Életmód</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  :root{
-    --bg: #f7f3ee;
-    --card: #ffffff;
-    --border: #e8ded2;
-    --ink: #2a1f1c;
-    --ink-muted: #948578;
-    --ink-faint: #b4a897;
-    --accent: #7c1d2e;
-    --accent-soft: #fbe4e2;
-    --accent-ink: #ffffff;
-
-    --menstrual: #7c1d2e;
-    --follicular: #3f6b3a;
-    --ovulation: #b8791f;
-    --luteal: #5b4a8a;
-  }
-  body.dark{
-    --bg: #1c1414;
-    --card: #251b1b;
-    --border: #3c2b2a;
-    --ink: #f3ece7;
-    --ink-muted: #a9958e;
-    --ink-faint: #7d6c66;
-    --accent: #e0576b;
-    --accent-soft: #3a1f26;
-    --accent-ink: #1c1414;
-
-    --menstrual: #e0576b;
-    --follicular: #7cb56f;
-    --ovulation: #dba448;
-    --luteal: #9c86d6;
-  }
-
-  *{ box-sizing:border-box; }
-  body{
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    margin:0;
-    transition: background .2s ease, color .2s ease;
-    -webkit-font-smoothing: antialiased;
-  }
-  .display{ font-family:'Poppins', sans-serif; }
-  .mono{ font-family:'Space Mono', monospace; }
-
-  /* ---------- TOP BAR ---------- */
-  .topbar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 1rem 1.6rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--card);
-  }
-  .back-link{
-    font-family:'Poppins', sans-serif; font-weight:600; font-size:.8rem;
-    color: var(--ink-muted); text-decoration:none; letter-spacing:.03em;
-  }
-  .header-title{
-    font-family:'Poppins', sans-serif; font-weight:800; font-size:1.35rem;
-    color: var(--accent); letter-spacing:-.01em;
-  }
-  .header-title span{ color: var(--ink-faint); }
-  .dark-toggle{ display:flex; align-items:center; gap:.6rem; }
-  .dark-toggle span{ font-family:'Poppins', sans-serif; font-size:.78rem; font-weight:600; color: var(--ink-muted); }
-  .switch{ position:relative; display:inline-block; width:42px; height:24px; }
-  .switch input{ opacity:0; width:0; height:0; }
-  .slider{
-    position:absolute; cursor:pointer; inset:0; background: var(--border);
-    border-radius:999px; transition:.2s;
-  }
-  .slider::before{
-    content:''; position:absolute; height:18px; width:18px; left:3px; bottom:3px;
-    background: var(--card); border-radius:50%; transition:.2s;
-    box-shadow: 0 1px 2px rgba(0,0,0,.25);
-  }
-  .switch input:checked + .slider{ background: var(--accent); }
-  .switch input:checked + .slider::before{ transform: translateX(18px); }
-
-  /* ---------- LAYOUT ---------- */
-  .layout{ display:grid; grid-template-columns: 280px 1fr; gap:1.4rem; padding:1.4rem 1.6rem 3rem; max-width:1320px; margin:0 auto; align-items:start; }
-  @media (max-width:880px){ .layout{ grid-template-columns:1fr; } }
-
-  .sidebar{ display:flex; flex-direction:column; gap:1.2rem; position:sticky; top:1.4rem; }
-
-  .side-card{
-    background: var(--card); border:1px solid var(--border); border-radius:16px;
-    padding:1.1rem 1.2rem;
-  }
-  .side-label{
-    font-family:'Poppins', sans-serif; font-weight:700; font-size:.68rem;
-    letter-spacing:.08em; text-transform:uppercase; color: var(--accent); margin:0 0 .8rem;
-  }
-
-  /* phase card */
-  .mini-wheel{ width:96px; height:96px; margin: 0 auto .6rem; }
-  .mini-wheel svg{ width:100%; height:100%; }
-  .phase-title{
-    font-family:'Poppins', sans-serif; font-weight:700; font-size:1rem; text-align:center; margin:0;
-    color: var(--ink);
-  }
-  .phase-sub{ text-align:center; font-size:.72rem; color: var(--ink-muted); margin:.2rem 0 0; }
-
-  /* pill filter */
-  .pill-list{ display:flex; flex-wrap:wrap; gap:.5rem; }
-  .pill{
-    display:inline-flex; align-items:center; gap:.4rem;
-    padding:.5rem .8rem; border-radius:999px; border:1.5px solid var(--border);
-    background: var(--bg); color: var(--ink); font-family:'Poppins', sans-serif;
-    font-size:.76rem; font-weight:600; cursor:pointer; transition:.15s;
-  }
-  .pill:hover{ border-color: var(--accent); }
-  .pill.active{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-
-  /* stat list */
-  .stat-list{ display:flex; flex-direction:column; gap:.7rem; }
-  .stat-row{ display:flex; align-items:center; gap:.6rem; }
-  .stat-icon{ font-size:1.1rem; width:1.4rem; text-align:center; }
-  .stat-name{ flex:1; font-size:.78rem; color: var(--ink-muted); font-weight:500; }
-  .stat-value{ font-family:'Space Mono', monospace; font-weight:700; font-size:.86rem; color: var(--ink); }
-
-  /* ---------- MAIN CONTENT ---------- */
-  .content-head{
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem;
-    margin-bottom:1.2rem;
-  }
-  .content-head h1{
-    font-family:'Poppins', sans-serif; font-weight:800; font-size:1.5rem; margin:0;
-    color: var(--ink);
-  }
-  .today-pill{
-    font-family:'Space Mono', monospace; font-size:.76rem; font-weight:700;
-    background: var(--accent-soft); color: var(--accent); padding:.4rem .9rem; border-radius:999px;
-  }
-
-  .card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
-  @media (max-width:700px){ .card-grid{ grid-template-columns:1fr; } }
-
-  .data-card{
-    background: var(--card); border:1px solid var(--border); border-top:4px solid var(--accent-c, var(--accent));
-    border-radius:16px; padding:1.2rem 1.3rem 1rem;
-  }
-  .card-label{
-    font-family:'Poppins', sans-serif; font-weight:700; font-size:.82rem; margin:0 0 .8rem;
-    color: var(--ink);
-  }
-  .chart-box{ height:210px; position:relative; }
-
-  footer.foot{
-    max-width:1320px; margin: 0 auto; padding: 0 1.6rem 2rem;
-    font-family:'Space Mono', monospace; font-size:.68rem; color: var(--ink-faint);
-  }
-</style>
 </head>
 <body>
 
   <header class="topbar">
-    <a class="back-link" href="#">‹ FŐOLDAL</a>
-    <div class="header-title">NAPLÓ<span>.</span></div>
+    <div class="topbar-left">
+      <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
+      <nav class="page-nav">
+        <a href="index.html" class="active">Életmód</a>
+        <a href="erszint.html">Erőszint</a>
+      </nav>
+    </div>
     <div class="dark-toggle">
       <span>Sötét mód</span>
       <label class="switch">
@@ -184,13 +38,6 @@
       </div>
 
       <div class="side-card">
-        <p class="side-label">Gyakorlat szűrése</p>
-        <div class="pill-list" id="gyakorlatPillek">
-          <span class="pill">Betöltés…</span>
-        </div>
-      </div>
-
-      <div class="side-card">
         <p class="side-label">Áttekintés</p>
         <div class="stat-list">
           <div class="stat-row"><span class="stat-icon">⚖️</span><span class="stat-name">Testsúly</span><span class="stat-value" id="statSuly">—</span></div>
@@ -203,7 +50,10 @@
 
     <main class="content">
       <div class="content-head">
-        <h1>Életmód &amp; erőszint</h1>
+        <div>
+          <h1>Életmód &amp; vitalitás</h1>
+          <p class="sub">Testsúly és energiabevitel napi bontásban.</p>
+        </div>
         <div class="today-pill" id="maiDatum">—</div>
       </div>
 
@@ -216,264 +66,12 @@
           <p class="card-label">Energiabevitel (kcal)</p>
           <div class="chart-box"><canvas id="kcalChart"></canvas></div>
         </div>
-        <div class="data-card" style="--accent-c:var(--gold, var(--ovulation))">
-          <p class="card-label">Maximális munkasúly (kg)</p>
-          <div class="chart-box"><canvas id="gyakorlatSulyChart"></canvas></div>
-        </div>
-        <div class="data-card" style="--accent-c:var(--menstrual)">
-          <p class="card-label">Teljes edzésvolumen</p>
-          <div class="chart-box"><canvas id="gyakorlatVolumenChart"></canvas></div>
-        </div>
       </div>
     </main>
   </div>
 
   <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
 
-<script>
-  // CSERÉLD KI A SAJÁT ID-DRA:
-  const SPREADSHEET_ID = '1NxTR3teMZjljuzvJNljJxRs_1U08uHTX1aTcSQlhCkA';
-
-  let edzesAdatok = [];
-  let napiAdatok = [];
-  let gySulyChart, gyVolumenChart;
-
-  document.getElementById('maiDatum').innerText = new Date().toLocaleDateString('hu-HU', { year:'numeric', month:'long', day:'numeric' });
-
-  // ---------- DARK MODE ----------
-  const darkToggle = document.getElementById('darkToggle');
-  darkToggle.addEventListener('change', () => {
-    document.body.classList.toggle('dark', darkToggle.checked);
-    // grafikonok színei CSS-változóból jönnek részben, de a tengelyeket újra kell rajzolni
-    ujraRajzolMinden();
-  });
-
-  function cssVar(name){
-    return getComputedStyle(document.body).getPropertyValue(name).trim();
-  }
-
-  function chartAlapok(){
-    return {
-      responsive:true,
-      maintainAspectRatio:false,
-      layout:{ padding:{ top: 6 } },
-      plugins:{
-        legend:{ display:false },
-        tooltip:{
-          backgroundColor: cssVar('--card'), borderColor: cssVar('--border'), borderWidth:1,
-          titleColor: cssVar('--ink-muted'), bodyColor: cssVar('--ink'),
-          titleFont:{ family:"'Space Mono', monospace", size:11 },
-          bodyFont:{ family:"'Space Mono', monospace", size:12 },
-          padding:8, cornerRadius:8, displayColors:false
-        }
-      },
-      scales:{
-        x:{
-          grid:{ display:false },
-          ticks:{ color: cssVar('--ink-faint'), font:{ size:11, family:"'Space Mono', monospace" }, autoSkip:true, maxTicksLimit:7, maxRotation:0, minRotation:0 }
-        },
-        y:{
-          grid:{ color: cssVar('--border') },
-          ticks:{ color: cssVar('--ink-faint'), font:{ size:11, family:"'Space Mono', monospace" }, maxTicksLimit:6 }
-        }
-      }
-    };
-  }
-
-  async function adatBetoltes(){
-    try{
-      const urlNapi = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Napi_adatok`;
-      const urlEdzes = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Edzes_Naplo`;
-
-      const [resNapi, resEdzes] = await Promise.all([fetch(urlNapi), fetch(urlEdzes)]);
-      const csvNapi = await resNapi.text();
-      const csvEdzes = await resEdzes.text();
-
-      napiAdatok = csvToObjects(csvNapi);
-      edzesAdatok = csvToObjects(csvEdzes);
-
-      uiFrissites();
-      gyakorlatPillekFeltoltese();
-      eletmodGrafikonokRajzolasa();
-    }catch(error){
-      console.error("Hiba az adatok feldolgozásakor:", error);
-    }
-  }
-
-  function csvToObjects(csvText){
-    const sorok = csvText.split('\n').map(sor =>
-      sor.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cella => cella.replace(/^"|"$/g, '').trim())
-    );
-    const fejlecek = sorok[0];
-    return sorok.slice(1).filter(s => s.length >= fejlecek.length && s[0] !== "").map(sor => {
-      let obj = {};
-      fejlecek.forEach((fejlec, i) => { obj[fejlec] = sor[i]; });
-      return obj;
-    });
-  }
-
-  // Rugalmas mezőkeresés: az oszlop pontos nevétől függetlenül, kulcsszó alapján
-  function mezo(obj, ...kulcsszavak){
-    const kulcsok = Object.keys(obj);
-    for(const szo of kulcsszavak){
-      const talalt = kulcsok.find(k => k.toLowerCase().includes(szo.toLowerCase()));
-      if(talalt !== undefined && obj[talalt] !== undefined && obj[talalt] !== ''){
-        return obj[talalt];
-      }
-    }
-    return undefined;
-  }
-
-  function uiFrissites(){
-    if(napiAdatok.length === 0) return;
-    const utolsoNapi = napiAdatok[napiAdatok.length - 1];
-
-    document.getElementById('statSuly').innerText = (mezo(utolsoNapi, 'testsúly') || '—') + ' kg';
-    document.getElementById('statKcal').innerText = (mezo(utolsoNapi, 'kalória', 'kcal') || '—') + ' kcal';
-    document.getElementById('statLepes').innerText = Number(mezo(utolsoNapi, 'lépés') || 0).toLocaleString('hu-HU');
-
-    const ciklusSzakasz = mezo(utolsoNapi, 'ciklus') || 'Nincs adat';
-    document.getElementById('wheelPhaseName').innerText = ciklusSzakasz;
-
-    let totalVol = 0;
-    edzesAdatok.forEach(e => {
-      const sz = parseInt(mezo(e, 'széria') || 0);
-      const i = parseInt(mezo(e, 'ismétlés') || 0);
-      const s = parseFloat(mezo(e, 'súly') || 0);
-      totalVol += (sz * i * s);
-    });
-    document.getElementById('statVolumen').innerText = Math.round(totalVol).toLocaleString('hu-HU') + ' kg';
-
-    rajzoldCiklusKereket(ciklusSzakasz);
-  }
-
-  // ---------- CYCLE WHEEL ----------
-  function fazisSzinek(){
-    return [
-      { key:'menstru', nev:'Menstruáció',  szin: cssVar('--menstrual') },
-      { key:'follik',  nev:'Follikuláris', szin: cssVar('--follicular') },
-      { key:'ovul',    nev:'Ovuláció',     szin: cssVar('--ovulation') },
-      { key:'luteal',  nev:'Luteális',     szin: cssVar('--luteal') }
-    ];
-  }
-
-  function polarToCartesian(cx, cy, r, angleDeg){
-    const a = (angleDeg - 90) * Math.PI / 180;
-    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
-  }
-
-  function donutArc(cx, cy, rOuter, rInner, startAngle, endAngle){
-    const p0 = polarToCartesian(cx, cy, rOuter, endAngle);
-    const p1 = polarToCartesian(cx, cy, rOuter, startAngle);
-    const p2 = polarToCartesian(cx, cy, rInner, startAngle);
-    const p3 = polarToCartesian(cx, cy, rInner, endAngle);
-    const large = (endAngle - startAngle) > 180 ? 1 : 0;
-    return `M ${p0.x} ${p0.y} A ${rOuter} ${rOuter} 0 ${large} 0 ${p1.x} ${p1.y}
-            L ${p2.x} ${p2.y} A ${rInner} ${rInner} 0 ${large} 1 ${p3.x} ${p3.y} Z`;
-  }
-
-  let utolsoCiklusSzoveg = '';
-  function rajzoldCiklusKereket(aktivSzoveg){
-    if(aktivSzoveg !== undefined) utolsoCiklusSzoveg = aktivSzoveg;
-    const svg = document.getElementById('ciklusSvg');
-    const cx = 120, cy = 120, rOuter = 108, rInner = 66;
-    const fazisok = fazisSzinek();
-    const talalt = fazisok.find(f => (utolsoCiklusSzoveg || '').toLowerCase().includes(f.key));
-    const aktivKulcs = talalt ? talalt.key : null;
-
-    let markup = '';
-    fazisok.forEach((f, i) => {
-      const start = i * 90;
-      const end = start + 90;
-      const isAktiv = f.key === aktivKulcs;
-      const d = donutArc(cx, cy, isAktiv ? rOuter : rOuter - 10, rInner, start + 3, end - 3);
-      markup += `<path d="${d}" fill="${f.szin}" opacity="${isAktiv ? 1 : 0.3}"></path>`;
-    });
-
-    svg.innerHTML = markup;
-  }
-
-  // ---------- LIFESTYLE CHARTS ----------
-  let sulyChartObj, kcalChartObj;
-  function eletmodGrafikonokRajzolasa(){
-    const datumok = napiAdatok.map(n => mezo(n, 'dátum'));
-    const defaults = chartAlapok();
-
-    const sulyok = napiAdatok.map(n => parseFloat(mezo(n, 'testsúly')));
-    if(sulyChartObj) sulyChartObj.destroy();
-    sulyChartObj = new Chart(document.getElementById('sulyChart').getContext('2d'), {
-      type:'line',
-      data:{ labels: datumok, datasets:[{ data: sulyok, borderColor: cssVar('--luteal'), borderWidth:2.5, pointRadius:3, pointBackgroundColor: cssVar('--luteal'), tension:0.15 }] },
-      options: defaults
-    });
-
-    const kcalok = napiAdatok.map(n => parseInt(mezo(n, 'kalória', 'kcal')));
-    if(kcalChartObj) kcalChartObj.destroy();
-    kcalChartObj = new Chart(document.getElementById('kcalChart').getContext('2d'), {
-      type:'bar',
-      data:{ labels: datumok, datasets:[{ data: kcalok, backgroundColor: cssVar('--ovulation') + '46', borderColor: cssVar('--ovulation'), borderWidth:1, borderRadius:4 }] },
-      options: defaults
-    });
-  }
-
-  function gyakorlatPillekFeltoltese(){
-    const tarolo = document.getElementById('gyakorlatPillek');
-    const egyediGyakorlatok = [...new Set(edzesAdatok.map(e => mezo(e, 'gyakorlat')))].filter(Boolean);
-
-    tarolo.innerHTML = '';
-    egyediGyakorlatok.forEach((gy, idx) => {
-      const pill = document.createElement('button');
-      pill.className = 'pill' + (idx === 0 ? ' active' : '');
-      pill.type = 'button';
-      pill.innerText = gy;
-      pill.addEventListener('click', () => {
-        tarolo.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        edzesGrafikonokFrissites(gy);
-      });
-      tarolo.appendChild(pill);
-    });
-
-    if(egyediGyakorlatok.length > 0) edzesGrafikonokFrissites(egyediGyakorlatok[0]);
-  }
-
-  function edzesGrafikonokFrissites(gyakorlatNev){
-    const szurt = edzesAdatok.filter(e => mezo(e, 'gyakorlat') === gyakorlatNev);
-    const datumok = szurt.map(e => mezo(e, 'dátum'));
-    const defaults = chartAlapok();
-
-    const maxSulyok = szurt.map(e => parseFloat(mezo(e, 'súly') || 0));
-    const volumenek = szurt.map(e => {
-      const sz = parseInt(mezo(e, 'széria') || 0);
-      const i = parseInt(mezo(e, 'ismétlés') || 0);
-      const s = parseFloat(mezo(e, 'súly') || 0);
-      return sz * i * s;
-    });
-
-    if(gySulyChart) gySulyChart.destroy();
-    gySulyChart = new Chart(document.getElementById('gyakorlatSulyChart').getContext('2d'), {
-      type:'line',
-      data:{ labels: datumok, datasets:[{ data: maxSulyok, borderColor: cssVar('--ovulation'), borderWidth:3, pointBackgroundColor: cssVar('--ovulation'), pointRadius:4, tension:0.05 }] },
-      options: defaults
-    });
-
-    if(gyVolumenChart) gyVolumenChart.destroy();
-    gyVolumenChart = new Chart(document.getElementById('gyakorlatVolumenChart').getContext('2d'), {
-      type:'line',
-      data:{ labels: datumok, datasets:[{ data: volumenek, borderColor: cssVar('--menstrual'), backgroundColor: cssVar('--menstrual') + '24', fill:true, borderWidth:2, pointRadius:3, tension:0.1 }] },
-      options: defaults
-    });
-  }
-
-  function ujraRajzolMinden(){
-    rajzoldCiklusKereket();
-    if(napiAdatok.length) eletmodGrafikonokRajzolasa();
-    const aktivPill = document.querySelector('#gyakorlatPillek .pill.active');
-    if(aktivPill) edzesGrafikonokFrissites(aktivPill.innerText);
-  }
-
-  rajzoldCiklusKereket('');
-  adatBetoltes();
-</script>
+<script src="script.js"></script>
 </body>
 </html>
