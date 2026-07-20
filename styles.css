@@ -262,26 +262,14 @@ footer.foot{
 }
 .naptar-nezet-valto{ display:flex; gap:.3rem; background: var(--bg); border:1px solid var(--border); border-radius:999px; padding:.2rem; }
 
-.naptar-osszegzo{
-  display:flex; flex-wrap:wrap; gap:1.4rem; padding:.8rem 1rem; margin-bottom:1rem;
-  background: var(--bg); border:1px solid var(--border); border-radius:12px;
-}
-.naptar-osszegzo div{ display:flex; align-items:baseline; gap:.4rem; }
-.osszegzo-cim{ font-size:.72rem; color: var(--ink-muted); }
-.naptar-osszegzo strong{ font-family:'Space Mono', monospace; color: var(--ink); font-size:.85rem; }
-
-.naptar-legenda{ display:flex; flex-wrap:wrap; gap:.9rem; margin-bottom:1rem; font-size:.72rem; color: var(--ink-muted); align-items:center; }
-.naptar-legenda span{ display:flex; align-items:center; gap:.35rem; }
-.naptar-legenda i{ width:9px; height:9px; border-radius:50%; display:inline-block; }
-.naptar-legenda-ikon{ padding-left:.4rem; border-left:1px solid var(--border); }
-
-.naptar-hetnapok{ display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; margin-bottom:.5rem; }
+.naptar-hetnapok{ display:grid; grid-template-columns:repeat(7,1fr) 0.7fr; gap:.5rem; margin-bottom:.5rem; }
 .naptar-hetnapok span{
   text-align:center; font-family:'Poppins', sans-serif; font-weight:700; font-size:.68rem;
   letter-spacing:.05em; color: var(--ink-faint); text-transform:uppercase;
 }
+.naptar-osszesen-fejlec{ color: var(--accent) !important; }
 
-.naptar-racs{ display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; }
+.naptar-racs{ display:grid; grid-template-columns:repeat(7,1fr) 0.7fr; gap:.5rem; }
 .nap-cella{
   aspect-ratio:1/1; background: var(--card); border:1px solid var(--border); border-radius:12px;
   padding:.5rem; display:flex; flex-direction:column; gap:.2rem; position:relative; cursor:pointer;
@@ -294,18 +282,56 @@ footer.foot{
 .nap-cella.nap-kivalasztott{ outline:2px solid var(--accent); outline-offset:-1px; }
 .nap-szam{ font-family:'Space Mono', monospace; font-size:.78rem; color: var(--ink-muted); font-weight:700; }
 .nap-cella.nap-ma .nap-szam{ color: var(--accent); }
-.nap-fazis-jelzo{ font-size:.56rem; color: var(--fazis-szin); font-weight:600; line-height:1.1; }
 .nap-jelolok{ display:flex; flex-wrap:wrap; gap:.25rem; margin-top:auto; }
 .nap-jelolo{ font-size:.68rem; opacity:.55; }
 .nap-jelolo.szint-1{ opacity:.75; }
 .nap-jelolo.szint-2{ opacity:1; font-size:.78rem; }
 .nap-jelolo.szint-3{ opacity:1; font-size:.92rem; }
-@media (max-width:700px){
-  .naptar-racs{ gap:.25rem; }
-  .nap-cella{ padding:.3rem; border-radius:8px; }
-  .nap-szam{ font-size:.65rem; }
-  .nap-fazis-jelzo{ display:none; }
+
+/* heti "Összesen" cella */
+.nap-cella.nap-osszesen{
+  cursor:default; background: var(--bg); border-top-color: var(--border); align-items:center; justify-content:center; gap:.15rem;
 }
+.nap-cella.nap-osszesen:hover{ border-color: var(--border); }
+.nap-osszesen-cim{ font-family:'Poppins', sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color: var(--ink-faint); }
+.nap-osszesen-sor{ font-family:'Space Mono', monospace; font-size:.64rem; color: var(--ink-muted); text-align:center; }
+.nap-osszesen-ures{ color: var(--ink-faint); font-size:.7rem; }
+
+@media (max-width:700px){
+  .naptar-racs, .naptar-hetnapok{ gap:.25rem; grid-template-columns:repeat(7,1fr) 0.9fr; }
+  .nap-cella{ padding:.25rem; border-radius:8px; }
+  .nap-szam{ font-size:.62rem; }
+  .nap-osszesen-cim{ font-size:.5rem; }
+  .nap-osszesen-sor{ font-size:.54rem; }
+}
+
+/* havi összesítő táblázat */
+.naptar-tabla{ width:100%; border-collapse:collapse; margin-top:.6rem; }
+.naptar-tabla th{
+  text-align:left; font-family:'Poppins', sans-serif; font-weight:700; font-size:.68rem; letter-spacing:.04em;
+  text-transform:uppercase; color: var(--ink-faint); padding:.5rem .3rem; border-bottom:1px solid var(--border);
+}
+.naptar-tabla td{ padding:.6rem .3rem; font-size:.85rem; color: var(--ink); border-bottom:1px solid var(--border); }
+.naptar-tabla tr:last-child td{ border-bottom:none; }
+.tabla-pont{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:.5rem; }
+
+/* felugró (modal) napi részletablak */
+.modal-hatter{
+  position:fixed; inset:0; background:rgba(20,15,15,.5); display:flex; align-items:center; justify-content:center;
+  padding:1.2rem; opacity:0; pointer-events:none; transition:.15s; z-index:100;
+}
+.modal-hatter.nyitva{ opacity:1; pointer-events:auto; }
+.modal-box{
+  background: var(--card); border:1px solid var(--border); border-radius:16px; padding:1.4rem;
+  max-width:420px; width:100%; max-height:80vh; overflow-y:auto; position:relative;
+  transform:translateY(8px); transition:.15s;
+}
+.modal-hatter.nyitva .modal-box{ transform:translateY(0); }
+.modal-close{
+  position:absolute; top:1rem; right:1rem; width:28px; height:28px; border-radius:50%;
+  border:1px solid var(--border); background: var(--bg); color: var(--ink-muted); cursor:pointer; font-size:.85rem;
+}
+.modal-close:hover{ color: var(--accent); border-color: var(--accent); }
 
 /* lista / agenda nézet */
 .naptar-lista{ display:flex; flex-direction:column; gap:.6rem; }
