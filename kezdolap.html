@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Kezdőlap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="header-title" href="kezdolap.html">NAPLÓ<span>.</span></a>
+      <nav class="page-nav">
+        <a href="kezdolap.html" class="active">Kezdőlap</a>
+        <a href="index.html">Életmód</a>
+        <a href="erszint.html">Erőszint</a>
+        <a href="tanc.html">Tánc</a>
+        <a href="naptar.html">Naptár</a>
+        <a href="trendek.html">Trendek</a>
+      </nav>
+    </div>
+    <div class="dark-toggle">
+      <span>Sötét mód</span>
+      <label class="switch">
+        <input type="checkbox" id="darkToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="layout-full">
+    <div class="content-head">
+      <div>
+        <h1>Szia! 👋</h1>
+        <p class="sub">Heti összefoglaló — a ciklus-részletekért nézd meg az Életmód oldalt.</p>
+      </div>
+      <div class="today-pill" id="maiDatum">—</div>
+    </div>
+
+    <div class="stat-cards-row">
+      <div class="stat-card">
+        <span class="stat-card-icon">🏋️</span>
+        <div><p class="stat-card-label">Heti edzésvolumen</p><p class="stat-card-value" id="statHetiVolumen">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">📋</span>
+        <div><p class="stat-card-label">Heti edzésnapok</p><p class="stat-card-value" id="statHetiEdzesDb">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">💃</span>
+        <div><p class="stat-card-label">Heti tánc percek</p><p class="stat-card-value" id="statHetiTancPerc">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">⏱️</span>
+        <div><p class="stat-card-label">Heti táncórák</p><p class="stat-card-value" id="statHetiTancDb">—</p></div>
+      </div>
+    </div>
+
+    <div class="data-card" style="--accent-c:var(--luteal)">
+      <p class="card-label">Testsúly — elmúlt 14 nap</p>
+      <div class="chart-box"><canvas id="kezdoSulyChart"></canvas></div>
+    </div>
+
+    <div class="quick-links">
+      <a class="quick-link" href="index.html" style="--accent-c:var(--luteal)">
+        <span class="quick-link-icon">🩶</span>
+        <span class="quick-link-title">Életmód</span>
+        <span class="quick-link-sub">Ciklus, testsúly, kalória</span>
+      </a>
+      <a class="quick-link" href="erszint.html" style="--accent-c:var(--ovulation)">
+        <span class="quick-link-icon">🏋️</span>
+        <span class="quick-link-title">Erőszint</span>
+        <span class="quick-link-sub">Gyakorlatok, rekordok</span>
+      </a>
+      <a class="quick-link" href="tanc.html" style="--accent-c:var(--follicular)">
+        <span class="quick-link-icon">💃</span>
+        <span class="quick-link-title">Tánc</span>
+        <span class="quick-link-sub">Órák, iskolák, típusok</span>
+      </a>
+      <a class="quick-link" href="naptar.html" style="--accent-c:var(--menstrual)">
+        <span class="quick-link-icon">🗓️</span>
+        <span class="quick-link-title">Naptár</span>
+        <span class="quick-link-sub">Minden egy hónapban</span>
+      </a>
+      <a class="quick-link" href="trendek.html" style="--accent-c:var(--luteal)">
+        <span class="quick-link-icon">📈</span>
+        <span class="quick-link-title">Trendek</span>
+        <span class="quick-link-sub">Összefüggések, elemzés</span>
+      </a>
+    </div>
+  </div>
+
+  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
