@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Tánc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
+      <nav class="page-nav">
+        <a href="index.html">Életmód</a>
+        <a href="erszint.html">Erőszint</a>
+        <a href="tanc.html" class="active">Tánc</a>
+      </nav>
+    </div>
+    <div class="dark-toggle">
+      <span>Sötét mód</span>
+      <label class="switch">
+        <input type="checkbox" id="darkToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="layout-full">
+    <div class="content-head">
+      <div>
+        <h1>Tánc &amp; óralátogatás</h1>
+        <p class="sub">Táncórák, iskolák és típusok összesítve.</p>
+      </div>
+      <div class="today-pill" id="maiDatum">—</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-card-icon">💃</span>
+        <div><p class="stat-card-label">Órák száma</p><p class="stat-card-value" id="statTancOraszam">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">⏱️</span>
+        <div><p class="stat-card-label">Össz. percek</p><p class="stat-card-value" id="statTancPercek">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">🏫</span>
+        <div><p class="stat-card-label">Táncsikolák</p><p class="stat-card-value" id="statTancIskolaSzam">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">📅</span>
+        <div><p class="stat-card-label">Legutóbbi óra</p><p class="stat-card-value" id="statTancUtolso">—</p></div>
+      </div>
+    </div>
+
+    <div class="exercise-picker-card">
+      <p class="side-label">Táncsikola szűrése</p>
+      <div class="pill-list" id="tancIskolaPillek">
+        <span class="pill">Betöltés…</span>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="data-card" style="--accent-c:var(--luteal)">
+        <p class="card-label">Percek óránként</p>
+        <div class="chart-box"><canvas id="tancPercChart"></canvas></div>
+      </div>
+      <div class="data-card" style="--accent-c:var(--ovulation)">
+        <p class="card-label">Típus szerinti megoszlás</p>
+        <div class="donut-box"><canvas id="tancTipusChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="data-card" style="--accent-c:var(--menstrual)">
+      <p class="card-label">Órák listája</p>
+      <div class="tanc-lista" id="tancLista"></div>
+    </div>
+  </div>
+
+  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
