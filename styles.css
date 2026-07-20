@@ -271,8 +271,8 @@ footer.foot{
 
 .naptar-racs{ display:grid; grid-template-columns:repeat(7,1fr) 0.7fr; gap:.5rem; }
 .nap-cella{
-  aspect-ratio:1/1; background: var(--card); border:1px solid var(--border); border-radius:12px;
-  padding:.5rem; display:flex; flex-direction:column; gap:.2rem; position:relative; cursor:pointer;
+  min-height:64px; background: var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:.45rem; display:flex; flex-direction:column; gap:.2rem; position:relative; cursor:pointer;
   border-top:3px solid var(--fazis-szin, var(--border)); transition:.12s;
 }
 .nap-cella:hover{ border-color: var(--accent); }
@@ -299,7 +299,7 @@ footer.foot{
 
 @media (max-width:700px){
   .naptar-racs, .naptar-hetnapok{ gap:.25rem; grid-template-columns:repeat(7,1fr) 0.9fr; }
-  .nap-cella{ padding:.25rem; border-radius:8px; }
+  .nap-cella{ padding:.3rem; border-radius:8px; min-height:48px; }
   .nap-szam{ font-size:.62rem; }
   .nap-osszesen-cim{ font-size:.5rem; }
   .nap-osszesen-sor{ font-size:.54rem; }
