@@ -36,7 +36,7 @@
     <div class="content-head">
       <div>
         <h1>Naptár</h1>
-        <p class="sub">Edzések, táncórák és a ciklusszakasz egy pillantásra.</p>
+        <p class="sub">Edzések és táncórák hónapról hónapra — kattints egy napra a részletekért.</p>
       </div>
       <button class="naptar-ma-btn" id="naptarMa">Ma</button>
     </div>
@@ -55,29 +55,25 @@
         </div>
       </div>
 
-      <div class="naptar-osszegzo" id="naptarOsszegzo"></div>
-
-      <div class="naptar-legenda">
-        <span><i style="background:var(--menstrual)"></i> Menstruáció</span>
-        <span><i style="background:var(--follicular)"></i> Follikuláris</span>
-        <span><i style="background:var(--ovulation)"></i> Ovuláció</span>
-        <span><i style="background:var(--luteal)"></i> Luteális</span>
-        <span class="naptar-legenda-ikon">🏋️ Edzés</span>
-        <span class="naptar-legenda-ikon">💃 Tánc</span>
-      </div>
-
       <div class="naptar-hetnapok" id="naptarHetnapokSor">
-        <span>H</span><span>K</span><span>SZE</span><span>CS</span><span>P</span><span>SZO</span><span>V</span>
+        <span>H</span><span>K</span><span>SZE</span><span>CS</span><span>P</span><span>SZO</span><span>V</span><span class="naptar-osszesen-fejlec">Össz.</span>
       </div>
 
       <div class="naptar-racs" id="naptarRacs"></div>
       <div class="naptar-lista" id="naptarLista" style="display:none;"></div>
     </div>
 
-    <div class="data-card" id="napReszletPanel" style="display:none;"></div>
+    <div class="data-card" id="naptarHonapTabla"></div>
   </div>
 
   <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
+
+  <div class="modal-hatter" id="napModalHatter">
+    <div class="modal-box">
+      <button class="modal-close" id="napModalBezar" type="button">✕</button>
+      <div id="napReszletPanel"></div>
+    </div>
+  </div>
 
 <script src="script.js"></script>
 </body>
