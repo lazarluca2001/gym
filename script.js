@@ -856,7 +856,7 @@ function naptarRajzolas(){
   const maKulcs = datumKulcs(new Date().toISOString());
 
   // ---- havi összegzés (sport szerint, a táblázathoz) ----
-  let honapEdzesNap = 0, honapEdzesVolumen = 0, honapEdzesVanSuly = false, honapTancDb = 0, honapTancPerc = 0;
+  let honapEdzesNap = 0, honapEdzesGyakSzam = 0, honapEdzesVolumen = 0, honapEdzesVanSuly = false, honapTancDb = 0, honapTancPerc = 0;
 
   let racsMarkup = '';
   let listaMarkup = '';
@@ -903,6 +903,7 @@ function naptarRajzolas(){
 
     if(edzesLista.length){
       honapEdzesNap++;
+      honapEdzesGyakSzam += edzesLista.length;
       edzesLista.forEach(e => {
         const suly = szamErtek(mezo(e,'súly'));
         if(!isNaN(suly)) honapEdzesVanSuly = true;
@@ -981,7 +982,7 @@ function naptarRajzolas(){
       <table class="naptar-tabla">
         <thead><tr><th>Típus</th><th>Alkalom</th><th>Összesen</th></tr></thead>
         <tbody>
-          <tr><td><span class="tabla-pont" style="background:var(--dom-ero)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${honapEdzesVanSuly ? szamFormat(Math.round(honapEdzesVolumen),0) + ' kg' : '—'}</td></tr>
+          <tr><td><span class="tabla-pont" style="background:var(--dom-ero)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${honapEdzesGyakSzam} gyakorlat</td></tr>
           <tr><td><span class="tabla-pont" style="background:var(--dom-tanc)"></span>Tánc</td><td>${honapTancDb}</td><td>${szamFormat(honapTancPerc,0)} perc</td></tr>
         </tbody>
       </table>
