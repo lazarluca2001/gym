@@ -194,3 +194,32 @@ footer.foot{
 }
 .tab:hover{ color: var(--accent); }
 .tab.active{ background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+
+/* ---------- TÁNC NAPLÓ ---------- */
+.donut-box{ height:230px; position:relative; }
+
+.tanc-lista{ display:flex; flex-direction:column; }
+.tanc-row{
+  display:grid; grid-template-columns: 100px 1fr 140px 110px 80px;
+  gap:.8rem; align-items:center;
+  padding:.65rem 0; border-top:1px solid var(--border);
+  font-family:'Inter', sans-serif; font-size:.8rem; color: var(--ink);
+}
+.tanc-row:first-child{ border-top:none; }
+.tanc-row .tanc-datum{ font-family:'Space Mono', monospace; font-size:.72rem; color: var(--ink-muted); }
+.tanc-row .tanc-nev{ font-weight:600; }
+.tanc-row .tanc-iskola{ color: var(--ink-muted); font-size:.76rem; }
+.tanc-row .tanc-tipus{
+  font-family:'Poppins', sans-serif; font-weight:600; font-size:.68rem; text-transform:uppercase;
+  letter-spacing:.03em; color: var(--accent); background: var(--accent-soft);
+  padding:.2rem .55rem; border-radius:999px; text-align:center; justify-self:start;
+}
+.tanc-row .tanc-perc{ font-family:'Space Mono', monospace; font-weight:700; text-align:right; }
+@media (max-width:700px){
+  .tanc-row{ grid-template-columns: 1fr 1fr; grid-template-areas: "datum perc" "nev nev" "iskola tipus"; row-gap:.2rem; }
+  .tanc-row .tanc-datum{ grid-area:datum; }
+  .tanc-row .tanc-perc{ grid-area:perc; }
+  .tanc-row .tanc-nev{ grid-area:nev; }
+  .tanc-row .tanc-iskola{ grid-area:iskola; }
+  .tanc-row .tanc-tipus{ grid-area:tipus; justify-self:end; }
+}
