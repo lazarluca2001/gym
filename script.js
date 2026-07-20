@@ -41,6 +41,116 @@ function szamFormat(num, maxTizedes){
   return num.toLocaleString('hu-HU', { maximumFractionDigits: maxTizedes !== undefined ? maxTizedes : 2 });
 }
 
+// Dátum normalizálása összehasonlításhoz (bármilyen elválasztóval: 2026.07.20 / 2026.07.20. / 2026. 07. 20.)
+function datumKulcs(str){
+  if(!str) return '';
+  return String(str).replace(/[^0-9]/g, '').slice(0, 8);
+}
+
+// ISO hét-kulcs egy dátumhoz (év + hét sorszáma), a heti összesítésekhez
+function hetKulcs(datumStr){
+  const k = datumKulcs(datumStr);
+  if(k.length < 8) return null;
+  const d = new Date(+k.slice(0,4), +k.slice(4,6) - 1, +k.slice(6,8));
+  const csutortok = new Date(d);
+  csutortok.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const evEleje = new Date(csutortok.getFullYear(), 0, 1);
+  const het = Math.ceil(((csutortok - evEleje) / 86400000 + 1) / 7);
+  return `${csutortok.getFullYear()}-${String(het).padStart(2,'0')}`;
+}
+
+// Heti átlag/összeg trend: utolsó teli hét vs. az azt megelőző, nyíllal
+function hetiTrendSzoveg(bejegyzesek, datumFn, ertekFn, mod){
+  const csoportok = {};
+  bejegyzesek.forEach(b => {
+    const hk = hetKulcs(datumFn(b));
+    if(!hk) return;
+    if(!csoportok[hk]) csoportok[hk] = [];
+    csoportok[hk].push(ertekFn(b));
+  });
+  const hetek = Object.keys(csoportok).sort();
+  if(hetek.length === 0) return null;
+
+  const szamol = (arr) => mod === 'atlag'
+    ? arr.reduce((a,b)=>a+b,0) / arr.length
+    : arr.reduce((a,b)=>a+b,0);
+
+  const utolsoHet = szamol(csoportok[hetek[hetek.length - 1]]);
+  if(hetek.length < 2) return { ertek: utolsoHet, valtozas: null };
+
+  const elozoHet = szamol(csoportok[hetek[hetek.length - 2]]);
+  return { ertek: utolsoHet, valtozas: utolsoHet - elozoHet };
+}
+
+function trendNyil(valtozas, maxTizedes){
+  if(valtozas === null || valtozas === undefined || isNaN(valtozas)) return '';
+  if(Math.abs(valtozas) < 0.05) return '<span class="trend-flat">— nincs változás</span>';
+  const nyil = valtozas > 0 ? '▲' : '▼';
+  const osztaly = valtozas > 0 ? 'trend-up' : 'trend-down';
+  return `<span class="${osztaly}">${nyil} ${szamFormat(Math.abs(valtozas), maxTizedes)}</span>`;
+}
+
+// Ciklusszakasz kulcsa egy szöveges cellából (Menstruáció / Follikuláris / Ovuláció / Luteális)
+function fazisKulcsSzovegbol(szoveg){
+  const n = (szoveg || '').toLowerCase();
+  if(n.includes('menstru')) return 'menstru';
+  if(n.includes('follik')) return 'follik';
+  if(n.includes('ovul')) return 'ovul';
+  if(n.includes('luteal')) return 'luteal';
+  return null;
+}
+
+// ---- Chart.js kiegészítő pluginok ----
+const ciklusSavPlugin = {
+  id: 'ciklusSav',
+  beforeDatasetsDraw(chart, args, opts){
+    if(!opts || !opts.fazisok || !opts.fazisok.length) return;
+    const { ctx, chartArea, scales } = chart;
+    const xScale = scales.x;
+    const fazisok = opts.fazisok;
+    if(!chartArea) return;
+    const lepes = fazisok.length > 1 ? (xScale.getPixelForValue(1) - xScale.getPixelForValue(0)) : (chartArea.right - chartArea.left);
+    ctx.save();
+    let i = 0;
+    while(i < fazisok.length){
+      const kulcs = fazisok[i];
+      let j = i;
+      while(j + 1 < fazisok.length && fazisok[j+1] === kulcs) j++;
+      if(kulcs){
+        const xStart = xScale.getPixelForValue(i) - lepes/2;
+        const xEnd = xScale.getPixelForValue(j) + lepes/2;
+        ctx.fillStyle = (opts.szinek[kulcs] || '#888') + '20';
+        ctx.fillRect(Math.max(xStart, chartArea.left), chartArea.top, Math.min(xEnd, chartArea.right) - Math.max(xStart, chartArea.left), chartArea.bottom - chartArea.top);
+      }
+      i = j + 1;
+    }
+    ctx.restore();
+  }
+};
+
+const celVonalPlugin = {
+  id: 'celVonal',
+  afterDatasetsDraw(chart, args, opts){
+    if(!opts || opts.ertek === undefined || opts.ertek === null || isNaN(opts.ertek)) return;
+    const { ctx, chartArea, scales } = chart;
+    const y = scales.y.getPixelForValue(opts.ertek);
+    if(y < chartArea.top || y > chartArea.bottom) return;
+    ctx.save();
+    ctx.strokeStyle = opts.szin || cssVar('--accent');
+    ctx.setLineDash([6,4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, y);
+    ctx.lineTo(chartArea.right, y);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+if(typeof Chart !== 'undefined'){
+  Chart.register(ciklusSavPlugin, celVonalPlugin);
+}
+
 function chartAlapok(){
   return {
     responsive:true,
@@ -95,6 +205,9 @@ async function adatBetoltes(){
     gyakorlatPillekFeltoltese();
     eletmodGrafikonokRajzolasa();
     tancIskolaPillekFeltoltese();
+    naptarRajzolas();
+    kezdolapRajzolas();
+    trendekRajzolas();
   }catch(error){
     console.error("Hiba az adatok feldolgozásakor:", error);
   }
@@ -203,32 +316,108 @@ function rajzoldCiklusKereket(aktivSzoveg){
 }
 
 // ---------- ÉLETMÓD GRAFIKONOK (csak a főoldalon léteznek) ----------
+let lepesChartObj;
+
+function celErtekOlvasas(kulcs){
+  const mentett = localStorage.getItem(kulcs);
+  return mentett ? szamErtek(mentett) : NaN;
+}
+
+function celokBeallitasa(){
+  const sulyInput = document.getElementById('celSuly');
+  const kcalInput = document.getElementById('celKcal');
+  if(!sulyInput && !kcalInput) return;
+
+  if(sulyInput){
+    const mentett = localStorage.getItem('naplo-cel-suly');
+    if(mentett) sulyInput.value = mentett;
+    sulyInput.addEventListener('change', () => {
+      if(sulyInput.value) localStorage.setItem('naplo-cel-suly', sulyInput.value.replace(',', '.'));
+      else localStorage.removeItem('naplo-cel-suly');
+      eletmodGrafikonokRajzolasa();
+    });
+  }
+  if(kcalInput){
+    const mentett = localStorage.getItem('naplo-cel-kcal');
+    if(mentett) kcalInput.value = mentett;
+    kcalInput.addEventListener('change', () => {
+      if(kcalInput.value) localStorage.setItem('naplo-cel-kcal', kcalInput.value.replace(',', '.'));
+      else localStorage.removeItem('naplo-cel-kcal');
+      eletmodGrafikonokRajzolasa();
+    });
+  }
+}
+
 function eletmodGrafikonokRajzolasa(){
   const sulyCanvas = document.getElementById('sulyChart');
   const kcalCanvas = document.getElementById('kcalChart');
-  if(!sulyCanvas && !kcalCanvas) return;
+  const lepesCanvas = document.getElementById('lepesChart');
+  if(!sulyCanvas && !kcalCanvas && !lepesCanvas) return;
 
   const datumok = napiAdatok.map(n => mezo(n, 'dátum'));
-  const defaults = chartAlapok();
+  const fazisok = napiAdatok.map(n => fazisKulcsSzovegbol(mezo(n, 'ciklus')));
+  const fazisSzinTerkep = {
+    menstru: cssVar('--menstrual'), follik: cssVar('--follicular'),
+    ovul: cssVar('--ovulation'), luteal: cssVar('--luteal')
+  };
 
   if(sulyCanvas){
     const sulyok = napiAdatok.map(n => szamErtek(mezo(n, 'testsúly')));
+    const defaults = chartAlapok();
+    defaults.plugins.ciklusSav = { fazisok, szinek: fazisSzinTerkep };
+    defaults.plugins.celVonal = { ertek: celErtekOlvasas('naplo-cel-suly'), szin: cssVar('--luteal') };
+
     if(sulyChartObj) sulyChartObj.destroy();
     sulyChartObj = new Chart(sulyCanvas.getContext('2d'), {
       type:'line',
       data:{ labels: datumok, datasets:[{ data: sulyok, borderColor: cssVar('--luteal'), borderWidth:2.5, pointRadius:3, pointBackgroundColor: cssVar('--luteal'), tension:0.15 }] },
       options: defaults
     });
+
+    const elTrend = document.getElementById('sulyTrend');
+    if(elTrend){
+      const t = hetiTrendSzoveg(napiAdatok, n => mezo(n,'dátum'), n => szamErtek(mezo(n,'testsúly')) || 0, 'atlag');
+      elTrend.innerHTML = t ? `Heti átlag: <strong>${szamFormat(t.ertek,1)} kg</strong> ${trendNyil(t.valtozas,1)}` : '';
+    }
   }
 
   if(kcalCanvas){
     const kcalok = napiAdatok.map(n => szamErtek(mezo(n, 'kalória', 'kcal')));
+    const defaults = chartAlapok();
+    defaults.plugins.ciklusSav = { fazisok, szinek: fazisSzinTerkep };
+    defaults.plugins.celVonal = { ertek: celErtekOlvasas('naplo-cel-kcal'), szin: cssVar('--ovulation') };
+
     if(kcalChartObj) kcalChartObj.destroy();
     kcalChartObj = new Chart(kcalCanvas.getContext('2d'), {
       type:'bar',
       data:{ labels: datumok, datasets:[{ data: kcalok, backgroundColor: cssVar('--ovulation') + '46', borderColor: cssVar('--ovulation'), borderWidth:1, borderRadius:4 }] },
       options: defaults
     });
+
+    const elTrend = document.getElementById('kcalTrend');
+    if(elTrend){
+      const t = hetiTrendSzoveg(napiAdatok, n => mezo(n,'dátum'), n => szamErtek(mezo(n,'kalória','kcal')) || 0, 'atlag');
+      elTrend.innerHTML = t ? `Heti átlag: <strong>${szamFormat(t.ertek,0)} kcal</strong> ${trendNyil(t.valtozas,0)}` : '';
+    }
+  }
+
+  if(lepesCanvas){
+    const lepesek = napiAdatok.map(n => szamErtek(mezo(n, 'lépés')) || 0);
+    const defaults = chartAlapok();
+    defaults.plugins.ciklusSav = { fazisok, szinek: fazisSzinTerkep };
+
+    if(lepesChartObj) lepesChartObj.destroy();
+    lepesChartObj = new Chart(lepesCanvas.getContext('2d'), {
+      type:'line',
+      data:{ labels: datumok, datasets:[{ data: lepesek, borderColor: cssVar('--follicular'), backgroundColor: cssVar('--follicular') + '20', fill:true, borderWidth:2, pointRadius:2, tension:0.2 }] },
+      options: defaults
+    });
+
+    const elTrend = document.getElementById('lepesTrend');
+    if(elTrend){
+      const t = hetiTrendSzoveg(napiAdatok, n => mezo(n,'dátum'), n => szamErtek(mezo(n,'lépés')) || 0, 'atlag');
+      elTrend.innerHTML = t ? `Heti átlag: <strong>${szamFormat(t.ertek,0)}</strong> ${trendNyil(t.valtozas,0)}` : '';
+    }
   }
 }
 
@@ -370,10 +559,30 @@ function ujraRajzolMinden(){
   if(aktivPill) edzesGrafikonokFrissites(aktivPill.innerText);
   const aktivTancPill = document.querySelector('#tancIskolaPillek .pill.active');
   tancDashboardRajzolasa(aktivTancPill ? aktivTancPill.innerText : null);
+  naptarRajzolas();
+  kezdolapRajzolas();
+  trendekRajzolas();
 }
 
 // ---------- TÁNC NAPLÓ (csak a tánc oldalon létezik) ----------
 const TANC_TIPUS_SZINEK = ['--luteal', '--ovulation', '--menstrual', '--follicular'];
+let tancIskolaChart;
+
+// Hány egymást követő héten volt legalább egy táncóra (az utolsó adatot tartalmazó hétig visszaszámolva)
+function tancSorozatSzamitas(bejegyzesek){
+  const hetek = new Set(bejegyzesek.map(t => hetKulcs(mezo(t, 'dátum'))).filter(Boolean));
+  if(hetek.size === 0) return 0;
+  const rendezettHetek = [...hetek].sort();
+  let utolsoHet = rendezettHetek[rendezettHetek.length - 1];
+  let sorozat = 0;
+  let [ev, het] = utolsoHet.split('-').map(Number);
+  while(hetek.has(`${ev}-${String(het).padStart(2,'0')}`)){
+    sorozat++;
+    het--;
+    if(het < 1){ ev--; het = 52; }
+  }
+  return sorozat;
+}
 
 function tancIskolaPillekFeltoltese(){
   const tarolo = document.getElementById('tancIskolaPillek');
@@ -428,23 +637,34 @@ function tancDashboardRajzolasa(iskolaSzures){
   const elIskolaSzam = document.getElementById('statTancIskolaSzam');
   if(elIskolaSzam) elIskolaSzam.innerText = new Set(tancAdatok.map(t => mezo(t, 'kola'))).size;
 
-  const elUtolso = document.getElementById('statTancUtolso');
-  if(elUtolso && szurt.length){
-    const utolso = szurt[szurt.length - 1];
-    elUtolso.innerText = (mezo(utolso, 'óra') || '—');
-  }
+  const elSorozat = document.getElementById('statTancSorozat');
+  if(elSorozat) elSorozat.innerText = tancSorozatSzamitas(szurt) + ' hét';
 
-  // ---- percek grafikon (óránként) ----
+  // ---- percek grafikon: napi összesítéssel (egy nap = egy oszlop) ----
   const percCanvas = document.getElementById('tancPercChart');
   if(percCanvas){
-    const datumok = szurt.map(t => mezo(t, 'dátum'));
-    const percek = szurt.map(t => szamErtek(mezo(t, 'perc')) || 0);
+    const napiOsszeg = {};
+    szurt.forEach(t => {
+      const d = mezo(t, 'dátum');
+      const perc = szamErtek(mezo(t, 'perc')) || 0;
+      if(!napiOsszeg[d]) napiOsszeg[d] = 0;
+      napiOsszeg[d] += perc;
+    });
+    const napok = Object.keys(napiOsszeg);
+    const percOsszesek = napok.map(d => napiOsszeg[d]);
+
     if(tancPercChart) tancPercChart.destroy();
     tancPercChart = new Chart(percCanvas.getContext('2d'), {
       type:'bar',
-      data:{ labels: datumok, datasets:[{ data: percek, backgroundColor: cssVar('--luteal') + '46', borderColor: cssVar('--luteal'), borderWidth:1, borderRadius:4 }] },
+      data:{ labels: napok, datasets:[{ data: percOsszesek, backgroundColor: cssVar('--luteal') + '46', borderColor: cssVar('--luteal'), borderWidth:1, borderRadius:4 }] },
       options: chartAlapok()
     });
+
+    const elTrend = document.getElementById('tancTrend');
+    if(elTrend){
+      const t = hetiTrendSzoveg(szurt, x => mezo(x,'dátum'), x => szamErtek(mezo(x,'perc')) || 0, 'osszeg');
+      elTrend.innerHTML = t ? `Heti összesen: <strong>${szamFormat(t.ertek,0)} perc</strong> ${trendNyil(t.valtozas,0)}` : '';
+    }
   }
 
   // ---- típus szerinti megoszlás (donut) ----
@@ -480,6 +700,40 @@ function tancDashboardRajzolasa(iskolaSzures){
     });
   }
 
+  // ---- iskolánkénti megoszlás (csak "Összes" szűrésnél van értelme) ----
+  const iskolaCanvas = document.getElementById('tancIskolaChart');
+  if(iskolaCanvas){
+    const iskolaOsszegek = {};
+    tancAdatok.forEach(t => {
+      const isk = mezo(t, 'kola') || 'Egyéb';
+      iskolaOsszegek[isk] = (iskolaOsszegek[isk] || 0) + (szamErtek(mezo(t, 'perc')) || 0);
+    });
+    const iskolaNevek = Object.keys(iskolaOsszegek);
+    const iskolaPercek = Object.values(iskolaOsszegek);
+
+    if(tancIskolaChart) tancIskolaChart.destroy();
+    tancIskolaChart = new Chart(iskolaCanvas.getContext('2d'), {
+      type:'bar',
+      data:{ labels: iskolaNevek, datasets:[{ data: iskolaPercek, backgroundColor: cssVar('--menstrual') + '46', borderColor: cssVar('--menstrual'), borderWidth:1, borderRadius:4 }] },
+      options:{
+        indexAxis:'y',
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{ display:false },
+          tooltip:{
+            backgroundColor: cssVar('--card'), borderColor: cssVar('--border'), borderWidth:1,
+            titleColor: cssVar('--ink-muted'), bodyColor: cssVar('--ink'), displayColors:false,
+            callbacks:{ label: (ctx) => szamFormat(ctx.parsed.x, 0) + ' perc' }
+          }
+        },
+        scales:{
+          x:{ grid:{ color: cssVar('--border') }, ticks:{ color: cssVar('--ink-faint'), font:{ size:11, family:"'Space Mono', monospace" }, callback: v => szamFormat(v,0) } },
+          y:{ grid:{ display:false }, ticks:{ color: cssVar('--ink-muted'), font:{ size:11, family:"'Inter', sans-serif" } } }
+        }
+      }
+    });
+  }
+
   // ---- óralista ----
   const listaEl = document.getElementById('tancLista');
   if(listaEl){
@@ -499,5 +753,197 @@ function tancDashboardRajzolasa(iskolaSzures){
   }
 }
 
+// ---------- NAPTÁR (csak a naptár oldalon létezik) ----------
+const HONAP_NEVEK = ['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
+let naptarEv, naptarHonap; // honap: 0-11
+
+function naptarInit(){
+  const racs = document.getElementById('naptarRacs');
+  if(!racs) return;
+  const ma = new Date();
+  naptarEv = ma.getFullYear();
+  naptarHonap = ma.getMonth();
+
+  const elozoBtn = document.getElementById('naptarElozo');
+  const kovetkezoBtn = document.getElementById('naptarKovetkezo');
+  const maBtn = document.getElementById('naptarMa');
+  if(elozoBtn) elozoBtn.addEventListener('click', () => { naptarHonap--; if(naptarHonap < 0){ naptarHonap = 11; naptarEv--; } naptarRajzolas(); });
+  if(kovetkezoBtn) kovetkezoBtn.addEventListener('click', () => { naptarHonap++; if(naptarHonap > 11){ naptarHonap = 0; naptarEv++; } naptarRajzolas(); });
+  if(maBtn) maBtn.addEventListener('click', () => { naptarEv = ma.getFullYear(); naptarHonap = ma.getMonth(); naptarRajzolas(); });
+
+  naptarRajzolas();
+}
+
+function naptarRajzolas(){
+  const racs = document.getElementById('naptarRacs');
+  if(!racs || naptarEv === undefined) return;
+
+  const cim = document.getElementById('naptarCim');
+  if(cim) cim.innerText = `${HONAP_NEVEK[naptarHonap]} ${naptarEv}`;
+
+  // Térképek dátumkulcs → adatok, gyors kereséshez
+  const napiTerkep = {};
+  napiAdatok.forEach(n => { const k = datumKulcs(mezo(n,'dátum')); if(k) napiTerkep[k] = n; });
+
+  const edzesTerkep = {};
+  edzesAdatok.forEach(e => { const k = datumKulcs(mezo(e,'dátum')); if(k){ if(!edzesTerkep[k]) edzesTerkep[k] = 0; edzesTerkep[k]++; } });
+
+  const tancTerkep = {};
+  tancAdatok.forEach(t => {
+    const k = datumKulcs(mezo(t,'dátum'));
+    if(k){
+      if(!tancTerkep[k]) tancTerkep[k] = { db:0, perc:0 };
+      tancTerkep[k].db++;
+      tancTerkep[k].perc += (szamErtek(mezo(t,'perc')) || 0);
+    }
+  });
+
+  const fazisSzinTerkep = {
+    menstru: cssVar('--menstrual'), follik: cssVar('--follicular'),
+    ovul: cssVar('--ovulation'), luteal: cssVar('--luteal')
+  };
+
+  const elsoNap = new Date(naptarEv, naptarHonap, 1);
+  const napokSzama = new Date(naptarEv, naptarHonap + 1, 0).getDate();
+  const kezdoOffszet = (elsoNap.getDay() + 6) % 7; // hétfővel kezdve
+
+  const maKulcs = datumKulcs(new Date().toISOString());
+
+  let markup = '';
+  for(let i = 0; i < kezdoOffszet; i++){
+    markup += `<div class="nap-cella nap-ures"></div>`;
+  }
+
+  for(let nap = 1; nap <= napokSzama; nap++){
+    const kulcs = `${naptarEv}${String(naptarHonap+1).padStart(2,'0')}${String(nap).padStart(2,'0')}`;
+    const napiRek = napiTerkep[kulcs];
+    const fazisKulcs = napiRek ? fazisKulcsSzovegbol(mezo(napiRek,'ciklus')) : null;
+    const fazisSzin = fazisKulcs ? fazisSzinTerkep[fazisKulcs] : null;
+    const edzesDb = edzesTerkep[kulcs] || 0;
+    const tancRek = tancTerkep[kulcs];
+    const maE = kulcs === maKulcs ? ' nap-ma' : '';
+
+    markup += `
+      <div class="nap-cella${maE}" ${fazisSzin ? `style="--fazis-szin:${fazisSzin}"` : ''}>
+        <span class="nap-szam">${nap}</span>
+        <div class="nap-jelolok">
+          ${edzesDb ? `<span class="nap-jelolo" title="${edzesDb} edzés">🏋️${edzesDb > 1 ? '×'+edzesDb : ''}</span>` : ''}
+          ${tancRek ? `<span class="nap-jelolo" title="${tancRek.perc} perc tánc">💃${tancRek.db > 1 ? '×'+tancRek.db : ''}</span>` : ''}
+        </div>
+      </div>`;
+  }
+
+  racs.innerHTML = markup;
+}
+
+// ---------- KEZDŐLAP (csak a kezdőlapon létezik — szándékosan nincs rajta ciklusadat) ----------
+let kezdoSulyChart;
+
+function kezdolapRajzolas(){
+  const vanElem = document.getElementById('statHetiEdzes') || document.getElementById('kezdoSulyChart');
+  if(!vanElem) return;
+
+  const maHetKulcs = hetKulcs(new Date().toISOString());
+
+  const eHetiEdzesek = edzesAdatok.filter(e => hetKulcs(mezo(e, 'dátum')) === maHetKulcs);
+  const elVolHet = document.getElementById('statHetiVolumen');
+  if(elVolHet){
+    let vol = 0;
+    eHetiEdzesek.forEach(e => {
+      const sz = szamErtek(mezo(e, 'széria')) || 0;
+      const i = szamErtek(mezo(e, 'ismétlés')) || 0;
+      const s = szamErtek(mezo(e, 'súly')) || 0;
+      vol += sz * i * s;
+    });
+    elVolHet.innerText = szamFormat(Math.round(vol), 0) + ' kg';
+  }
+  const elEdzesDb = document.getElementById('statHetiEdzesDb');
+  if(elEdzesDb) elEdzesDb.innerText = new Set(eHetiEdzesek.map(e => mezo(e,'dátum'))).size;
+
+  const eHetiTanc = tancAdatok.filter(t => hetKulcs(mezo(t, 'dátum')) === maHetKulcs);
+  const elTancPerc = document.getElementById('statHetiTancPerc');
+  if(elTancPerc){
+    const perc = eHetiTanc.reduce((sum,t) => sum + (szamErtek(mezo(t,'perc')) || 0), 0);
+    elTancPerc.innerText = szamFormat(perc, 0) + ' perc';
+  }
+  const elTancDb = document.getElementById('statHetiTancDb');
+  if(elTancDb) elTancDb.innerText = eHetiTanc.length;
+
+  const sulyCanvas = document.getElementById('kezdoSulyChart');
+  if(sulyCanvas){
+    const utolsoNehany = napiAdatok.slice(-14);
+    const datumok = utolsoNehany.map(n => mezo(n,'dátum'));
+    const sulyok = utolsoNehany.map(n => szamErtek(mezo(n,'testsúly')));
+    if(kezdoSulyChart) kezdoSulyChart.destroy();
+    kezdoSulyChart = new Chart(sulyCanvas.getContext('2d'), {
+      type:'line',
+      data:{ labels: datumok, datasets:[{ data: sulyok, borderColor: cssVar('--luteal'), borderWidth:2.5, pointRadius:2, pointBackgroundColor: cssVar('--luteal'), tension:0.15, fill:true, backgroundColor: cssVar('--luteal') + '14' }] },
+      options: chartAlapok()
+    });
+  }
+}
+
+// ---------- TRENDEK / ELEMZÉSEK (csak a trendek oldalon létezik) ----------
+function trendekRajzolas(){
+  const tarolo = document.getElementById('fazisElemzesRacs');
+  if(!tarolo) return;
+
+  const FAZISOK_ELEMZES = [
+    { key:'menstru', nev:'Menstruáció',  szin: cssVar('--menstrual') },
+    { key:'follik',  nev:'Follikuláris', szin: cssVar('--follicular') },
+    { key:'ovul',    nev:'Ovuláció',     szin: cssVar('--ovulation') },
+    { key:'luteal',  nev:'Luteális',     szin: cssVar('--luteal') }
+  ];
+
+  // dátum → fázis térkép, a napi adatok alapján
+  const fazisTerkep = {};
+  napiAdatok.forEach(n => {
+    const k = datumKulcs(mezo(n,'dátum'));
+    const f = fazisKulcsSzovegbol(mezo(n,'ciklus'));
+    if(k && f) fazisTerkep[k] = f;
+  });
+
+  tarolo.innerHTML = '';
+  FAZISOK_ELEMZES.forEach(f => {
+    const napok = napiAdatok.filter(n => fazisKulcsSzovegbol(mezo(n,'ciklus')) === f.key);
+    const sulyAtlag = napok.length ? napok.reduce((s,n) => s + (szamErtek(mezo(n,'testsúly')) || 0), 0) / napok.length : NaN;
+    const kcalAtlag = napok.length ? napok.reduce((s,n) => s + (szamErtek(mezo(n,'kalória','kcal')) || 0), 0) / napok.length : NaN;
+
+    let edzesVol = 0;
+    edzesAdatok.forEach(e => {
+      const k = datumKulcs(mezo(e,'dátum'));
+      if(fazisTerkep[k] === f.key){
+        const sz = szamErtek(mezo(e,'széria')) || 0;
+        const i = szamErtek(mezo(e,'ismétlés')) || 0;
+        const s = szamErtek(mezo(e,'súly')) || 0;
+        edzesVol += sz * i * s;
+      }
+    });
+
+    let tancPerc = 0;
+    tancAdatok.forEach(t => {
+      const k = datumKulcs(mezo(t,'dátum'));
+      if(fazisTerkep[k] === f.key) tancPerc += (szamErtek(mezo(t,'perc')) || 0);
+    });
+
+    const panel = document.createElement('div');
+    panel.className = 'fazis-panel';
+    panel.style.setProperty('--fazis-szin', f.szin);
+    panel.innerHTML = `
+      <p class="fazis-panel-cim">${f.nev}</p>
+      <p class="fazis-panel-nap">${napok.length} nap adat</p>
+      <div class="fazis-panel-sorok">
+        <div><span>Átlag testsúly</span><strong>${isNaN(sulyAtlag) ? '—' : szamFormat(sulyAtlag,1) + ' kg'}</strong></div>
+        <div><span>Átlag kalória</span><strong>${isNaN(kcalAtlag) ? '—' : szamFormat(kcalAtlag,0) + ' kcal'}</strong></div>
+        <div><span>Edzésvolumen</span><strong>${szamFormat(Math.round(edzesVol),0)} kg</strong></div>
+        <div><span>Tánc percek</span><strong>${szamFormat(tancPerc,0)} perc</strong></div>
+      </div>
+    `;
+    tarolo.appendChild(panel);
+  });
+}
+
 rajzoldCiklusKereket('');
+celokBeallitasa();
+naptarInit();
 adatBetoltes();
