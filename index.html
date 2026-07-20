@@ -1,270 +1,505 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Személyes Teljesítmény & Ciklus Dashboard</title>
-    <!-- Tailwind CSS v4 -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Személyes Ciklus & Teljesítmény Almanach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{
+    --bg: #1b1420;
+    --bg-deep: #140f18;
+    --surface: #221a29;
+    --line: #3a2c44;
+    --line-faint: #2a2032;
+    --ink: #f2e9f4;
+    --ink-muted: #ab97b3;
+    --ink-faint: #6f5c78;
+    --gold: #c9a876;
+
+    --menstrual: #c1526b;
+    --follicular: #8fae6f;
+    --ovulation: #dda550;
+    --luteal: #9576b8;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(197,166,118,0.07), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    margin:0;
+    padding: 0 0 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+
+  .serif{ font-family: 'Fraunces', serif; }
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- HEADER ---------- */
+  header.top{
+    border-bottom: 1px solid var(--line);
+    padding: 2.2rem 0 1.4rem;
+    margin-bottom: 3rem;
+  }
+  header.top .row{
+    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap: .75rem;
+  }
+  .wordmark{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size: 2.1rem;
+    letter-spacing: -0.01em;
+  }
+  .wordmark em{ font-style: italic; color: var(--gold); font-weight:400;}
+  .today{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: .78rem;
+    color: var(--ink-faint);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: .3rem 0 0;
+  }
+
+  /* ---------- HERO : PHASE WHEEL ---------- */
+  .hero{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap: 3rem;
+    align-items:center;
+    padding-bottom: 3rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (max-width: 760px){ .hero{ grid-template-columns: 1fr; } }
+
+  .wheel-box{ position:relative; width:240px; height:240px; margin: 0 auto; }
+  .wheel-box svg{ width:100%; height:100%; }
+  .wheel-center{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; pointer-events:none;
+  }
+  .wheel-center .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint);
+  }
+  .wheel-center .phase-name{
+    font-family:'Fraunces', serif;
+    font-weight:500; font-size:1.15rem; line-height:1.15; margin-top:.35rem; max-width:9ch;
+  }
+
+  .hero-right h2{
+    font-family:'Fraunces', serif;
+    font-weight:400; font-size:1.5rem; margin: 0 0 1.4rem;
+    color: var(--ink-muted);
+  }
+  .hero-right h2 strong{ color: var(--ink); font-weight:600; }
+
+  .stat-strip{ display:flex; flex-wrap:wrap; gap:0; border-top:1px solid var(--line); }
+  .stat{
+    flex:1 1 140px; padding: 1rem 1.4rem 0 0; border-right:1px solid var(--line-faint);
+  }
+  .stat:last-child{ border-right:none; }
+  .stat .cap{
+    font-family:'IBM Plex Mono', monospace; font-size:.64rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-faint);
+  }
+  .stat .val{
+    font-family:'IBM Plex Mono', monospace; font-size:1.5rem; font-weight:500; margin-top:.3rem; color:var(--ink);
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:1rem;
+    margin-bottom: 1.6rem; flex-wrap:wrap;
+  }
+  .section-title{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.5rem; margin:0;
+  }
+  .section-title .eyebrow{ margin-bottom:.35rem; }
+
+  select#gyakorlatValaszto{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--gold);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.8rem;
+    padding: .55rem .9rem;
+    border-radius: 3px;
+    cursor:pointer;
+  }
+  .select-wrap{
+    display:flex; align-items:center; gap:.6rem;
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-faint);
+  }
+
+  /* ---------- LEDGER ROWS (life metrics) ---------- */
+  .ledger{ margin-bottom: 4rem; }
+  .entry{
+    display:grid; grid-template-columns: 210px 1fr;
+    gap: 2rem;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--line-faint);
+  }
+  .entry:last-child{ border-bottom: 1px solid var(--line-faint); }
+  @media (max-width: 700px){ .entry{ grid-template-columns: 1fr; gap:.8rem; } }
+
+  .entry-label{ padding-top:.2rem; }
+  .entry-label .dot{
+    display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:.5rem;
+  }
+  .entry-label h3{
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.05rem; margin:.5rem 0 .35rem;
+  }
+  .entry-label p{
+    font-family:'IBM Plex Sans', sans-serif; font-size:.78rem; color: var(--ink-faint); margin:0; line-height:1.5;
+  }
+  .entry-chart{ height: 180px; position:relative; }
+
+  /* ---------- STRENGTH SECTION ---------- */
+  .strength-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border-top: 1px solid var(--line-faint);
+    border-bottom: 1px solid var(--line-faint);
+  }
+  @media (max-width: 760px){ .strength-grid{ grid-template-columns: 1fr; } }
+  .strength-panel{ padding: 1.8rem 2rem; }
+  .strength-panel + .strength-panel{ border-left:1px solid var(--line-faint); }
+  @media (max-width: 760px){ .strength-panel + .strength-panel{ border-left:none; border-top:1px solid var(--line-faint);} }
+  .strength-panel .eyebrow{ margin-bottom:.6rem; }
+  .strength-panel .chart-h{ height: 260px; position:relative; margin-top: 1rem; }
+
+  footer.foot{
+    max-width:1180px; margin: 4rem auto 0; padding: 0 1.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; color: var(--ink-faint);
+    letter-spacing:.05em;
+    border-top:1px solid var(--line); padding-top:1.2rem;
+  }
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen p-4 md:p-8">
+<body>
 
-    <div class="max-w-7xl mx-auto">
-        <!-- FŐCÍM -->
-        <header class="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-6 gap-4">
-            <div>
-                <h1 class="text-4xl font-extrabold tracking-tight text-white">METRICS<span class="text-cyan-400">.</span></h1>
-                <p class="text-slate-400 text-sm font-medium mt-1 uppercase tracking-wider">Aktivitás, Ciklus és Erőszint Követés</p>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center gap-4 shadow-inner">
-                <div>
-                    <span class="block text-xs uppercase tracking-wider text-slate-500 font-bold">Aktuális szakasz</span>
-                    <span id="statCiklus" class="text-lg font-bold text-pink-400">Betöltés...</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- STATISZTIKAI KIEMELÉSEK (MINI) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Utolsó Súly</p>
-                <p id="statSuly" class="text-xl font-bold mt-1 text-slate-200">-- kg</p>
-            </div>
-            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Utolsó Kalória</p>
-                <p id="statKcal" class="text-xl font-bold mt-1 text-amber-500">-- kcal</p>
-            </div>
-            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Utolsó Lépésszám</p>
-                <p id="statLepes" class="text-xl font-bold mt-1 text-emerald-500">--</p>
-            </div>
-            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Össz. Edzés Volumen</p>
-                <p id="statVolumen" class="text-xl font-bold mt-1 text-cyan-400">-- kg</p>
-            </div>
+  <div class="wrap">
+    <header class="top">
+      <div class="row">
+        <div>
+          <div class="wordmark">Napló<em>.</em></div>
+          <p class="eyebrow">Ciklus, aktivitás és erőszint — kézzel vezetett almanach</p>
         </div>
+        <div class="today mono" id="maiDatum">—</div>
+      </div>
+    </header>
 
-        <!-- 1. SZEKCIÓ: ÉLETMÓD METRIKÁK (TELJESEN KÜLÖN GRAFIKONOK) -->
-        <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Életmód & Vitalitás</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-            <!-- Testsúly -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-2">Testsúly Alakulása</h3>
-                <div class="relative h-64 w-full mt-auto">
-                    <canvas id="sulyChart"></canvas>
-                </div>
-            </div>
-            <!-- Kalória -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">Energia Bevitel (Kcal)</h3>
-                <div class="relative h-64 w-full mt-auto">
-                    <canvas id="kcalChart"></canvas>
-                </div>
-            </div>
-            <!-- Lépésszám -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-emerald-500 pl-2">Napi Aktivitás (Lépések)</h3>
-                <div class="relative h-64 w-full mt-auto">
-                    <canvas id="lepesChart"></canvas>
-                </div>
-            </div>
+    <!-- HERO: CYCLE WHEEL -->
+    <section class="hero">
+      <div class="wheel-box">
+        <svg viewBox="0 0 240 240" id="ciklusSvg"></svg>
+        <div class="wheel-center">
+          <span class="label">Jelenleg</span>
+          <span class="phase-name" id="wheelPhaseName">—</span>
         </div>
+      </div>
 
-        <!-- 2. SZEKCIÓ: EDZÉS EXTRA REPO (KÜLÖNVÁLASZTOTT ADATOK) -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500">Erőszint & Progresszió</h2>
-            <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-                <label for="gyakorlatValaszto" class="text-xs text-slate-400 font-semibold uppercase">Gyakorlat:</label>
-                <select id="gyakorlatValaszto" class="bg-transparent text-sm text-cyan-400 font-bold focus:outline-none cursor-pointer">
-                    <option value="">Betöltés...</option>
-                </select>
-            </div>
+      <div class="hero-right">
+        <h2>A test <strong>ritmusa</strong>, számokban rögzítve.</h2>
+        <div class="stat-strip">
+          <div class="stat">
+            <div class="cap">Testsúly</div>
+            <div class="val" id="statSuly">—</div>
+          </div>
+          <div class="stat">
+            <div class="cap">Kalória</div>
+            <div class="val" id="statKcal">—</div>
+          </div>
+          <div class="stat">
+            <div class="cap">Lépésszám</div>
+            <div class="val" id="statLepes">—</div>
+          </div>
+          <div class="stat">
+            <div class="cap">Össz. volumen</div>
+            <div class="val" id="statVolumen">—</div>
+          </div>
         </div>
+      </div>
+    </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Gyakorlat Max Súly -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-violet-500 pl-2">Maximális Munka Súly (kg)</h3>
-                <div class="relative h-72 w-full">
-                    <canvas id="gyakorlatSulyChart"></canvas>
-                </div>
-            </div>
-            <!-- Gyakorlat Volumen -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-cyan-500 pl-2">Teljes Edzésvolumen (Széria × Ism × Súly)</h3>
-                <div class="relative h-72 w-full">
-                    <canvas id="gyakorlatVolumenChart"></canvas>
-                </div>
-            </div>
+    <!-- LIFESTYLE LEDGER -->
+    <section class="ledger">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">I. fejezet</p>
+          <h2 class="section-title">Életmód &amp; vitalitás</h2>
         </div>
-    </div>
+      </div>
 
-    <script>
-        // CSERÉLD KI A SAJÁT ID-DRA:
-        const SPREADSHEET_ID = '1NxTR3teMZjljuzvJNljJxRs_1U08uHTX1aTcSQlhCkA';
-        
-        let edzesAdatok = [];
-        let napiAdatok = [];
-        
-        // Grafikon példányok globálisan
-        let sulyChart, kcalChart, lepesChart, gySulyChart, gyVolumenChart;
+      <div class="entry">
+        <div class="entry-label">
+          <span class="dot" style="background:var(--luteal)"></span>
+          <h3>Testsúly</h3>
+          <p>Napi mérések alakulása az elmúlt időszakban.</p>
+        </div>
+        <div class="entry-chart"><canvas id="sulyChart"></canvas></div>
+      </div>
 
-        // Chart.js globális sötét mód beállítások finomhangolása
-        const chartDefaults = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-                y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
-            }
-        };
+      <div class="entry">
+        <div class="entry-label">
+          <span class="dot" style="background:var(--ovulation)"></span>
+          <h3>Energiabevitel</h3>
+          <p>Naponta bevitt kalória, oszlopdiagramon.</p>
+        </div>
+        <div class="entry-chart"><canvas id="kcalChart"></canvas></div>
+      </div>
 
-        async function adatBetoltes() {
-            try {
-                const urlNapi = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Napi_adatok`;
-                const urlEdzes = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Edzes_Naplo`;
+      <div class="entry">
+        <div class="entry-label">
+          <span class="dot" style="background:var(--follicular)"></span>
+          <h3>Napi aktivitás</h3>
+          <p>Megtett lépések száma naponta.</p>
+        </div>
+        <div class="entry-chart"><canvas id="lepesChart"></canvas></div>
+      </div>
+    </section>
 
-                const [resNapi, resEdzes] = await Promise.all([fetch(urlNapi), fetch(urlEdzes)]);
-                const csvNapi = await resNapi.text();
-                const csvEdzes = await resEdzes.text();
+    <!-- STRENGTH -->
+    <section>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">II. fejezet</p>
+          <h2 class="section-title">Erőszint &amp; progresszió</h2>
+        </div>
+        <div class="select-wrap">
+          Gyakorlat
+          <select id="gyakorlatValaszto"><option>Betöltés...</option></select>
+        </div>
+      </div>
 
-                napiAdatok = csvToObjects(csvNapi);
-                edzesAdatok = csvToObjects(csvEdzes);
+      <div class="strength-grid">
+        <div class="strength-panel">
+          <p class="eyebrow">Maximális munkasúly (kg)</p>
+          <div class="chart-h"><canvas id="gyakorlatSulyChart"></canvas></div>
+        </div>
+        <div class="strength-panel">
+          <p class="eyebrow">Teljes edzésvolumen (széria × ismétlés × súly)</p>
+          <div class="chart-h"><canvas id="gyakorlatVolumenChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-                uiFrissites();
-                gyakorlatListaFeltoltes();
-                eletmodGrafikonokRajzolasa();
-            } catch (error) {
-                console.error("Hiba az adatok feldolgozásakor:", error);
-            }
-        }
+  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
 
-        function csvToObjects(csvText) {
-            const sorok = csvText.split('\n').map(sor => 
-                sor.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cella => cella.replace(/^"|"$/g, '').trim())
-            );
-            const fejlecek = sorok[0];
-            return sorok.slice(1).filter(s => s.length >= fejlecek.length && s[0] !== "").map(sor => {
-                let obj = {};
-                fejlecek.forEach((fejlec, i) => { obj[fejlec] = sor[i]; });
-                return obj;
-            });
-        }
+<script>
+  // CSERÉLD KI A SAJÁT ID-DRA:
+  const SPREADSHEET_ID = '1NxTR3teMZjljuzvJNljJxRs_1U08uHTX1aTcSQlhCkA';
 
-        function uiFrissites() {
-            if (napiAdatok.length === 0) return;
-            const utolsoNapi = napiAdatok[napiAdatok.length - 1];
-            
-            document.getElementById('statSuly').innerText = (utolsoNapi['Testsúly'] || utolsoNapi['Testsúly (kg)'] || '--') + ' kg';
-            document.getElementById('statKcal').innerText = (utolsoNapi['Kalória'] || utolsoNapi['Bevitt kalória (kcal)'] || '--') + ' kcal';
-            document.getElementById('statLepes').innerText = Number(utolsoNapi['Lépések'] || utolsoNapi['Napi lépésszám'] || 0).toLocaleString('hu-HU');
-            document.getElementById('statCiklus').innerText = utolsoNapi['Ciklus szakasz'] || 'Nincs adat';
+  let edzesAdatok = [];
+  let napiAdatok = [];
+  let gySulyChart, gyVolumenChart;
 
-            // Össz volumen kiszámítása a fejlécben
-            let totalVol = 0;
-            edzesAdatok.forEach(e => {
-                const sz = parseInt(e['Széria'] || 0);
-                const i = parseInt(e['Ismétlés'] || 0);
-                const s = parseFloat(e['Súly'] || e['Súly (kg)'] || 0);
-                totalVol += (sz * i * s);
-            });
-            document.getElementById('statVolumen').innerText = Math.round(totalVol).toLocaleString('hu-HU') + ' kg';
-        }
+  document.getElementById('maiDatum').innerText = new Date().toLocaleDateString('hu-HU', { year:'numeric', month:'long', day:'numeric' });
 
-        function eletmodGrafikonokRajzolasa() {
-            const datumok = napiAdatok.map(n => n['Dátum']);
+  const inkFaint = '#6f5c78';
+  const lineFaint = '#2a2032';
 
-            // 1. Testsúly grafikon (Pink)
-            const sulyok = napiAdatok.map(n => parseFloat(n['Testsúly'] || n['Testsúly (kg)']));
-            sulyChart = new Chart(document.getElementById('sulyChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: datumok,
-                    datasets: [{ data: sulyok, borderColor: '#ec4899', borderWidth: 2.5, pointRadius: 2, tension: 0.15 }]
-                },
-                options: chartDefaults
-            });
+  const chartDefaults = {
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{
+      x:{ grid:{ display:false }, ticks:{ color: inkFaint, font:{ size:10, family:"'IBM Plex Mono', monospace" } } },
+      y:{ grid:{ color: lineFaint }, ticks:{ color: inkFaint, font:{ size:10, family:"'IBM Plex Mono', monospace" } } }
+    }
+  };
 
-            // 2. Kalória grafikon (Amber bar chart - modernebb oszlopos megjelenítés)
-            const kcalok = napiAdatok.map(n => parseInt(n['Kalória'] || n['Bevitt kalória (kcal)']));
-            kcalChart = new Chart(document.getElementById('kcalChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: datumok,
-                    datasets: [{ data: kcalok, backgroundColor: 'rgba(245, 158, 11, 0.4)', borderColor: '#f59e0b', borderWidth: 1, borderRadius: 4 }]
-                },
-                options: chartDefaults
-            });
+  async function adatBetoltes(){
+    try{
+      const urlNapi = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Napi_adatok`;
+      const urlEdzes = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Edzes_Naplo`;
 
-            // 3. Lépésszám grafikon (Emerald dúsított vonal)
-            const lepesek = napiAdatok.map(n => parseInt(n['Lépések'] || n['Napi lépésszám'] || 0));
-            lepesChart = new Chart(document.getElementById('lepesChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: datumok,
-                    datasets: [{ data: lepesek, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.05)', fill: true, borderWidth: 2, pointRadius: 1, tension: 0.2 }]
-                },
-                options: chartDefaults
-            });
-        }
+      const [resNapi, resEdzes] = await Promise.all([fetch(urlNapi), fetch(urlEdzes)]);
+      const csvNapi = await resNapi.text();
+      const csvEdzes = await resEdzes.text();
 
-        function gyakorlatListaFeltoltes() {
-            const valaszto = document.getElementById('gyakorlatValaszto');
-            const egyediGyakorlatok = [...new Set(edzesAdatok.map(e => e['Gyakorlat'] || e['Gyakorlat neve']))].filter(Boolean);
-            
-            valaszto.innerHTML = '';
-            egyediGyakorlatok.forEach(gy => {
-                const opt = document.createElement('option');
-                opt.value = gy;
-                opt.innerText = gy;
-                opt.className = "bg-slate-900 text-white";
-                valaszto.appendChild(opt);
-            });
+      napiAdatok = csvToObjects(csvNapi);
+      edzesAdatok = csvToObjects(csvEdzes);
 
-            valaszto.addEventListener('change', (e) => edzesGrafikonokFrissites(e.target.value));
-            if (egyediGyakorlatok.length > 0) edzesGrafikonokFrissites(egyediGyakorlatok[0]);
-        }
+      uiFrissites();
+      gyakorlatListaFeltoltes();
+      eletmodGrafikonokRajzolasa();
+    }catch(error){
+      console.error("Hiba az adatok feldolgozásakor:", error);
+    }
+  }
 
-        function edzesGrafikonokFrissites(gyakorlatNev) {
-            const szurt = edzesAdatok.filter(e => (e['Gyakorlat'] || e['Gyakorlat neve']) === gyakorlatNev);
-            const datumok = szurt.map(e => e['Dátum']);
-            
-            const maxSulyok = szurt.map(e => parseFloat(e['Súly'] || e['Súly (kg)'] || 0));
-            const volumenek = szurt.map(e => {
-                const sz = parseInt(e['Széria'] || 0);
-                const i = parseInt(e['Ismétlés'] || 0);
-                const s = parseFloat(e['Súly'] || e['Súly (kg)'] || 0);
-                return sz * i * s;
-            });
+  function csvToObjects(csvText){
+    const sorok = csvText.split('\n').map(sor =>
+      sor.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cella => cella.replace(/^"|"$/g, '').trim())
+    );
+    const fejlecek = sorok[0];
+    return sorok.slice(1).filter(s => s.length >= fejlecek.length && s[0] !== "").map(sor => {
+      let obj = {};
+      fejlecek.forEach((fejlec, i) => { obj[fejlec] = sor[i]; });
+      return obj;
+    });
+  }
 
-            // Gyakorlat Súly frissítés
-            if (gySulyChart) gySulyChart.destroy();
-            gySulyChart = new Chart(document.getElementById('gyakorlatSulyChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: datumok,
-                    datasets: [{ data: maxSulyok, borderColor: '#8b5cf6', borderWidth: 3, pointBackgroundColor: '#8b5cf6', pointRadius: 4, tension: 0.05 }]
-                },
-                options: chartDefaults
-            });
+  function uiFrissites(){
+    if(napiAdatok.length === 0) return;
+    const utolsoNapi = napiAdatok[napiAdatok.length - 1];
 
-            // Gyakorlat Volumen frissítés
-            if (gyVolumenChart) gyVolumenChart.destroy();
-            gyVolumenChart = new Chart(document.getElementById('gyakorlatVolumenChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: datumok,
-                    datasets: [{ data: volumenek, borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', fill: true, borderWidth: 2, pointRadius: 3, tension: 0.1 }]
-                },
-                options: chartDefaults
-            });
-        }
+    document.getElementById('statSuly').innerText = (utolsoNapi['Testsúly'] || utolsoNapi['Testsúly (kg)'] || '—') + ' kg';
+    document.getElementById('statKcal').innerText = (utolsoNapi['Kalória'] || utolsoNapi['Bevitt kalória (kcal)'] || '—') + ' kcal';
+    document.getElementById('statLepes').innerText = Number(utolsoNapi['Lépések'] || utolsoNapi['Napi lépésszám'] || 0).toLocaleString('hu-HU');
 
-        // Futtatás
-        adatBetoltes();
-    </script>
+    const ciklusSzakasz = utolsoNapi['Ciklus szakasz'] || 'Nincs adat';
+    document.getElementById('wheelPhaseName').innerText = ciklusSzakasz;
+
+    let totalVol = 0;
+    edzesAdatok.forEach(e => {
+      const sz = parseInt(e['Széria'] || 0);
+      const i = parseInt(e['Ismétlés'] || 0);
+      const s = parseFloat(e['Súly'] || e['Súly (kg)'] || 0);
+      totalVol += (sz * i * s);
+    });
+    document.getElementById('statVolumen').innerText = Math.round(totalVol).toLocaleString('hu-HU') + ' kg';
+
+    rajzoldCiklusKereket(ciklusSzakasz);
+  }
+
+  // ---------- CYCLE WHEEL ----------
+  const FAZISOK = [
+    { key:'menstru', nev:'Menstruáció', szin:'#c1526b' },
+    { key:'follik',  nev:'Follikuláris', szin:'#8fae6f' },
+    { key:'ovul',    nev:'Ovuláció',     szin:'#dda550' },
+    { key:'luteal',  nev:'Luteális',     szin:'#9576b8' }
+  ];
+
+  function polarToCartesian(cx, cy, r, angleDeg){
+    const a = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  }
+
+  function donutArc(cx, cy, rOuter, rInner, startAngle, endAngle){
+    const p0 = polarToCartesian(cx, cy, rOuter, endAngle);
+    const p1 = polarToCartesian(cx, cy, rOuter, startAngle);
+    const p2 = polarToCartesian(cx, cy, rInner, startAngle);
+    const p3 = polarToCartesian(cx, cy, rInner, endAngle);
+    const large = (endAngle - startAngle) > 180 ? 1 : 0;
+    return `M ${p0.x} ${p0.y} A ${rOuter} ${rOuter} 0 ${large} 0 ${p1.x} ${p1.y}
+            L ${p2.x} ${p2.y} A ${rInner} ${rInner} 0 ${large} 1 ${p3.x} ${p3.y} Z`;
+  }
+
+  function rajzoldCiklusKereket(aktivSzoveg){
+    const svg = document.getElementById('ciklusSvg');
+    const cx = 120, cy = 120, rOuter = 108, rInner = 70;
+    const talalt = FAZISOK.find(f => (aktivSzoveg || '').toLowerCase().includes(f.key));
+    const aktivKulcs = talalt ? talalt.key : null;
+
+    let markup = '';
+    FAZISOK.forEach((f, i) => {
+      const start = i * 90;
+      const end = start + 90;
+      const isAktiv = f.key === aktivKulcs;
+      const d = donutArc(cx, cy, isAktiv ? rOuter : rOuter - 8, rInner, start + 2, end - 2);
+      markup += `<path d="${d}" fill="${f.szin}" opacity="${isAktiv ? 1 : 0.28}"></path>`;
+
+      const labelPos = polarToCartesian(cx, cy, rOuter + 16, start + 45);
+      markup += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle"
+                  font-family="IBM Plex Mono, monospace" font-size="7.5" letter-spacing="0.5"
+                  fill="${isAktiv ? f.szin : '#6f5c78'}">${f.nev.toUpperCase()}</text>`;
+    });
+
+    svg.innerHTML = markup;
+  }
+
+  // ---------- LIFESTYLE CHARTS ----------
+  function eletmodGrafikonokRajzolasa(){
+    const datumok = napiAdatok.map(n => n['Dátum']);
+
+    const sulyok = napiAdatok.map(n => parseFloat(n['Testsúly'] || n['Testsúly (kg)']));
+    new Chart(document.getElementById('sulyChart').getContext('2d'), {
+      type:'line',
+      data:{ labels: datumok, datasets:[{ data: sulyok, borderColor:'#9576b8', borderWidth:2.5, pointRadius:2, pointBackgroundColor:'#9576b8', tension:0.15 }] },
+      options: chartDefaults
+    });
+
+    const kcalok = napiAdatok.map(n => parseInt(n['Kalória'] || n['Bevitt kalória (kcal)']));
+    new Chart(document.getElementById('kcalChart').getContext('2d'), {
+      type:'bar',
+      data:{ labels: datumok, datasets:[{ data: kcalok, backgroundColor:'rgba(221,165,80,0.35)', borderColor:'#dda550', borderWidth:1, borderRadius:2 }] },
+      options: chartDefaults
+    });
+
+    const lepesek = napiAdatok.map(n => parseInt(n['Lépések'] || n['Napi lépésszám'] || 0));
+    new Chart(document.getElementById('lepesChart').getContext('2d'), {
+      type:'line',
+      data:{ labels: datumok, datasets:[{ data: lepesek, borderColor:'#8fae6f', backgroundColor:'rgba(143,174,111,0.08)', fill:true, borderWidth:2, pointRadius:1, tension:0.2 }] },
+      options: chartDefaults
+    });
+  }
+
+  function gyakorlatListaFeltoltes(){
+    const valaszto = document.getElementById('gyakorlatValaszto');
+    const egyediGyakorlatok = [...new Set(edzesAdatok.map(e => e['Gyakorlat'] || e['Gyakorlat neve']))].filter(Boolean);
+
+    valaszto.innerHTML = '';
+    egyediGyakorlatok.forEach(gy => {
+      const opt = document.createElement('option');
+      opt.value = gy;
+      opt.innerText = gy;
+      valaszto.appendChild(opt);
+    });
+
+    valaszto.addEventListener('change', (e) => edzesGrafikonokFrissites(e.target.value));
+    if(egyediGyakorlatok.length > 0) edzesGrafikonokFrissites(egyediGyakorlatok[0]);
+  }
+
+  function edzesGrafikonokFrissites(gyakorlatNev){
+    const szurt = edzesAdatok.filter(e => (e['Gyakorlat'] || e['Gyakorlat neve']) === gyakorlatNev);
+    const datumok = szurt.map(e => e['Dátum']);
+
+    const maxSulyok = szurt.map(e => parseFloat(e['Súly'] || e['Súly (kg)'] || 0));
+    const volumenek = szurt.map(e => {
+      const sz = parseInt(e['Széria'] || 0);
+      const i = parseInt(e['Ismétlés'] || 0);
+      const s = parseFloat(e['Súly'] || e['Súly (kg)'] || 0);
+      return sz * i * s;
+    });
+
+    if(gySulyChart) gySulyChart.destroy();
+    gySulyChart = new Chart(document.getElementById('gyakorlatSulyChart').getContext('2d'), {
+      type:'line',
+      data:{ labels: datumok, datasets:[{ data: maxSulyok, borderColor:'#c9a876', borderWidth:3, pointBackgroundColor:'#c9a876', pointRadius:4, tension:0.05 }] },
+      options: chartDefaults
+    });
+
+    if(gyVolumenChart) gyVolumenChart.destroy();
+    gyVolumenChart = new Chart(document.getElementById('gyakorlatVolumenChart').getContext('2d'), {
+      type:'line',
+      data:{ labels: datumok, datasets:[{ data: volumenek, borderColor:'#c1526b', backgroundColor:'rgba(193,82,107,0.12)', fill:true, borderWidth:2, pointRadius:3, tension:0.1 }] },
+      options: chartDefaults
+    });
+  }
+
+  // induló üres kerék, amíg az adat betölt
+  rajzoldCiklusKereket('');
+  adatBetoltes();
+</script>
 </body>
 </html>
