@@ -248,6 +248,16 @@ function uiFrissites(){
   const elSuly = document.getElementById('statSuly');
   if(elSuly) elSuly.innerText = szamFormat(szamErtek(mezo(utolsoNapi, 'testsúly')), 1) + ' kg';
 
+  const heroSuly = document.getElementById('heroSuly');
+  if(heroSuly){
+    heroSuly.innerHTML = `${szamFormat(szamErtek(mezo(utolsoNapi, 'testsúly')), 1)}<small>kg</small>`;
+    const heroSub = document.getElementById('heroSulySub');
+    if(heroSub){
+      const t = hetiTrendSzoveg(napiAdatok, n => mezo(n,'dátum'), n => szamErtek(mezo(n,'testsúly')) || 0, 'atlag');
+      heroSub.innerHTML = t ? `Heti átlag: ${szamFormat(t.ertek,1)} kg ${trendNyil(t.valtozas,1)}` : '';
+    }
+  }
+
   const elKcal = document.getElementById('statKcal');
   if(elKcal) elKcal.innerText = szamFormat(szamErtek(mezo(utolsoNapi, 'kalória', 'kcal')), 0) + ' kcal';
 
@@ -1035,7 +1045,7 @@ function naptarReszletMutat(){
 let kezdoSulyChart;
 
 function kezdolapRajzolas(){
-  const vanElem = document.getElementById('statHetiEdzes') || document.getElementById('kezdoSulyChart');
+  const vanElem = document.getElementById('heroHetiOsszes') || document.getElementById('kezdoSulyChart');
   if(!vanElem) return;
 
   const maHetKulcs = hetKulcs(new Date().toISOString());
@@ -1063,6 +1073,20 @@ function kezdolapRajzolas(){
   }
   const elTancDb = document.getElementById('statHetiTancDb');
   if(elTancDb) elTancDb.innerText = eHetiTanc.length;
+
+  const heroErtek = document.getElementById('heroHetiOsszes');
+  if(heroErtek){
+    const edzesNapDb = new Set(eHetiEdzesek.map(e => mezo(e,'dátum'))).size;
+    const tancDb = eHetiTanc.length;
+    heroErtek.innerHTML = `${edzesNapDb + tancDb}<small>alkalom</small>`;
+    const heroSub = document.getElementById('heroHetiOsszesSub');
+    if(heroSub){
+      const reszek = [];
+      if(edzesNapDb) reszek.push(`${edzesNapDb} edzésnap`);
+      if(tancDb) reszek.push(`${tancDb} tánc alkalom`);
+      heroSub.innerText = reszek.length ? reszek.join(' · ') + ' ezen a héten' : 'Ezen a héten még nincs rögzített aktivitás.';
+    }
+  }
 
   const sulyCanvas = document.getElementById('kezdoSulyChart');
   if(sulyCanvas){
