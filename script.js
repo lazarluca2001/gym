@@ -28,6 +28,18 @@ function cssVar(name){
   return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
+// Számok beolvasása: elfogadja a vesszős és pontos tizedes írásmódot is
+function szamErtek(str){
+  if(str === undefined || str === null || str === '') return NaN;
+  return parseFloat(String(str).replace(',', '.'));
+}
+
+// Számok kiírása: mindig vessző a tizedesjegynél, magyar ezres tagolással
+function szamFormat(num, maxTizedes){
+  if(isNaN(num)) return '—';
+  return num.toLocaleString('hu-HU', { maximumFractionDigits: maxTizedes !== undefined ? maxTizedes : 2 });
+}
+
 function chartAlapok(){
   return {
     responsive:true,
@@ -40,7 +52,10 @@ function chartAlapok(){
         titleColor: cssVar('--ink-muted'), bodyColor: cssVar('--ink'),
         titleFont:{ family:"'Space Mono', monospace", size:11 },
         bodyFont:{ family:"'Space Mono', monospace", size:12 },
-        padding:8, cornerRadius:8, displayColors:false
+        padding:8, cornerRadius:8, displayColors:false,
+        callbacks:{
+          label: (ctx) => szamFormat(ctx.parsed.y)
+        }
       }
     },
     scales:{
@@ -50,7 +65,10 @@ function chartAlapok(){
       },
       y:{
         grid:{ color: cssVar('--border') },
-        ticks:{ color: cssVar('--ink-faint'), font:{ size:11, family:"'Space Mono', monospace" }, maxTicksLimit:6 }
+        ticks:{
+          color: cssVar('--ink-faint'), font:{ size:11, family:"'Space Mono', monospace" }, maxTicksLimit:6,
+          callback: (value) => szamFormat(value)
+        }
       }
     }
   };
@@ -107,13 +125,13 @@ function uiFrissites(){
   const utolsoNapi = napiAdatok[napiAdatok.length - 1];
 
   const elSuly = document.getElementById('statSuly');
-  if(elSuly) elSuly.innerText = (mezo(utolsoNapi, 'testsúly') || '—') + ' kg';
+  if(elSuly) elSuly.innerText = szamFormat(szamErtek(mezo(utolsoNapi, 'testsúly')), 1) + ' kg';
 
   const elKcal = document.getElementById('statKcal');
-  if(elKcal) elKcal.innerText = (mezo(utolsoNapi, 'kalória', 'kcal') || '—') + ' kcal';
+  if(elKcal) elKcal.innerText = szamFormat(szamErtek(mezo(utolsoNapi, 'kalória', 'kcal')), 0) + ' kcal';
 
   const elLepes = document.getElementById('statLepes');
-  if(elLepes) elLepes.innerText = Number(mezo(utolsoNapi, 'lépés') || 0).toLocaleString('hu-HU');
+  if(elLepes) elLepes.innerText = szamFormat(szamErtek(mezo(utolsoNapi, 'lépés')) || 0, 0);
 
   const ciklusSzakasz = mezo(utolsoNapi, 'ciklus') || 'Nincs adat';
   const elFazis = document.getElementById('wheelPhaseName');
@@ -121,13 +139,13 @@ function uiFrissites(){
 
   let totalVol = 0;
   edzesAdatok.forEach(e => {
-    const sz = parseInt(mezo(e, 'széria') || 0);
-    const i = parseInt(mezo(e, 'ismétlés') || 0);
-    const s = parseFloat(mezo(e, 'súly') || 0);
+    const sz = szamErtek(mezo(e, 'széria')) || 0;
+    const i = szamErtek(mezo(e, 'ismétlés')) || 0;
+    const s = szamErtek(mezo(e, 'súly')) || 0;
     totalVol += (sz * i * s);
   });
   const elVol = document.getElementById('statVolumen');
-  if(elVol) elVol.innerText = Math.round(totalVol).toLocaleString('hu-HU') + ' kg';
+  if(elVol) elVol.innerText = szamFormat(Math.round(totalVol), 0) + ' kg';
 
   rajzoldCiklusKereket(ciklusSzakasz);
 }
@@ -189,7 +207,7 @@ function eletmodGrafikonokRajzolasa(){
   const defaults = chartAlapok();
 
   if(sulyCanvas){
-    const sulyok = napiAdatok.map(n => parseFloat(mezo(n, 'testsúly')));
+    const sulyok = napiAdatok.map(n => szamErtek(mezo(n, 'testsúly')));
     if(sulyChartObj) sulyChartObj.destroy();
     sulyChartObj = new Chart(sulyCanvas.getContext('2d'), {
       type:'line',
@@ -199,7 +217,7 @@ function eletmodGrafikonokRajzolasa(){
   }
 
   if(kcalCanvas){
-    const kcalok = napiAdatok.map(n => parseInt(mezo(n, 'kalória', 'kcal')));
+    const kcalok = napiAdatok.map(n => szamErtek(mezo(n, 'kalória', 'kcal')));
     if(kcalChartObj) kcalChartObj.destroy();
     kcalChartObj = new Chart(kcalCanvas.getContext('2d'), {
       type:'bar',
@@ -242,11 +260,11 @@ function edzesGrafikonokFrissites(gyakorlatNev){
   const datumok = szurt.map(e => mezo(e, 'dátum'));
   const defaults = chartAlapok();
 
-  const maxSulyok = szurt.map(e => parseFloat(mezo(e, 'súly') || 0));
+  const maxSulyok = szurt.map(e => szamErtek(mezo(e, 'súly')) || 0);
   const volumenek = szurt.map(e => {
-    const sz = parseInt(mezo(e, 'széria') || 0);
-    const i = parseInt(mezo(e, 'ismétlés') || 0);
-    const s = parseFloat(mezo(e, 'súly') || 0);
+    const sz = szamErtek(mezo(e, 'széria')) || 0;
+    const i = szamErtek(mezo(e, 'ismétlés')) || 0;
+    const s = szamErtek(mezo(e, 'súly')) || 0;
     return sz * i * s;
   });
 
