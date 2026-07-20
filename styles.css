@@ -62,7 +62,7 @@ body{
 }
 .header-title span{ color: var(--ink-faint); }
 
-.page-nav{ display:flex; gap:.4rem; background: var(--bg); border:1px solid var(--border); border-radius:999px; padding:.25rem; }
+.page-nav{ display:flex; flex-wrap:wrap; gap:.4rem; background: var(--bg); border:1px solid var(--border); border-radius:999px; padding:.25rem; }
 .page-nav a{
   font-family:'Poppins', sans-serif; font-weight:600; font-size:.78rem;
   padding:.45rem .9rem; border-radius:999px; text-decoration:none; color: var(--ink-muted);
@@ -133,6 +133,25 @@ body{
 .stat-name{ flex:1; font-size:.78rem; color: var(--ink-muted); font-weight:500; }
 .stat-value{ font-family:'Space Mono', monospace; font-weight:700; font-size:.86rem; color: var(--ink); }
 
+/* célok (cél testsúly / cél kalória) */
+.goal-row{ margin-bottom:.8rem; }
+.goal-row:last-child{ margin-bottom:0; }
+.goal-row label{
+  display:block; font-size:.72rem; color: var(--ink-muted); margin-bottom:.3rem; font-weight:500;
+}
+.goal-row input{
+  width:100%; background: var(--bg); border:1.5px solid var(--border); border-radius:8px;
+  padding:.5rem .6rem; font-family:'Space Mono', monospace; font-size:.82rem; color: var(--ink);
+}
+.goal-row input:focus{ outline:none; border-color: var(--accent); }
+
+/* heti trend szöveg a grafikonok felett */
+.trend-line{ font-family:'Space Mono', monospace; font-size:.72rem; color: var(--ink-muted); margin:-.4rem 0 .6rem; }
+.trend-line strong{ color: var(--ink); }
+.trend-up{ color: var(--menstrual); }
+.trend-down{ color: var(--follicular); }
+.trend-flat{ color: var(--ink-faint); }
+
 /* ---------- MAIN CONTENT ---------- */
 .content-head{
   display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem;
@@ -152,6 +171,7 @@ body{
 
 .card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
 @media (max-width:700px){ .card-grid{ grid-template-columns:1fr; } }
+.card-grid > .data-card:last-child:nth-child(odd){ grid-column: 1 / -1; }
 
 .data-card{
   background: var(--card); border:1px solid var(--border); border-top:4px solid var(--accent-c, var(--accent));
@@ -169,9 +189,8 @@ footer.foot{
 }
 
 /* ---------- EDZÉS DASHBOARD ---------- */
-.stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
-@media (max-width:880px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
-@media (max-width:520px){ .stat-row{ grid-template-columns:1fr; } }
+.stat-cards-row{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:1rem; }
+@media (max-width:520px){ .stat-cards-row{ grid-template-columns:1fr 1fr; } }
 
 .stat-card{
   background: var(--card); border:1px solid var(--border); border-radius:16px;
@@ -223,3 +242,66 @@ footer.foot{
   .tanc-row .tanc-iskola{ grid-area:iskola; }
   .tanc-row .tanc-tipus{ grid-area:tipus; justify-self:end; }
 }
+
+/* ---------- NAPTÁR ---------- */
+.naptar-fejlec{ display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1.2rem; }
+.naptar-fejlec h2{ font-family:'Poppins', sans-serif; font-weight:700; font-size:1.2rem; margin:0; min-width:200px; text-align:center; color: var(--ink); }
+.naptar-nav-btn{
+  width:32px; height:32px; border-radius:50%; border:1px solid var(--border); background: var(--card);
+  color: var(--ink-muted); font-size:.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.naptar-nav-btn:hover{ color: var(--accent); border-color: var(--accent); }
+.naptar-ma-btn{
+  font-family:'Poppins', sans-serif; font-weight:600; font-size:.72rem; padding:.4rem .8rem;
+  border-radius:999px; border:1px solid var(--border); background: var(--card); color: var(--ink-muted); cursor:pointer;
+}
+
+.naptar-hetnapok{ display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; margin-bottom:.5rem; }
+.naptar-hetnapok span{
+  text-align:center; font-family:'Poppins', sans-serif; font-weight:700; font-size:.68rem;
+  letter-spacing:.05em; color: var(--ink-faint); text-transform:uppercase;
+}
+
+.naptar-racs{ display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; }
+.nap-cella{
+  aspect-ratio:1/1; background: var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:.5rem; display:flex; flex-direction:column; gap:.3rem; position:relative;
+  border-top:3px solid var(--fazis-szin, var(--border));
+}
+.nap-cella.nap-ures{ background:transparent; border:none; }
+.nap-cella.nap-ma{ outline:2px solid var(--accent); outline-offset:-1px; }
+.nap-szam{ font-family:'Space Mono', monospace; font-size:.78rem; color: var(--ink-muted); font-weight:700; }
+.nap-jelolok{ display:flex; flex-wrap:wrap; gap:.25rem; margin-top:auto; }
+.nap-jelolo{ font-size:.72rem; }
+@media (max-width:700px){
+  .naptar-racs{ gap:.3rem; }
+  .nap-cella{ padding:.3rem; border-radius:8px; }
+  .nap-szam{ font-size:.68rem; }
+}
+
+/* ---------- KEZDŐLAP: gyorslinkek ---------- */
+.quick-links{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:1rem; }
+.quick-link{
+  background: var(--card); border:1px solid var(--border); border-top:4px solid var(--accent-c, var(--accent));
+  border-radius:16px; padding:1.2rem; text-decoration:none; display:flex; flex-direction:column; gap:.3rem;
+  transition:.15s;
+}
+.quick-link:hover{ transform:translateY(-2px); border-color: var(--accent-c, var(--accent)); }
+.quick-link-icon{ font-size:1.6rem; }
+.quick-link-title{ font-family:'Poppins', sans-serif; font-weight:700; font-size:.95rem; color: var(--ink); }
+.quick-link-sub{ font-family:'Inter', sans-serif; font-size:.74rem; color: var(--ink-muted); }
+
+/* ---------- TRENDEK: fázisonkénti elemzés ---------- */
+.fazis-elemzes-racs{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1.1rem; }
+.fazis-panel{
+  background: var(--card); border:1px solid var(--border); border-top:4px solid var(--fazis-szin);
+  border-radius:16px; padding:1.2rem 1.3rem;
+}
+.fazis-panel-cim{ font-family:'Poppins', sans-serif; font-weight:700; font-size:1rem; margin:0; color: var(--fazis-szin); }
+.fazis-panel-nap{ font-family:'Space Mono', monospace; font-size:.7rem; color: var(--ink-faint); margin:.2rem 0 1rem; }
+.fazis-panel-sorok{ display:flex; flex-direction:column; gap:.55rem; }
+.fazis-panel-sorok div{ display:flex; justify-content:space-between; align-items:baseline; font-size:.8rem; }
+.fazis-panel-sorok span{ color: var(--ink-muted); }
+.fazis-panel-sorok strong{ font-family:'Space Mono', monospace; color: var(--ink); }
+
+.megjegyzes{ font-family:'Inter', sans-serif; font-size:.78rem; color: var(--ink-faint); margin-top:1.2rem; }
