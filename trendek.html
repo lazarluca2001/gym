@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Trendek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="header-title" href="kezdolap.html">NAPLÓ<span>.</span></a>
+      <nav class="page-nav">
+        <a href="kezdolap.html">Kezdőlap</a>
+        <a href="index.html">Életmód</a>
+        <a href="erszint.html">Erőszint</a>
+        <a href="tanc.html">Tánc</a>
+        <a href="naptar.html">Naptár</a>
+        <a href="trendek.html" class="active">Trendek</a>
+      </nav>
+    </div>
+    <div class="dark-toggle">
+      <span>Sötét mód</span>
+      <label class="switch">
+        <input type="checkbox" id="darkToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="layout-full">
+    <div class="content-head">
+      <div>
+        <h1>Trendek &amp; összefüggések</h1>
+        <p class="sub">Hogyan alakul a testsúly, a kalória és az edzés/tánc terhelés a ciklus egyes szakaszaiban.</p>
+      </div>
+      <div class="today-pill" id="maiDatum">—</div>
+    </div>
+
+    <div class="fazis-elemzes-racs" id="fazisElemzesRacs"></div>
+
+    <p class="megjegyzes">A fenti számok az eddig rögzített napok átlagai/összegei szakaszonként — minél több adat gyűlik össze, annál megbízhatóbb a kép.</p>
+  </div>
+
+  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
