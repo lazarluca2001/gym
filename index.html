@@ -15,9 +15,12 @@
     <div class="topbar-left">
       <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
       <nav class="page-nav">
+        <a href="kezdolap.html">Kezdőlap</a>
         <a href="index.html" class="active">Életmód</a>
         <a href="erszint.html">Erőszint</a>
         <a href="tanc.html">Tánc</a>
+        <a href="naptar.html">Naptár</a>
+        <a href="trendek.html">Trendek</a>
       </nav>
     </div>
     <div class="dark-toggle">
@@ -39,6 +42,18 @@
       </div>
 
       <div class="side-card">
+        <p class="side-label">Célok</p>
+        <div class="goal-row">
+          <label for="celSuly">Cél testsúly (kg)</label>
+          <input type="number" step="0.1" id="celSuly" placeholder="pl. 60">
+        </div>
+        <div class="goal-row">
+          <label for="celKcal">Cél kalória (kcal)</label>
+          <input type="number" step="10" id="celKcal" placeholder="pl. 1600">
+        </div>
+      </div>
+
+      <div class="side-card">
         <p class="side-label">Áttekintés</p>
         <div class="stat-list">
           <div class="stat-row"><span class="stat-icon">⚖️</span><span class="stat-name">Testsúly</span><span class="stat-value" id="statSuly">—</span></div>
@@ -53,7 +68,7 @@
       <div class="content-head">
         <div>
           <h1>Életmód &amp; vitalitás</h1>
-          <p class="sub">Testsúly és energiabevitel napi bontásban.</p>
+          <p class="sub">Testsúly, energiabevitel és lépésszám napi bontásban — a színes sávok a ciklusszakaszt jelzik.</p>
         </div>
         <div class="today-pill" id="maiDatum">—</div>
       </div>
@@ -61,11 +76,18 @@
       <div class="card-grid">
         <div class="data-card" style="--accent-c:var(--luteal)">
           <p class="card-label">Testsúly alakulása</p>
+          <p class="trend-line" id="sulyTrend"></p>
           <div class="chart-box"><canvas id="sulyChart"></canvas></div>
         </div>
         <div class="data-card" style="--accent-c:var(--ovulation)">
           <p class="card-label">Energiabevitel (kcal)</p>
+          <p class="trend-line" id="kcalTrend"></p>
           <div class="chart-box"><canvas id="kcalChart"></canvas></div>
+        </div>
+        <div class="data-card" style="--accent-c:var(--follicular)">
+          <p class="card-label">Lépésszám</p>
+          <p class="trend-line" id="lepesTrend"></p>
+          <div class="chart-box"><canvas id="lepesChart"></canvas></div>
         </div>
       </div>
     </main>
