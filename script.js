@@ -701,7 +701,7 @@ function tancDashboardRajzolasa(iskolaSzures){
         plugins:{
           legend:{
             position:'bottom',
-            labels:{ color: cssVar('--ink-muted'), font:{ family:"'Inter', sans-serif", size:11 }, boxWidth:10, padding:12 }
+            labels:{ color: cssVar('--ink-muted'), font:{ family:"'Space Grotesk', sans-serif", size:11 }, boxWidth:10, padding:12 }
           },
           tooltip:{
             backgroundColor: cssVar('--card'), borderColor: cssVar('--border'), borderWidth:1,
@@ -741,7 +741,7 @@ function tancDashboardRajzolasa(iskolaSzures){
         },
         scales:{
           x:{ grid:{ color: cssVar('--border') }, ticks:{ color: cssVar('--ink-faint'), font:{ size:11, family:"'Space Mono', monospace" }, callback: v => szamFormat(v,0) } },
-          y:{ grid:{ display:false }, ticks:{ color: cssVar('--ink-muted'), font:{ size:11, family:"'Inter', sans-serif" } } }
+          y:{ grid:{ display:false }, ticks:{ color: cssVar('--ink-muted'), font:{ size:11, family:"'Space Grotesk', sans-serif" } } }
         }
       }
     });
