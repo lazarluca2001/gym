@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Naptár</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
+      <nav class="page-nav">
+        <a href="kezdolap.html">Kezdőlap</a>
+        <a href="index.html">Életmód</a>
+        <a href="erszint.html">Erőszint</a>
+        <a href="tanc.html">Tánc</a>
+        <a href="naptar.html" class="active">Naptár</a>
+        <a href="trendek.html">Trendek</a>
+      </nav>
+    </div>
+    <div class="dark-toggle">
+      <span>Sötét mód</span>
+      <label class="switch">
+        <input type="checkbox" id="darkToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="layout-full">
+    <div class="content-head">
+      <div>
+        <h1>Naptár</h1>
+        <p class="sub">Edzések, táncórák és a ciklusszakasz egy pillantásra.</p>
+      </div>
+      <button class="naptar-ma-btn" id="naptarMa">Ma</button>
+    </div>
+
+    <div class="data-card">
+      <div class="naptar-fejlec">
+        <button class="naptar-nav-btn" id="naptarElozo">‹</button>
+        <h2 id="naptarCim">—</h2>
+        <button class="naptar-nav-btn" id="naptarKovetkezo">›</button>
+      </div>
+
+      <div class="naptar-hetnapok">
+        <span>H</span><span>K</span><span>SZE</span><span>CS</span><span>P</span><span>SZO</span><span>V</span>
+      </div>
+
+      <div class="naptar-racs" id="naptarRacs"></div>
+    </div>
+
+    <div class="exercise-picker-card" style="display:flex; gap:1.6rem; flex-wrap:wrap; align-items:center;">
+      <span class="side-label" style="margin:0;">Jelmagyarázat</span>
+      <span style="font-size:.8rem; color:var(--ink-muted);">🏋️ Edzés &nbsp; 💃 Táncóra &nbsp; — a cella tetején lévő színes csík a ciklusszakaszt jelzi (részletek az Életmód oldalon)</span>
+    </div>
+  </div>
+
+  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
