@@ -90,6 +90,9 @@ body{
 @media (max-width:880px){ .layout{ grid-template-columns:1fr; } }
 
 .sidebar{ display:flex; flex-direction:column; gap:1.2rem; position:sticky; top:1.4rem; }
+@media (max-width:880px){
+  .sidebar{ position:static; top:auto; }
+}
 
 .side-card{
   background: var(--card); border:1px solid var(--border); border-radius:16px;
