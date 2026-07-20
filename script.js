@@ -25,6 +25,24 @@ if(darkToggle){
   });
 }
 
+// ---------- MOBIL HAMBURGER MENÜ ----------
+const navToggle = document.getElementById('navToggle');
+const pageNav = document.querySelector('.page-nav');
+if(navToggle && pageNav){
+  navToggle.addEventListener('click', () => {
+    pageNav.classList.toggle('nyitva');
+  });
+  pageNav.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => pageNav.classList.remove('nyitva'));
+  });
+  document.addEventListener('click', (ev) => {
+    if(!pageNav.classList.contains('nyitva')) return;
+    if(!pageNav.contains(ev.target) && !navToggle.contains(ev.target)){
+      pageNav.classList.remove('nyitva');
+    }
+  });
+}
+
 function cssVar(name){
   return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
