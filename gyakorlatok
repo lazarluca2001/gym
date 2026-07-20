@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Erőszint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
+      <nav class="page-nav">
+        <a href="index.html">Életmód</a>
+        <a href="erszint.html" class="active">Erőszint</a>
+      </nav>
+    </div>
+    <div class="dark-toggle">
+      <span>Sötét mód</span>
+      <label class="switch">
+        <input type="checkbox" id="darkToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-card">
+        <p class="side-label">Jelenlegi szakasz</p>
+        <div class="mini-wheel"><svg viewBox="0 0 240 240" id="ciklusSvg"></svg></div>
+        <p class="phase-title" id="wheelPhaseName">—</p>
+        <p class="phase-sub">a ciklus aktuális állapota</p>
+      </div>
+
+      <div class="side-card">
+        <p class="side-label">Gyakorlat szűrése</p>
+        <div class="pill-list" id="gyakorlatPillek">
+          <span class="pill">Betöltés…</span>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <p class="side-label">Áttekintés</p>
+        <div class="stat-list">
+          <div class="stat-row"><span class="stat-icon">🏋️</span><span class="stat-name">Össz. volumen</span><span class="stat-value" id="statVolumen">—</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="content-head">
+        <div>
+          <h1>Erőszint &amp; progresszió</h1>
+          <p class="sub">Válassz gyakorlatot a bal oldali listából.</p>
+        </div>
+        <div class="today-pill" id="maiDatum">—</div>
+      </div>
+
+      <div class="card-grid">
+        <div class="data-card" style="--accent-c:var(--ovulation)">
+          <p class="card-label">Maximális munkasúly (kg)</p>
+          <div class="chart-box"><canvas id="gyakorlatSulyChart"></canvas></div>
+        </div>
+        <div class="data-card" style="--accent-c:var(--menstrual)">
+          <p class="card-label">Teljes edzésvolumen (széria × ismétlés × súly)</p>
+          <div class="chart-box"><canvas id="gyakorlatVolumenChart"></canvas></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
