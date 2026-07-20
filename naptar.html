@@ -13,7 +13,7 @@
 
   <header class="topbar">
     <div class="topbar-left">
-      <a class="header-title" href="index.html">NAPLÓ<span>.</span></a>
+      <a class="header-title" href="kezdolap.html">NAPLÓ<span>.</span></a>
       <nav class="page-nav">
         <a href="kezdolap.html">Kezdőlap</a>
         <a href="index.html">Életmód</a>
@@ -43,22 +43,38 @@
 
     <div class="data-card">
       <div class="naptar-fejlec">
-        <button class="naptar-nav-btn" id="naptarElozo">‹</button>
-        <h2 id="naptarCim">—</h2>
-        <button class="naptar-nav-btn" id="naptarKovetkezo">›</button>
+        <div class="naptar-fejlec-nav">
+          <button class="naptar-nav-btn" id="naptarElozo">‹</button>
+          <h2 id="naptarCim">—</h2>
+          <select id="naptarEvValaszto" class="naptar-ev-valaszto"></select>
+          <button class="naptar-nav-btn" id="naptarKovetkezo">›</button>
+        </div>
+        <div class="naptar-nezet-valto">
+          <button class="tab active" id="naptarNezetRacs" type="button">Rács</button>
+          <button class="tab" id="naptarNezetLista" type="button">Lista</button>
+        </div>
       </div>
 
-      <div class="naptar-hetnapok">
+      <div class="naptar-osszegzo" id="naptarOsszegzo"></div>
+
+      <div class="naptar-legenda">
+        <span><i style="background:var(--menstrual)"></i> Menstruáció</span>
+        <span><i style="background:var(--follicular)"></i> Follikuláris</span>
+        <span><i style="background:var(--ovulation)"></i> Ovuláció</span>
+        <span><i style="background:var(--luteal)"></i> Luteális</span>
+        <span class="naptar-legenda-ikon">🏋️ Edzés</span>
+        <span class="naptar-legenda-ikon">💃 Tánc</span>
+      </div>
+
+      <div class="naptar-hetnapok" id="naptarHetnapokSor">
         <span>H</span><span>K</span><span>SZE</span><span>CS</span><span>P</span><span>SZO</span><span>V</span>
       </div>
 
       <div class="naptar-racs" id="naptarRacs"></div>
+      <div class="naptar-lista" id="naptarLista" style="display:none;"></div>
     </div>
 
-    <div class="exercise-picker-card" style="display:flex; gap:1.6rem; flex-wrap:wrap; align-items:center;">
-      <span class="side-label" style="margin:0;">Jelmagyarázat</span>
-      <span style="font-size:.8rem; color:var(--ink-muted);">🏋️ Edzés &nbsp; 💃 Táncóra &nbsp; — a cella tetején lévő színes csík a ciklusszakaszt jelzi (részletek az Életmód oldalon)</span>
-    </div>
+    <div class="data-card" id="napReszletPanel" style="display:none;"></div>
   </div>
 
   <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
