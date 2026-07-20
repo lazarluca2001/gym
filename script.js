@@ -843,7 +843,7 @@ function naptarRajzolas(){
   const maKulcs = datumKulcs(new Date().toISOString());
 
   // ---- havi összegzés (sport szerint, a táblázathoz) ----
-  let honapEdzesNap = 0, honapEdzesVolumen = 0, honapTancDb = 0, honapTancPerc = 0;
+  let honapEdzesNap = 0, honapEdzesVolumen = 0, honapEdzesVanSuly = false, honapTancDb = 0, honapTancPerc = 0;
 
   let racsMarkup = '';
   let listaMarkup = '';
@@ -888,7 +888,14 @@ function naptarRajzolas(){
     const dow = new Date(naptarEv, naptarHonap, nap).getDay();
     const hetvege = dow === 0 || dow === 6;
 
-    if(edzesLista.length){ honapEdzesNap++; edzesLista.forEach(e => { honapEdzesVolumen += (szamErtek(mezo(e,'széria'))||0) * (szamErtek(mezo(e,'ismétlés'))||0) * (szamErtek(mezo(e,'súly'))||0); }); }
+    if(edzesLista.length){
+      honapEdzesNap++;
+      edzesLista.forEach(e => {
+        const suly = szamErtek(mezo(e,'súly'));
+        if(!isNaN(suly)) honapEdzesVanSuly = true;
+        honapEdzesVolumen += (szamErtek(mezo(e,'széria'))||0) * (szamErtek(mezo(e,'ismétlés'))||0) * (suly||0);
+      });
+    }
     honapTancDb += tancLista.length;
     honapTancPerc += tancPercOssz;
 
@@ -961,7 +968,7 @@ function naptarRajzolas(){
       <table class="naptar-tabla">
         <thead><tr><th>Típus</th><th>Alkalom</th><th>Összesen</th></tr></thead>
         <tbody>
-          <tr><td><span class="tabla-pont" style="background:var(--ovulation)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${szamFormat(Math.round(honapEdzesVolumen),0)} kg</td></tr>
+          <tr><td><span class="tabla-pont" style="background:var(--ovulation)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${honapEdzesVanSuly ? szamFormat(Math.round(honapEdzesVolumen),0) + ' kg' : '—'}</td></tr>
           <tr><td><span class="tabla-pont" style="background:var(--luteal)"></span>Tánc</td><td>${honapTancDb}</td><td>${szamFormat(honapTancPerc,0)} perc</td></tr>
         </tbody>
       </table>
@@ -1005,7 +1012,10 @@ function naptarReszletMutat(){
     }
     if(edzesek.length){
       html += `<div class="reszlet-blokk"><p class="reszlet-cim">🏋️ Edzés</p>` +
-        edzesek.map(e => `<p class="reszlet-sor">${mezo(e,'gyakorlat')} — ${mezo(e,'széria')}×${mezo(e,'ismétlés')} · ${szamFormat(szamErtek(mezo(e,'súly')),1)} kg</p>`).join('') +
+        edzesek.map(e => {
+          const suly = szamErtek(mezo(e,'súly'));
+          return `<p class="reszlet-sor">${mezo(e,'gyakorlat')} — ${mezo(e,'széria')}×${mezo(e,'ismétlés')}${!isNaN(suly) ? ' · ' + szamFormat(suly,1) + ' kg' : ''}</p>`;
+        }).join('') +
         `</div>`;
     }
     if(tancok.length){
