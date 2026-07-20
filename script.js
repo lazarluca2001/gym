@@ -187,6 +187,7 @@ function chartAlapok(){
 
 // ---------- ADATBETÖLTÉS ----------
 async function adatBetoltes(){
+  document.body.classList.add('betoltes');
   try{
     const urlNapi = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Napi_adatok`;
     const urlEdzes = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Edzes_Naplo`;
@@ -208,7 +209,9 @@ async function adatBetoltes(){
     naptarRajzolas();
     kezdolapRajzolas();
     trendekRajzolas();
+    document.body.classList.remove('betoltes');
   }catch(error){
+    document.body.classList.remove('betoltes');
     console.error("Hiba az adatok feldolgozásakor:", error);
   }
 }
@@ -537,7 +540,7 @@ function edzesGrafikonokFrissites(gyakorlatNev){
     if(gySulyChart) gySulyChart.destroy();
     gySulyChart = new Chart(sulyCanvas.getContext('2d'), {
       type:'line',
-      data:{ labels: datumok, datasets:[{ data: maxSulyok, borderColor: cssVar('--ovulation'), borderWidth:3, pointBackgroundColor: cssVar('--ovulation'), pointRadius:4, tension:0.05 }] },
+      data:{ labels: datumok, datasets:[{ data: maxSulyok, borderColor: cssVar('--dom-ero'), borderWidth:3, pointBackgroundColor: cssVar('--dom-ero'), pointRadius:4, tension:0.05 }] },
       options: defaults
     });
   }
@@ -546,7 +549,7 @@ function edzesGrafikonokFrissites(gyakorlatNev){
     if(gyVolumenChart) gyVolumenChart.destroy();
     gyVolumenChart = new Chart(volCanvas.getContext('2d'), {
       type:'line',
-      data:{ labels: datumok, datasets:[{ data: volumenek, borderColor: cssVar('--menstrual'), backgroundColor: cssVar('--menstrual') + '24', fill:true, borderWidth:2, pointRadius:3, tension:0.1 }] },
+      data:{ labels: datumok, datasets:[{ data: volumenek, borderColor: cssVar('--dom-ero-2'), backgroundColor: cssVar('--dom-ero-2') + '24', fill:true, borderWidth:2, pointRadius:3, tension:0.1 }] },
       options: defaults
     });
   }
@@ -565,7 +568,7 @@ function ujraRajzolMinden(){
 }
 
 // ---------- TÁNC NAPLÓ (csak a tánc oldalon létezik) ----------
-const TANC_TIPUS_SZINEK = ['--luteal', '--ovulation', '--menstrual', '--follicular'];
+const TANC_TIPUS_SZINEK = ['--dom-tanc', '--dom-tanc-2', '--dom-tanc-3', '--dom-tanc-4'];
 let tancIskolaChart;
 
 // Hány egymást követő héten volt legalább egy táncóra (az utolsó adatot tartalmazó hétig visszaszámolva)
@@ -656,7 +659,7 @@ function tancDashboardRajzolasa(iskolaSzures){
     if(tancPercChart) tancPercChart.destroy();
     tancPercChart = new Chart(percCanvas.getContext('2d'), {
       type:'bar',
-      data:{ labels: napok, datasets:[{ data: percOsszesek, backgroundColor: cssVar('--luteal') + '46', borderColor: cssVar('--luteal'), borderWidth:1, borderRadius:4 }] },
+      data:{ labels: napok, datasets:[{ data: percOsszesek, backgroundColor: cssVar('--dom-tanc') + '46', borderColor: cssVar('--dom-tanc'), borderWidth:1, borderRadius:4 }] },
       options: chartAlapok()
     });
 
@@ -714,7 +717,7 @@ function tancDashboardRajzolasa(iskolaSzures){
     if(tancIskolaChart) tancIskolaChart.destroy();
     tancIskolaChart = new Chart(iskolaCanvas.getContext('2d'), {
       type:'bar',
-      data:{ labels: iskolaNevek, datasets:[{ data: iskolaPercek, backgroundColor: cssVar('--menstrual') + '46', borderColor: cssVar('--menstrual'), borderWidth:1, borderRadius:4 }] },
+      data:{ labels: iskolaNevek, datasets:[{ data: iskolaPercek, backgroundColor: cssVar('--dom-tanc-2') + '46', borderColor: cssVar('--dom-tanc-2'), borderWidth:1, borderRadius:4 }] },
       options:{
         indexAxis:'y',
         responsive:true, maintainAspectRatio:false,
@@ -968,8 +971,8 @@ function naptarRajzolas(){
       <table class="naptar-tabla">
         <thead><tr><th>Típus</th><th>Alkalom</th><th>Összesen</th></tr></thead>
         <tbody>
-          <tr><td><span class="tabla-pont" style="background:var(--ovulation)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${honapEdzesVanSuly ? szamFormat(Math.round(honapEdzesVolumen),0) + ' kg' : '—'}</td></tr>
-          <tr><td><span class="tabla-pont" style="background:var(--luteal)"></span>Tánc</td><td>${honapTancDb}</td><td>${szamFormat(honapTancPerc,0)} perc</td></tr>
+          <tr><td><span class="tabla-pont" style="background:var(--dom-ero)"></span>Edzés</td><td>${honapEdzesNap}</td><td>${honapEdzesVanSuly ? szamFormat(Math.round(honapEdzesVolumen),0) + ' kg' : '—'}</td></tr>
+          <tr><td><span class="tabla-pont" style="background:var(--dom-tanc)"></span>Tánc</td><td>${honapTancDb}</td><td>${szamFormat(honapTancPerc,0)} perc</td></tr>
         </tbody>
       </table>
     `;
