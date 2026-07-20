@@ -89,6 +89,9 @@ body{
 .layout{ display:grid; grid-template-columns: 280px 1fr; gap:1.4rem; padding:1.4rem 1.6rem 3rem; max-width:1320px; margin:0 auto; align-items:start; }
 @media (max-width:880px){ .layout{ grid-template-columns:1fr; } }
 
+/* Önálló, teljes szélességű elrendezés (pl. az edzés-dashboardhoz, oldalsáv nélkül) */
+.layout-full{ max-width:1320px; margin:0 auto; padding:1.4rem 1.6rem 3rem; display:flex; flex-direction:column; gap:1.2rem; }
+
 .sidebar{ display:flex; flex-direction:column; gap:1.2rem; position:sticky; top:1.4rem; }
 @media (max-width:880px){
   .sidebar{ position:static; top:auto; }
@@ -164,3 +167,30 @@ footer.foot{
   max-width:1320px; margin: 0 auto; padding: 0 1.6rem 2rem;
   font-family:'Space Mono', monospace; font-size:.68rem; color: var(--ink-faint);
 }
+
+/* ---------- EDZÉS DASHBOARD ---------- */
+.stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+@media (max-width:880px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:520px){ .stat-row{ grid-template-columns:1fr; } }
+
+.stat-card{
+  background: var(--card); border:1px solid var(--border); border-radius:16px;
+  padding:1rem 1.1rem; display:flex; align-items:center; gap:.8rem;
+}
+.stat-card-icon{ font-size:1.5rem; line-height:1; }
+.stat-card-label{
+  font-family:'Poppins', sans-serif; font-weight:600; font-size:.68rem;
+  letter-spacing:.05em; text-transform:uppercase; color: var(--ink-muted); margin:0 0 .2rem;
+}
+.stat-card-value{ font-family:'Space Mono', monospace; font-weight:700; font-size:1.05rem; color: var(--ink); margin:0; }
+
+.exercise-picker-card{ background: var(--card); border:1px solid var(--border); border-radius:16px; padding:1.2rem 1.3rem; }
+
+.category-tabs{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.9rem; }
+.tab{
+  font-family:'Poppins', sans-serif; font-weight:600; font-size:.72rem;
+  padding:.4rem .85rem; border-radius:999px; border:1.5px solid transparent;
+  background: transparent; color: var(--ink-muted); cursor:pointer; transition:.15s;
+}
+.tab:hover{ color: var(--accent); }
+.tab.active{ background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
