@@ -228,17 +228,87 @@ function eletmodGrafikonokRajzolasa(){
 }
 
 // ---------- ERŐSZINT (csak az erőszint oldalon létezik) ----------
+const GYAKORLAT_KATEGORIAK = [
+  { key:'felsotest', nev:'Felsőtest', szavak:['chest','row','shoulder','biceps','triceps'] },
+  { key:'torzs',      nev:'Törzs',     szavak:['abdominal','crunch','torso','rotation','back extension'] },
+  { key:'alsotest',   nev:'Alsótest',  szavak:['leg','glute','calf','thigh'] }
+];
+
+function gyakorlatKategoria(nev){
+  const n = (nev || '').toLowerCase();
+  const talalt = GYAKORLAT_KATEGORIAK.find(k => k.szavak.some(sz => n.includes(sz)));
+  return talalt ? talalt.key : 'egyeb';
+}
+
+function edzesDashboardStatok(kivalasztottGyakorlat){
+  const elVolBig = document.getElementById('statVolumenNagy');
+  const elGyakSzam = document.getElementById('statGyakSzam');
+  const elUtolsoEdzes = document.getElementById('statUtolsoEdzes');
+  const elRekord = document.getElementById('statRekord');
+  if(!elVolBig && !elGyakSzam && !elUtolsoEdzes && !elRekord) return;
+
+  if(elVolBig){
+    let totalVol = 0;
+    edzesAdatok.forEach(e => {
+      const sz = szamErtek(mezo(e, 'széria')) || 0;
+      const i = szamErtek(mezo(e, 'ismétlés')) || 0;
+      const s = szamErtek(mezo(e, 'súly')) || 0;
+      totalVol += (sz * i * s);
+    });
+    elVolBig.innerText = szamFormat(Math.round(totalVol), 0) + ' kg';
+  }
+
+  if(elGyakSzam){
+    const egyedi = new Set(edzesAdatok.map(e => mezo(e, 'gyakorlat'))).size;
+    elGyakSzam.innerText = egyedi;
+  }
+
+  if(elUtolsoEdzes && edzesAdatok.length){
+    elUtolsoEdzes.innerText = mezo(edzesAdatok[edzesAdatok.length - 1], 'dátum') || '—';
+  }
+
+  if(elRekord){
+    const szurt = edzesAdatok.filter(e => mezo(e, 'gyakorlat') === kivalasztottGyakorlat);
+    const maxSuly = szurt.reduce((m, e) => Math.max(m, szamErtek(mezo(e, 'súly')) || 0), 0);
+    elRekord.innerText = maxSuly ? szamFormat(maxSuly, 1) + ' kg' : '—';
+  }
+}
+
 function gyakorlatPillekFeltoltese(){
   const tarolo = document.getElementById('gyakorlatPillek');
   if(!tarolo) return;
 
   const egyediGyakorlatok = [...new Set(edzesAdatok.map(e => mezo(e, 'gyakorlat')))].filter(Boolean);
+  const fulTarolo = document.getElementById('kategoriaFulek');
+
+  // Kategória fülek felépítése (csak azok, amelyekhez van adat)
+  if(fulTarolo){
+    const jelenlevoKategoriak = [...new Set(egyediGyakorlatok.map(gyakorlatKategoria))];
+    const fulek = [{ key:'mind', nev:'Összes' }, ...GYAKORLAT_KATEGORIAK.filter(k => jelenlevoKategoriak.includes(k.key))];
+
+    fulTarolo.innerHTML = '';
+    fulek.forEach((f, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab' + (idx === 0 ? ' active' : '');
+      btn.innerText = f.nev;
+      btn.addEventListener('click', () => {
+        fulTarolo.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        tarolo.querySelectorAll('.pill').forEach(p => {
+          p.style.display = (f.key === 'mind' || p.dataset.kategoria === f.key) ? 'inline-flex' : 'none';
+        });
+      });
+      fulTarolo.appendChild(btn);
+    });
+  }
 
   tarolo.innerHTML = '';
   egyediGyakorlatok.forEach((gy, idx) => {
     const pill = document.createElement('button');
     pill.className = 'pill' + (idx === 0 ? ' active' : '');
     pill.type = 'button';
+    pill.dataset.kategoria = gyakorlatKategoria(gy);
     pill.innerText = gy;
     pill.addEventListener('click', () => {
       tarolo.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -254,6 +324,7 @@ function gyakorlatPillekFeltoltese(){
 function edzesGrafikonokFrissites(gyakorlatNev){
   const sulyCanvas = document.getElementById('gyakorlatSulyChart');
   const volCanvas = document.getElementById('gyakorlatVolumenChart');
+  edzesDashboardStatok(gyakorlatNev);
   if(!sulyCanvas && !volCanvas) return;
 
   const szurt = edzesAdatok.filter(e => mezo(e, 'gyakorlat') === gyakorlatNev);
