@@ -28,50 +28,52 @@
     </div>
   </header>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="side-card">
-        <p class="side-label">Jelenlegi szakasz</p>
-        <div class="mini-wheel"><svg viewBox="0 0 240 240" id="ciklusSvg"></svg></div>
-        <p class="phase-title" id="wheelPhaseName">—</p>
-        <p class="phase-sub">a ciklus aktuális állapota</p>
+  <div class="layout-full">
+    <div class="content-head">
+      <div>
+        <h1>Erőszint &amp; progresszió</h1>
+        <p class="sub">Válassz gyakorlatot, és kövesd a fejlődésed grafikonon.</p>
       </div>
+      <div class="today-pill" id="maiDatum">—</div>
+    </div>
 
-      <div class="side-card">
-        <p class="side-label">Gyakorlat szűrése</p>
-        <div class="pill-list" id="gyakorlatPillek">
-          <span class="pill">Betöltés…</span>
-        </div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-card-icon">🏋️</span>
+        <div><p class="stat-card-label">Össz. volumen</p><p class="stat-card-value" id="statVolumenNagy">—</p></div>
       </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">📋</span>
+        <div><p class="stat-card-label">Gyakorlatok száma</p><p class="stat-card-value" id="statGyakSzam">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">📅</span>
+        <div><p class="stat-card-label">Utolsó edzés</p><p class="stat-card-value" id="statUtolsoEdzes">—</p></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">🏆</span>
+        <div><p class="stat-card-label">Kiválasztott rekord</p><p class="stat-card-value" id="statRekord">—</p></div>
+      </div>
+    </div>
 
-      <div class="side-card">
-        <p class="side-label">Áttekintés</p>
-        <div class="stat-list">
-          <div class="stat-row"><span class="stat-icon">🏋️</span><span class="stat-name">Össz. volumen</span><span class="stat-value" id="statVolumen">—</span></div>
-        </div>
+    <div class="exercise-picker-card">
+      <p class="side-label">Gyakorlat szűrése</p>
+      <div class="category-tabs" id="kategoriaFulek"></div>
+      <div class="pill-list" id="gyakorlatPillek">
+        <span class="pill">Betöltés…</span>
       </div>
-    </aside>
+    </div>
 
-    <main class="content">
-      <div class="content-head">
-        <div>
-          <h1>Erőszint &amp; progresszió</h1>
-          <p class="sub">Válassz gyakorlatot a bal oldali listából.</p>
-        </div>
-        <div class="today-pill" id="maiDatum">—</div>
+    <div class="card-grid">
+      <div class="data-card" style="--accent-c:var(--ovulation)">
+        <p class="card-label">Maximális munkasúly (kg)</p>
+        <div class="chart-box"><canvas id="gyakorlatSulyChart"></canvas></div>
       </div>
-
-      <div class="card-grid">
-        <div class="data-card" style="--accent-c:var(--ovulation)">
-          <p class="card-label">Maximális munkasúly (kg)</p>
-          <div class="chart-box"><canvas id="gyakorlatSulyChart"></canvas></div>
-        </div>
-        <div class="data-card" style="--accent-c:var(--menstrual)">
-          <p class="card-label">Teljes edzésvolumen (széria × ismétlés × súly)</p>
-          <div class="chart-box"><canvas id="gyakorlatVolumenChart"></canvas></div>
-        </div>
+      <div class="data-card" style="--accent-c:var(--menstrual)">
+        <p class="card-label">Teljes edzésvolumen (széria × ismétlés × súly)</p>
+        <div class="chart-box"><canvas id="gyakorlatVolumenChart"></canvas></div>
       </div>
-    </main>
+    </div>
   </div>
 
   <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
