@@ -339,11 +339,11 @@ footer.foot{
 
 /* heti "Összesen" cella */
 .nap-cella.nap-osszesen{
-  cursor:default; background: var(--bg); border-top-color: var(--border); align-items:center; justify-content:center; gap:.15rem;
+  cursor:default; background: var(--accent-soft); border-top-color: var(--ink); align-items:center; justify-content:center; gap:.15rem;
 }
-.nap-cella.nap-osszesen:hover{ border-color: var(--border); }
-.nap-osszesen-cim{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color: var(--ink-faint); }
-.nap-osszesen-sor{ font-family:'Space Mono', monospace; font-size:.64rem; color: var(--ink-muted); text-align:center; }
+.nap-cella.nap-osszesen:hover{ border-color: var(--ink); }
+.nap-osszesen-cim{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color: var(--accent); }
+.nap-osszesen-sor{ font-family:'Space Mono', monospace; font-size:.64rem; color: var(--ink); text-align:center; }
 .nap-osszesen-ures{ color: var(--ink-faint); font-size:.7rem; }
 
 @media (max-width:700px){
