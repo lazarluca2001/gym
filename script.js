@@ -3,7 +3,8 @@ const SPREADSHEET_ID = '1NxTR3teMZjljuzvJNljJxRs_1U08uHTX1aTcSQlhCkA';
 
 let edzesAdatok = [];
 let napiAdatok = [];
-let gySulyChart, gyVolumenChart, sulyChartObj, kcalChartObj;
+let tancAdatok = [];
+let gySulyChart, gyVolumenChart, sulyChartObj, kcalChartObj, tancPercChart, tancTipusChart;
 
 // ---------- DÁTUM ----------
 const maiDatumEl = document.getElementById('maiDatum');
@@ -79,17 +80,21 @@ async function adatBetoltes(){
   try{
     const urlNapi = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Napi_adatok`;
     const urlEdzes = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Edzes_Naplo`;
+    const urlTanc = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Tanc_Naplo`;
 
-    const [resNapi, resEdzes] = await Promise.all([fetch(urlNapi), fetch(urlEdzes)]);
+    const [resNapi, resEdzes, resTanc] = await Promise.all([fetch(urlNapi), fetch(urlEdzes), fetch(urlTanc)]);
     const csvNapi = await resNapi.text();
     const csvEdzes = await resEdzes.text();
+    const csvTanc = await resTanc.text();
 
     napiAdatok = csvToObjects(csvNapi);
     edzesAdatok = csvToObjects(csvEdzes);
+    tancAdatok = csvToObjects(csvTanc);
 
     uiFrissites();
     gyakorlatPillekFeltoltese();
     eletmodGrafikonokRajzolasa();
+    tancIskolaPillekFeltoltese();
   }catch(error){
     console.error("Hiba az adatok feldolgozásakor:", error);
   }
@@ -363,6 +368,135 @@ function ujraRajzolMinden(){
   eletmodGrafikonokRajzolasa();
   const aktivPill = document.querySelector('#gyakorlatPillek .pill.active');
   if(aktivPill) edzesGrafikonokFrissites(aktivPill.innerText);
+  const aktivTancPill = document.querySelector('#tancIskolaPillek .pill.active');
+  tancDashboardRajzolasa(aktivTancPill ? aktivTancPill.innerText : null);
+}
+
+// ---------- TÁNC NAPLÓ (csak a tánc oldalon létezik) ----------
+const TANC_TIPUS_SZINEK = ['--luteal', '--ovulation', '--menstrual', '--follicular'];
+
+function tancIskolaPillekFeltoltese(){
+  const tarolo = document.getElementById('tancIskolaPillek');
+  if(!tarolo) return;
+
+  const egyediIskolak = [...new Set(tancAdatok.map(t => mezo(t, 'kola')))].filter(Boolean);
+
+  tarolo.innerHTML = '';
+  const mindPill = document.createElement('button');
+  mindPill.type = 'button';
+  mindPill.className = 'pill active';
+  mindPill.innerText = 'Összes';
+  mindPill.addEventListener('click', () => {
+    tarolo.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    mindPill.classList.add('active');
+    tancDashboardRajzolasa(null);
+  });
+  tarolo.appendChild(mindPill);
+
+  egyediIskolak.forEach(iskola => {
+    const pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = 'pill';
+    pill.innerText = iskola;
+    pill.addEventListener('click', () => {
+      tarolo.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      tancDashboardRajzolasa(iskola);
+    });
+    tarolo.appendChild(pill);
+  });
+
+  tancDashboardRajzolasa(null);
+}
+
+function tancDashboardRajzolasa(iskolaSzures){
+  const vanElem = document.getElementById('tancPercChart') || document.getElementById('tancTipusChart') || document.getElementById('tancLista') || document.getElementById('statTancOraszam');
+  if(!vanElem) return;
+
+  const szurt = iskolaSzures ? tancAdatok.filter(t => mezo(t, 'kola') === iskolaSzures) : tancAdatok;
+
+  // ---- statisztikák ----
+  const elOraszam = document.getElementById('statTancOraszam');
+  if(elOraszam) elOraszam.innerText = szurt.length;
+
+  const elPercek = document.getElementById('statTancPercek');
+  if(elPercek){
+    const osszPerc = szurt.reduce((sum, t) => sum + (szamErtek(mezo(t, 'perc')) || 0), 0);
+    elPercek.innerText = szamFormat(osszPerc, 0) + ' perc';
+  }
+
+  const elIskolaSzam = document.getElementById('statTancIskolaSzam');
+  if(elIskolaSzam) elIskolaSzam.innerText = new Set(tancAdatok.map(t => mezo(t, 'kola'))).size;
+
+  const elUtolso = document.getElementById('statTancUtolso');
+  if(elUtolso && szurt.length){
+    const utolso = szurt[szurt.length - 1];
+    elUtolso.innerText = (mezo(utolso, 'óra') || '—');
+  }
+
+  // ---- percek grafikon (óránként) ----
+  const percCanvas = document.getElementById('tancPercChart');
+  if(percCanvas){
+    const datumok = szurt.map(t => mezo(t, 'dátum'));
+    const percek = szurt.map(t => szamErtek(mezo(t, 'perc')) || 0);
+    if(tancPercChart) tancPercChart.destroy();
+    tancPercChart = new Chart(percCanvas.getContext('2d'), {
+      type:'bar',
+      data:{ labels: datumok, datasets:[{ data: percek, backgroundColor: cssVar('--luteal') + '46', borderColor: cssVar('--luteal'), borderWidth:1, borderRadius:4 }] },
+      options: chartAlapok()
+    });
+  }
+
+  // ---- típus szerinti megoszlás (donut) ----
+  const tipusCanvas = document.getElementById('tancTipusChart');
+  if(tipusCanvas){
+    const tipusOsszegek = {};
+    szurt.forEach(t => {
+      const tip = mezo(t, 'típus') || 'Egyéb';
+      tipusOsszegek[tip] = (tipusOsszegek[tip] || 0) + (szamErtek(mezo(t, 'perc')) || 0);
+    });
+    const cimkek = Object.keys(tipusOsszegek);
+    const ertekek = Object.values(tipusOsszegek);
+    const szinek = cimkek.map((_, i) => cssVar(TANC_TIPUS_SZINEK[i % TANC_TIPUS_SZINEK.length]));
+
+    if(tancTipusChart) tancTipusChart.destroy();
+    tancTipusChart = new Chart(tipusCanvas.getContext('2d'), {
+      type:'doughnut',
+      data:{ labels: cimkek, datasets:[{ data: ertekek, backgroundColor: szinek, borderColor: cssVar('--card'), borderWidth:2 }] },
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'62%',
+        plugins:{
+          legend:{
+            position:'bottom',
+            labels:{ color: cssVar('--ink-muted'), font:{ family:"'Inter', sans-serif", size:11 }, boxWidth:10, padding:12 }
+          },
+          tooltip:{
+            backgroundColor: cssVar('--card'), borderColor: cssVar('--border'), borderWidth:1,
+            titleColor: cssVar('--ink-muted'), bodyColor: cssVar('--ink'),
+            callbacks:{ label: (ctx) => `${ctx.label}: ${szamFormat(ctx.parsed, 0)} perc` }
+          }
+        }
+      }
+    });
+  }
+
+  // ---- óralista ----
+  const listaEl = document.getElementById('tancLista');
+  if(listaEl){
+    listaEl.innerHTML = '';
+    [...szurt].reverse().forEach(t => {
+      const sor = document.createElement('div');
+      sor.className = 'tanc-row';
+      sor.innerHTML = `
+        <span class="tanc-datum">${mezo(t, 'dátum') || ''}</span>
+        <span class="tanc-nev">${mezo(t, 'óra') || ''}</span>
+        <span class="tanc-iskola">${mezo(t, 'kola') || ''}</span>
+        <span class="tanc-tipus">${mezo(t, 'típus') || ''}</span>
+        <span class="tanc-perc">${szamFormat(szamErtek(mezo(t, 'perc')) || 0, 0)} perc</span>
+      `;
+      listaEl.appendChild(sor);
+    });
+  }
 }
 
 rajzoldCiklusKereket('');
