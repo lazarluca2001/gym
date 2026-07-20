@@ -34,7 +34,7 @@
     color: var(--ink);
     font-family: 'IBM Plex Sans', sans-serif;
     margin:0;
-    padding: 0 0 6rem;
+    padding: 0 0 2rem;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -46,8 +46,8 @@
   /* ---------- HEADER ---------- */
   header.top{
     border-bottom: 1px solid var(--line);
-    padding: 2.2rem 0 1.4rem;
-    margin-bottom: 3rem;
+    padding: 1.4rem 0 .9rem;
+    margin-bottom: 1.6rem;
   }
   header.top .row{
     display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap: .75rem;
@@ -56,7 +56,7 @@
     font-family:'Fraunces', serif;
     font-optical-sizing:auto;
     font-weight:600;
-    font-size: 2.1rem;
+    font-size: 1.5rem;
     letter-spacing: -0.01em;
   }
   .wordmark em{ font-style: italic; color: var(--gold); font-weight:400;}
@@ -79,16 +79,16 @@
   /* ---------- HERO : PHASE WHEEL ---------- */
   .hero{
     display:grid;
-    grid-template-columns: 260px 1fr;
-    gap: 3rem;
+    grid-template-columns: 160px 1fr;
+    gap: 1.8rem;
     align-items:center;
-    padding-bottom: 3rem;
-    margin-bottom: 3rem;
+    padding-bottom: 1.4rem;
+    margin-bottom: 1.6rem;
     border-bottom: 1px solid var(--line);
   }
   @media (max-width: 760px){ .hero{ grid-template-columns: 1fr; } }
 
-  .wheel-box{ position:relative; width:240px; height:240px; margin: 0 auto; }
+  .wheel-box{ position:relative; width:150px; height:150px; margin: 0 auto; }
   .wheel-box svg{ width:100%; height:100%; }
   .wheel-center{
     position:absolute; inset:0; display:flex; flex-direction:column;
@@ -96,23 +96,23 @@
   }
   .wheel-center .label{
     font-family:'IBM Plex Mono', monospace;
-    font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint);
+    font-size:.5rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint);
   }
   .wheel-center .phase-name{
     font-family:'Fraunces', serif;
-    font-weight:500; font-size:1.15rem; line-height:1.15; margin-top:.35rem; max-width:9ch;
+    font-weight:500; font-size:.85rem; line-height:1.1; margin-top:.2rem; max-width:8ch;
   }
 
   .hero-right h2{
     font-family:'Fraunces', serif;
-    font-weight:400; font-size:1.5rem; margin: 0 0 1.4rem;
+    font-weight:400; font-size:1.15rem; margin: 0 0 .8rem;
     color: var(--ink-muted);
   }
   .hero-right h2 strong{ color: var(--ink); font-weight:600; }
 
   .stat-strip{ display:flex; flex-wrap:wrap; gap:0; border-top:1px solid var(--line); }
   .stat{
-    flex:1 1 140px; padding: 1rem 1.4rem 0 0; border-right:1px solid var(--line-faint);
+    flex:1 1 140px; padding: .6rem 1.4rem 0 0; border-right:1px solid var(--line-faint);
   }
   .stat:last-child{ border-right:none; }
   .stat .cap{
@@ -120,16 +120,16 @@
     text-transform:uppercase; color:var(--ink-faint);
   }
   .stat .val{
-    font-family:'IBM Plex Mono', monospace; font-size:1.5rem; font-weight:500; margin-top:.3rem; color:var(--ink);
+    font-family:'IBM Plex Mono', monospace; font-size:1.15rem; font-weight:500; margin-top:.15rem; color:var(--ink);
   }
 
   /* ---------- SECTION HEADERS ---------- */
   .section-head{
     display:flex; justify-content:space-between; align-items:flex-end; gap:1rem;
-    margin-bottom: 1.6rem; flex-wrap:wrap;
+    margin-bottom: .6rem; flex-wrap:wrap;
   }
   .section-title{
-    font-family:'Fraunces', serif; font-weight:500; font-size:1.5rem; margin:0;
+    font-family:'Fraunces', serif; font-weight:500; font-size:1.2rem; margin:0;
   }
   .section-title .eyebrow{ margin-bottom:.35rem; }
 
@@ -150,27 +150,28 @@
   }
 
   /* ---------- LEDGER ROWS (life metrics) ---------- */
-  .ledger{ margin-bottom: 4rem; }
+  .ledger{ margin-bottom: 1.8rem; }
   .entry{
-    display:grid; grid-template-columns: 210px 1fr;
-    gap: 2rem;
-    padding: 1.6rem 0;
+    display:grid; grid-template-columns: 170px 1fr;
+    gap: 1.4rem;
+    padding: .8rem 0;
     border-top: 1px solid var(--line-faint);
+    align-items:center;
   }
   .entry:last-child{ border-bottom: 1px solid var(--line-faint); }
   @media (max-width: 700px){ .entry{ grid-template-columns: 1fr; gap:.8rem; } }
 
-  .entry-label{ padding-top:.2rem; }
+  .entry-label{ padding-top:0; }
   .entry-label .dot{
-    display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:.5rem;
+    display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:.4rem;
   }
   .entry-label h3{
-    font-family:'Fraunces', serif; font-weight:500; font-size:1.05rem; margin:.5rem 0 .35rem;
+    font-family:'Fraunces', serif; font-weight:500; font-size:.92rem; margin:.3rem 0 .15rem;
   }
   .entry-label p{
-    font-family:'IBM Plex Sans', sans-serif; font-size:.78rem; color: var(--ink-faint); margin:0; line-height:1.5;
+    font-family:'IBM Plex Sans', sans-serif; font-size:.7rem; color: var(--ink-faint); margin:0; line-height:1.35;
   }
-  .entry-chart{ height: 180px; position:relative; }
+  .entry-chart{ height: 100px; position:relative; }
 
   /* ---------- STRENGTH SECTION ---------- */
   .strength-grid{
@@ -179,17 +180,18 @@
     border-bottom: 1px solid var(--line-faint);
   }
   @media (max-width: 760px){ .strength-grid{ grid-template-columns: 1fr; } }
-  .strength-panel{ padding: 1.8rem 2rem; }
+  .strength-panel{ padding: 1rem 1.4rem; }
   .strength-panel + .strength-panel{ border-left:1px solid var(--line-faint); }
   @media (max-width: 760px){ .strength-panel + .strength-panel{ border-left:none; border-top:1px solid var(--line-faint);} }
-  .strength-panel .eyebrow{ margin-bottom:.6rem; }
-  .strength-panel .chart-h{ height: 260px; position:relative; margin-top: 1rem; }
+  .strength-panel .eyebrow{ margin-bottom:.3rem; display:flex; align-items:center; gap:.4rem; }
+  .strength-panel .eyebrow .dot{ width:6px; height:6px; border-radius:50%; flex:none; }
+  .strength-panel .chart-h{ height: 170px; position:relative; margin-top: .5rem; }
 
   footer.foot{
-    max-width:1180px; margin: 4rem auto 0; padding: 0 1.5rem;
-    font-family:'IBM Plex Mono', monospace; font-size:.68rem; color: var(--ink-faint);
+    max-width:1180px; margin: 1.6rem auto 0; padding: 0 1.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:.66rem; color: var(--ink-faint);
     letter-spacing:.05em;
-    border-top:1px solid var(--line); padding-top:1.2rem;
+    border-top:1px solid var(--line); padding-top:.8rem;
   }
 </style>
 </head>
@@ -248,31 +250,15 @@
         </div>
       </div>
 
-      <div class="entry">
-        <div class="entry-label">
-          <span class="dot" style="background:var(--luteal)"></span>
-          <h3>Testsúly</h3>
-          <p>Napi mérések alakulása az elmúlt időszakban.</p>
+      <div class="strength-grid">
+        <div class="strength-panel">
+          <p class="eyebrow"><span class="dot" style="background:var(--luteal)"></span> Testsúly</p>
+          <div class="chart-h"><canvas id="sulyChart"></canvas></div>
         </div>
-        <div class="entry-chart"><canvas id="sulyChart"></canvas></div>
-      </div>
-
-      <div class="entry">
-        <div class="entry-label">
-          <span class="dot" style="background:var(--ovulation)"></span>
-          <h3>Energiabevitel</h3>
-          <p>Naponta bevitt kalória, oszlopdiagramon.</p>
+        <div class="strength-panel">
+          <p class="eyebrow"><span class="dot" style="background:var(--ovulation)"></span> Energiabevitel (kcal)</p>
+          <div class="chart-h"><canvas id="kcalChart"></canvas></div>
         </div>
-        <div class="entry-chart"><canvas id="kcalChart"></canvas></div>
-      </div>
-
-      <div class="entry">
-        <div class="entry-label">
-          <span class="dot" style="background:var(--follicular)"></span>
-          <h3>Napi aktivitás</h3>
-          <p>Megtett lépések száma naponta.</p>
-        </div>
-        <div class="entry-chart"><canvas id="lepesChart"></canvas></div>
       </div>
     </section>
 
@@ -446,12 +432,6 @@
       options: chartDefaults
     });
 
-    const lepesek = napiAdatok.map(n => parseInt(n['Lépések'] || n['Napi lépésszám'] || 0));
-    new Chart(document.getElementById('lepesChart').getContext('2d'), {
-      type:'line',
-      data:{ labels: datumok, datasets:[{ data: lepesek, borderColor:'#8fae6f', backgroundColor:'rgba(143,174,111,0.08)', fill:true, borderWidth:2, pointRadius:1, tension:0.2 }] },
-      options: chartDefaults
-    });
   }
 
   function gyakorlatListaFeltoltes(){
