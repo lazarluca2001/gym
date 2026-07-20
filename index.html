@@ -3,76 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness & Ciklus Napló</title>
-    <!-- Tailwind CSS a szép kinézethez -->
+    <title>Személyes Teljesítmény & Ciklus Dashboard</title>
+    <!-- Tailwind CSS v4 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js a gyönyörű interaktív grafikonokhoz -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans min-h-screen p-4 md:p-8">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center border-b border-gray-800 pb-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- FŐCÍM -->
+        <header class="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-6 gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">Fitness & Ciklus Dashboard</h1>
-                <p class="text-gray-400 text-sm mt-1">Automatikus adatszinkronizáció Google Sheets-ből</p>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">METRICS<span class="text-cyan-400">.</span></h1>
+                <p class="text-slate-400 text-sm font-medium mt-1 uppercase tracking-wider">Aktivitás, Ciklus és Erőszint Követés</p>
             </div>
-            <div class="mt-4 md:mt-0">
-                <label for="gyakorlatValaszto" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Gyakorlat kiválasztása:</label>
-                <select id="gyakorlatValaszto" class="bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:outline-none focus:border-pink-500">
-                    <option value="">Betöltés...</option>
-                </select>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center gap-4 shadow-inner">
+                <div>
+                    <span class="block text-xs uppercase tracking-wider text-slate-500 font-bold">Aktuális szakasz</span>
+                    <span id="statCiklus" class="text-lg font-bold text-pink-400">Betöltés...</span>
+                </div>
             </div>
         </header>
 
-        <!-- STATISZTIKAI KÁRTYÁK -->
+        <!-- STATISZTIKAI KIEMELÉSEK (MINI) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
-                <span class="text-xs text-gray-400 block uppercase font-semibold">Utolsó Súly</span>
-                <span id="statSuly" class="text-2xl font-bold text-white">-- kg</span>
+            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Utolsó Súly</p>
+                <p id="statSuly" class="text-xl font-bold mt-1 text-slate-200">-- kg</p>
             </div>
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
-                <span class="text-xs text-gray-400 block uppercase font-semibold">Mai Kalória</span>
-                <span id="statKcal" class="text-2xl font-bold text-orange-400">-- kcal</span>
+            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Utolsó Kalória</p>
+                <p id="statKcal" class="text-xl font-bold mt-1 text-amber-500">-- kcal</p>
             </div>
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
-                <span class="text-xs text-gray-400 block uppercase font-semibold">Mai Lépés</span>
-                <span id="statLepes" class="text-2xl font-bold text-green-400">--</span>
+            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Utolsó Lépésszám</p>
+                <p id="statLepes" class="text-xl font-bold mt-1 text-emerald-500">--</p>
             </div>
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
-                <span class="text-xs text-gray-400 block uppercase font-semibold">Ciklus szakasz</span>
-                <span id="statCiklus" class="text-2xl font-bold text-pink-400">--</span>
+            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Össz. Edzés Volumen</p>
+                <p id="statVolumen" class="text-xl font-bold mt-1 text-cyan-400">-- kg</p>
             </div>
         </div>
 
-        <!-- GRAFIKONOK -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Edzés Grafikon -->
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
-                <h3 class="text-lg font-bold mb-4 text-violet-400">Edzés Fejlődés (Súly & Volumen)</h3>
-                <div class="relative h-80">
-                    <canvas id="edzesChart"></canvas>
+        <!-- 1. SZEKCIÓ: ÉLETMÓD METRIKÁK (TELJESEN KÜLÖN GRAFIKONOK) -->
+        <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Életmód & Vitalitás</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Testsúly -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-2">Testsúly Alakulása</h3>
+                <div class="relative h-64 w-full mt-auto">
+                    <canvas id="sulyChart"></canvas>
                 </div>
             </div>
-            <!-- Súly és Kalória Grafikon -->
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
-                <h3 class="text-lg font-bold mb-4 text-pink-400">Testsúly & Kalória Alakulása</h3>
-                <div class="relative h-80">
-                    <canvas id="napiChart"></canvas>
+            <!-- Kalória -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">Energia Bevitel (Kcal)</h3>
+                <div class="relative h-64 w-full mt-auto">
+                    <canvas id="kcalChart"></canvas>
+                </div>
+            </div>
+            <!-- Lépésszám -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-emerald-500 pl-2">Napi Aktivitás (Lépések)</h3>
+                <div class="relative h-64 w-full mt-auto">
+                    <canvas id="lepesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. SZEKCIÓ: EDZÉS EXTRA REPO (KÜLÖNVÁLASZTOTT ADATOK) -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500">Erőszint & Progresszió</h2>
+            <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                <label for="gyakorlatValaszto" class="text-xs text-slate-400 font-semibold uppercase">Gyakorlat:</label>
+                <select id="gyakorlatValaszto" class="bg-transparent text-sm text-cyan-400 font-bold focus:outline-none cursor-pointer">
+                    <option value="">Betöltés...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Gyakorlat Max Súly -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-violet-500 pl-2">Maximális Munka Súly (kg)</h3>
+                <div class="relative h-72 w-full">
+                    <canvas id="gyakorlatSulyChart"></canvas>
+                </div>
+            </div>
+            <!-- Gyakorlat Volumen -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-l-2 border-cyan-500 pl-2">Teljes Edzésvolumen (Széria × Ism × Súly)</h3>
+                <div class="relative h-72 w-full">
+                    <canvas id="gyakorlatVolumenChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. CSERÉLD KI EZT A SAJÁT GOOGLE SHEET ID-DRA:
-        const SPREADSHEET_ID = '1NxTR3teMZjljuzvJNljJxRs_1U08uHTX1aTcSQlhCkA';
+        // CSERÉLD KI A SAJÁT ID-DRA:
+        const SPREADSHEET_ID = '1NxTR3teMZjIjuzvJnIjJxRs_1U08uHTX1aTcSQlhCkA';
         
         let edzesAdatok = [];
         let napiAdatok = [];
-        let edzesChart, napiChart;
+        
+        // Grafikon példányok globálisan
+        let sulyChart, kcalChart, lepesChart, gySulyChart, gyVolumenChart;
 
-        // Adatok lekérése a Google Sheets-ből (CSV formátumban, mert így nem kell API kulcs)
+        // Chart.js globális sötét mód beállítások finomhangolása
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
+            }
+        };
+
         async function adatBetoltes() {
             try {
                 const urlNapi = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Napi_adatok`;
@@ -87,13 +136,12 @@
 
                 uiFrissites();
                 gyakorlatListaFeltoltes();
-                grafikonokInicializalasa();
+                eletmodGrafikonokRajzolasa();
             } catch (error) {
-                console.error("Hiba az adatok betöltésekor:", error);
+                console.error("Hiba az adatok feldolgozásakor:", error);
             }
         }
 
-        // CSV szöveg átalakítása könnyen kezelhető JavaScript objektumokká
         function csvToObjects(csvText) {
             const sorok = csvText.split('\n').map(sor => 
                 sor.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cella => cella.replace(/^"|"$/g, '').trim())
@@ -113,7 +161,54 @@
             document.getElementById('statSuly').innerText = (utolsoNapi['Testsúly'] || utolsoNapi['Testsúly (kg)'] || '--') + ' kg';
             document.getElementById('statKcal').innerText = (utolsoNapi['Kalória'] || utolsoNapi['Bevitt kalória (kcal)'] || '--') + ' kcal';
             document.getElementById('statLepes').innerText = Number(utolsoNapi['Lépések'] || utolsoNapi['Napi lépésszám'] || 0).toLocaleString('hu-HU');
-            document.getElementById('statCiklus').innerText = utolsoNapi['Ciklus szakasz'] || '--';
+            document.getElementById('statCiklus').innerText = utolsoNapi['Ciklus szakasz'] || 'Nincs adat';
+
+            // Össz volumen kiszámítása a fejlécben
+            let totalVol = 0;
+            edzesAdatok.forEach(e => {
+                const sz = parseInt(e['Széria'] || 0);
+                const i = parseInt(e['Ismétlés'] || 0);
+                const s = parseFloat(e['Súly'] || e['Súly (kg)'] || 0);
+                totalVol += (sz * i * s);
+            });
+            document.getElementById('statVolumen').innerText = Math.round(totalVol).toLocaleString('hu-HU') + ' kg';
+        }
+
+        function eletmodGrafikonokRajzolasa() {
+            const datumok = napiAdatok.map(n => n['Dátum']);
+
+            // 1. Testsúly grafikon (Pink)
+            const sulyok = napiAdatok.map(n => parseFloat(n['Testsúly'] || n['Testsúly (kg)']));
+            sulyChart = new Chart(document.getElementById('sulyChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datumok,
+                    datasets: [{ data: sulyok, borderColor: '#ec4899', borderWidth: 2.5, pointRadius: 2, tension: 0.15 }]
+                },
+                options: chartDefaults
+            });
+
+            // 2. Kalória grafikon (Amber bar chart - modernebb oszlopos megjelenítés)
+            const kcalok = napiAdatok.map(n => parseInt(n['Kalória'] || n['Bevitt kalória (kcal)']));
+            kcalChart = new Chart(document.getElementById('kcalChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: datumok,
+                    datasets: [{ data: kcalok, backgroundColor: 'rgba(245, 158, 11, 0.4)', borderColor: '#f59e0b', borderWidth: 1, borderRadius: 4 }]
+                },
+                options: chartDefaults
+            });
+
+            // 3. Lépésszám grafikon (Emerald dúsított vonal)
+            const lepesek = napiAdatok.map(n => parseInt(n['Lépések'] || n['Napi lépésszám'] || 0));
+            lepesChart = new Chart(document.getElementById('lepesChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datumok,
+                    datasets: [{ data: lepesek, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.05)', fill: true, borderWidth: 2, pointRadius: 1, tension: 0.2 }]
+                },
+                options: chartDefaults
+            });
         }
 
         function gyakorlatListaFeltoltes() {
@@ -125,76 +220,50 @@
                 const opt = document.createElement('option');
                 opt.value = gy;
                 opt.innerText = gy;
+                opt.className = "bg-slate-900 text-white";
                 valaszto.appendChild(opt);
             });
 
-            valaszto.addEventListener('change', (e) => edzesGrafikonFrissites(e.target.value));
-            if (egyediGyakorlatok.length > 0) edzesGrafikonFrissites(egyediGyakorlatok[0]);
+            valaszto.addEventListener('change', (e) => edzesGrafikonokFrissites(e.target.value));
+            if (egyediGyakorlatok.length > 0) edzesGrafikonokFrissites(egyediGyakorlatok[0]);
         }
 
-        function grafikonokInicializalasa() {
-            // Napi adatok (Súly és Kalória) grafikon
-            const ctxNapi = document.getElementById('napiChart').getContext('2d');
-            const datumok = napiAdatok.map(n => n['Dátum']);
-            const sulyok = napiAdatok.map(n => parseFloat(n['Testsúly'] || n['Testsúly (kg)']));
-            const kcalok = napiAdatok.map(n => parseInt(n['Kalória'] || n['Bevitt kalória (kcal)']));
-
-            napiChart = new Chart(ctxNapi, {
-                type: 'line',
-                data: {
-                    labels: datumok,
-                    datasets: [
-                        { label: 'Súly (kg)', data: sulyok, borderColor: '#ec4899', yAxisID: 'ySuly', tension: 0.1 },
-                        { label: 'Kalória (kcal)', data: kcalok, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, yAxisID: 'yKcal', tension: 0.1 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        ySuly: { type: 'linear', position: 'left', grid: { color: '#374151' } },
-                        yKcal: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
-                    }
-                }
-            });
-        }
-
-        function edzesGrafikonFrissites(gyakorlatNev) {
-            const szurtEdzesek = edzesAdatok.filter(e => (e['Gyakorlat'] || e['Gyakorlat neve']) === gyakorlatNev);
-            const datumok = szurtEdzesek.map(e => e['Dátum']);
-            const sulyok = szurtEdzesek.map(e => parseFloat(e['Súly'] || e['Súly (kg)']));
-            const volumenek = szurtEdzesek.map(e => {
+        function edzesGrafikonokFrissites(gyakorlatNev) {
+            const szurt = edzesAdatok.filter(e => (e['Gyakorlat'] || e['Gyakorlat neve']) === gyakorlatNev);
+            const datumok = szurt.map(e => e['Dátum']);
+            
+            const maxSulyok = szurt.map(e => parseFloat(e['Súly'] || e['Súly (kg)'] || 0));
+            const volumenek = szurt.map(e => {
                 const sz = parseInt(e['Széria'] || 0);
                 const i = parseInt(e['Ismétlés'] || 0);
                 const s = parseFloat(e['Súly'] || e['Súly (kg)'] || 0);
                 return sz * i * s;
             });
 
-            const ctxEdzes = document.getElementById('edzesChart').getContext('2d');
-
-            if (edzesChart) edzesChart.destroy();
-
-            edzesChart = new Chart(ctxEdzes, {
+            // Gyakorlat Súly frissítés
+            if (gySulyChart) gySulyChart.destroy();
+            gySulyChart = new Chart(document.getElementById('gyakorlatSulyChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: datumok,
-                    datasets: [
-                        { label: 'Max Súly (kg)', data: sulyok, borderColor: '#a78bfa', tension: 0.1 },
-                        { label: 'Össz. Volumen (kg)', data: volumenek, borderColor: '#eab308', yAxisID: 'yVolumen', tension: 0.1 }
-                    ]
+                    datasets: [{ data: maxSulyok, borderColor: '#8b5cf6', borderWidth: 3, pointBackgroundColor: '#8b5cf6', pointRadius: 4, tension: 0.05 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { title: { display: true, text: 'Súly (kg)' }, grid: { color: '#374151' } },
-                        yVolumen: { type: 'linear', position: 'right', title: { display: true, text: 'Volumen (kg)' }, grid: { drawOnChartArea: false } }
-                    }
-                }
+                options: chartDefaults
+            });
+
+            // Gyakorlat Volumen frissítés
+            if (gyVolumenChart) gyVolumenChart.destroy();
+            gyVolumenChart = new Chart(document.getElementById('gyakorlatVolumenChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datumok,
+                    datasets: [{ data: volumenek, borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', fill: true, borderWidth: 2, pointRadius: 3, tension: 0.1 }]
+                },
+                options: chartDefaults
             });
         }
 
-        // Indítás
+        // Futtatás
         adatBetoltes();
     </script>
 </body>
