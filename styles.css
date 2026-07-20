@@ -57,7 +57,9 @@ body.dark{
 }
 
 *{ box-sizing:border-box; }
+html{ overflow-x:hidden; max-width:100%; }
 body{
+  overflow-x:hidden; max-width:100%;
   background-color: var(--bg);
   background-image: radial-gradient(var(--card-border) 1px, transparent 1px);
   background-size: 22px 22px;
@@ -112,11 +114,23 @@ body{
   border-radius:3px; transition:.2s;
 }
 @media (max-width:760px){
-  .topbar{ flex-wrap:wrap; padding:.85rem 1rem; }
-  .topbar-left{ flex-wrap:wrap; gap:.7rem; width:100%; }
-  .page-nav{ order:3; width:100%; }
+  .topbar{ padding:.85rem 1rem; }
+  .nav-toggle{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border:2px solid var(--ink); background: var(--card); color: var(--ink);
+    font-size:1.1rem; cursor:pointer; flex:none; border-radius:0;
+  }
+  .page-nav{
+    display:none; position:absolute; left:1rem; right:1rem; top:100%; margin-top:.6rem;
+    flex-direction:column; gap:0; background: var(--card); border:2px solid var(--ink);
+    box-shadow: 4px 4px 0 0 var(--ink); border-radius:0; padding:.4rem; z-index:30;
+    overflow-x:visible;
+  }
+  .page-nav.nyitva{ display:flex; }
+  .page-nav a{ width:100%; text-align:left; padding:.75rem .9rem; white-space:normal; }
   .dark-toggle{ margin-left:auto; }
 }
+.nav-toggle{ display:none; }
 .slider::before{
   content:''; position:absolute; height:18px; width:18px; left:3px; bottom:3px;
   background: var(--card); border-radius:50%; transition:.2s;
@@ -237,7 +251,7 @@ footer.foot{
 
 .stat-card{
   background: var(--card); border:2px solid var(--card-border); border-radius:0px;
-  padding:1.1rem 1.2rem; display:flex; align-items:center; gap:.8rem;
+  padding:1.1rem 1.2rem; display:flex; align-items:center; gap:.8rem; min-width:0;
   box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
   transition: box-shadow .18s, transform .18s;
 }
@@ -246,7 +260,11 @@ footer.foot{
   font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.66rem;
   letter-spacing:.05em; text-transform:uppercase; color: var(--ink-muted); margin:0 0 .25rem;
 }
-.stat-card-value{ font-family:'Space Mono', monospace; font-weight:700; font-size:1.35rem; color: var(--ink); margin:0; letter-spacing:-.01em; }
+.stat-card-value{
+  font-family:'Space Mono', monospace; font-weight:700; font-size:1.35rem; color: var(--ink); margin:0; letter-spacing:-.01em;
+  overflow-wrap:anywhere; word-break:break-word; min-width:0;
+}
+.stat-card > div{ min-width:0; }
 
 .exercise-picker-card{
   background: var(--card); border:2px solid var(--card-border); border-radius:0px; padding:1.2rem 1.3rem;
