@@ -2,6 +2,7 @@
   --bg: #f7f3ee;
   --card: #ffffff;
   --border: #e8ded2;
+  --card-border: rgba(42,31,28,.06);
   --ink: #2a1f1c;
   --ink-muted: #948578;
   --ink-faint: #b4a897;
@@ -13,19 +14,23 @@
   --follicular: #3f6b3a;
   --ovulation: #b8791f;
   --luteal: #5b4a8a;
+  --luteal-soft: #ece7f5;
 
   /* domain-akcentek: aktivitás-típusonként egységes, a ciklusszínektől független szín */
   --dom-ero: #33628c;
   --dom-ero-2: #6a94b8;
+  --dom-ero-soft: #e3ecf3;
   --dom-tanc: #1f8a83;
   --dom-tanc-2: #4fada6;
   --dom-tanc-3: #7fc4bd;
   --dom-tanc-4: #2c5c58;
+  --dom-tanc-soft: #e0f0ee;
 }
 body.dark{
   --bg: #1c1414;
   --card: #251b1b;
   --border: #3c2b2a;
+  --card-border: rgba(255,255,255,.06);
   --ink: #f3ece7;
   --ink-muted: #a9958e;
   --ink-faint: #7d6c66;
@@ -37,13 +42,16 @@ body.dark{
   --follicular: #7cb56f;
   --ovulation: #dba448;
   --luteal: #9c86d6;
+  --luteal-soft: #2c2540;
 
   --dom-ero: #6fa8d8;
   --dom-ero-2: #4a7ba3;
+  --dom-ero-soft: #1f2f3d;
   --dom-tanc: #4fc3bb;
   --dom-tanc-2: #7fd9d2;
   --dom-tanc-3: #2f8f88;
   --dom-tanc-4: #a3e4de;
+  --dom-tanc-soft: #1a3230;
 }
 
 *{ box-sizing:border-box; }
@@ -125,7 +133,7 @@ body{
 }
 
 .side-card{
-  background: var(--card); border:1px solid var(--border); border-radius:18px;
+  background: var(--card); border:1px solid var(--card-border); border-radius:20px;
   padding:1.1rem 1.2rem; box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 8px 20px -12px rgba(20,10,10,.12);
   transition: box-shadow .18s, transform .18s;
 }
@@ -202,8 +210,8 @@ body{
 .card-grid > .data-card:last-child:nth-child(odd){ grid-column: 1 / -1; }
 
 .data-card{
-  background: var(--card); border:1px solid var(--border); border-top:4px solid var(--accent-c, var(--accent));
-  border-radius:18px; padding:1.3rem 1.4rem 1.1rem;
+  background: var(--card); border:1px solid var(--card-border); border-top:4px solid var(--accent-c, var(--accent));
+  border-radius:20px; padding:1.3rem 1.4rem 1.1rem;
   box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 10px 24px -14px rgba(20,10,10,.14);
   transition: box-shadow .18s, transform .18s;
 }
@@ -223,7 +231,7 @@ footer.foot{
 @media (max-width:520px){ .stat-cards-row{ grid-template-columns:1fr 1fr; } }
 
 .stat-card{
-  background: var(--card); border:1px solid var(--border); border-radius:18px;
+  background: var(--card); border:1px solid var(--card-border); border-radius:20px;
   padding:1.1rem 1.2rem; display:flex; align-items:center; gap:.8rem;
   box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 8px 20px -12px rgba(20,10,10,.12);
   transition: box-shadow .18s, transform .18s;
@@ -236,7 +244,7 @@ footer.foot{
 .stat-card-value{ font-family:'Space Mono', monospace; font-weight:700; font-size:1.35rem; color: var(--ink); margin:0; letter-spacing:-.01em; }
 
 .exercise-picker-card{
-  background: var(--card); border:1px solid var(--border); border-radius:18px; padding:1.2rem 1.3rem;
+  background: var(--card); border:1px solid var(--card-border); border-radius:20px; padding:1.2rem 1.3rem;
   box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 8px 20px -12px rgba(20,10,10,.12);
 }
 
@@ -374,6 +382,7 @@ footer.foot{
 
 body.betoltes .stat-card-value,
 body.betoltes .stat-value,
+body.betoltes .hero-metric-value,
 body.betoltes .phase-title,
 body.betoltes .today-pill{
   color:transparent !important; border-color:transparent !important;
@@ -381,6 +390,7 @@ body.betoltes .today-pill{
   background-size:400px 100%; animation:shimmer 1.3s infinite linear;
   border-radius:6px; display:inline-block; min-width:56px;
 }
+body.betoltes .hero-metric-value{ min-height:2.6rem; min-width:140px; }
 
 body.betoltes .chart-box,
 body.betoltes .donut-box{ position:relative; overflow:hidden; }
@@ -401,6 +411,44 @@ body.betoltes .fazis-elemzes-racs{
   opacity:.3; pointer-events:none; filter:grayscale(.4);
 }
 body.betoltes .trend-line{ visibility:hidden; }
+
+/* ---------- HERO METRIKA (nagy, kiemelt szám minden oldal tetején) ---------- */
+.hero-metric{
+  position:relative; overflow:hidden;
+  background: var(--card); border:1px solid var(--card-border); border-radius:22px;
+  padding:1.7rem 1.8rem; margin-bottom:1.2rem;
+  box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 18px 44px -20px rgba(20,10,10,.22);
+}
+.hero-metric::before{
+  content:''; position:absolute; top:-60%; right:-15%; width:55%; height:220%;
+  background: radial-gradient(circle, var(--hero-glow, var(--accent)) 0%, transparent 68%);
+  opacity:.16; pointer-events:none;
+}
+.hero-metric-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; position:relative; }
+.hero-metric-main{ position:relative; }
+.hero-metric-label{
+  font-family:'Poppins', sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase;
+  letter-spacing:.07em; color: var(--ink-muted); display:flex; align-items:center; gap:.4rem;
+}
+.hero-metric-value{
+  font-family:'Space Mono', monospace; font-weight:700; font-size:3.1rem; line-height:1;
+  color: var(--ink); margin:.5rem 0 .3rem; letter-spacing:-.02em;
+}
+.hero-metric-value small{ font-size:1.1rem; font-weight:600; color: var(--ink-muted); margin-left:.35rem; }
+.hero-metric-sub{ font-size:.84rem; color: var(--ink-muted); position:relative; }
+.hero-metric-side{ display:flex; flex-direction:column; gap:.5rem; align-items:flex-end; position:relative; }
+@media (max-width:600px){
+  .hero-metric{ padding:1.4rem 1.3rem; }
+  .hero-metric-value{ font-size:2.3rem; }
+  .hero-metric-side{ align-items:flex-start; }
+}
+
+/* ikon-jelvény: körkörös, domain-színnel telített hátterű ikon */
+.icon-badge{
+  width:42px; height:42px; border-radius:50%; flex:none;
+  display:flex; align-items:center; justify-content:center; font-size:1.25rem;
+  background: var(--icon-bg, var(--accent-soft));
+}
 
 /* lista / agenda nézet */
 .naptar-lista{ display:flex; flex-direction:column; gap:.6rem; }
@@ -428,8 +476,8 @@ body.betoltes .trend-line{ visibility:hidden; }
 /* ---------- KEZDŐLAP: gyorslinkek ---------- */
 .quick-links{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:1rem; }
 .quick-link{
-  background: var(--card); border:1px solid var(--border); border-top:4px solid var(--accent-c, var(--accent));
-  border-radius:18px; padding:1.2rem; text-decoration:none; display:flex; flex-direction:column; gap:.3rem;
+  background: var(--card); border:1px solid var(--card-border); border-top:4px solid var(--accent-c, var(--accent));
+  border-radius:20px; padding:1.2rem; text-decoration:none; display:flex; flex-direction:column; gap:.3rem;
   box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 8px 20px -12px rgba(20,10,10,.12);
   transition: box-shadow .18s, transform .18s, border-color .18s;
 }
@@ -441,8 +489,8 @@ body.betoltes .trend-line{ visibility:hidden; }
 /* ---------- TRENDEK: fázisonkénti elemzés ---------- */
 .fazis-elemzes-racs{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1.1rem; }
 .fazis-panel{
-  background: var(--card); border:1px solid var(--border); border-top:4px solid var(--fazis-szin);
-  border-radius:18px; padding:1.2rem 1.3rem;
+  background: var(--card); border:1px solid var(--card-border); border-top:4px solid var(--fazis-szin);
+  border-radius:20px; padding:1.2rem 1.3rem;
   box-shadow: 0 1px 2px rgba(20,10,10,.03), 0 8px 20px -12px rgba(20,10,10,.12);
 }
 .fazis-panel-cim{ font-family:'Poppins', sans-serif; font-weight:700; font-size:1rem; margin:0; color: var(--fazis-szin); }
