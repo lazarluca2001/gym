@@ -1,58 +1,58 @@
 :root{
-  --bg: #eef0e4;
+  --bg: #f6f5fb;
   --card: #ffffff;
-  --border: #14120f;
-  --card-border: #14120f;
-  --ink: #14120f;
-  --ink-muted: #565248;
-  --ink-faint: #8b8676;
-  --accent: #ff4d6d;
-  --accent-soft: #ffe0e6;
-  --accent-ink: #14120f;
+  --border: #ebe9f5;
+  --card-border: #ebe9f5;
+  --ink: #262338;
+  --ink-muted: #8c88a3;
+  --ink-faint: #b7b4c9;
+  --accent: #7c6ff0;
+  --accent-soft: #ece9fd;
+  --accent-ink: #ffffff;
 
-  --menstrual: #ef3d5e;
-  --follicular: #4fb84a;
-  --ovulation: #ffb800;
-  --luteal: #8b5cf6;
-  --luteal-soft: #ece3ff;
+  --menstrual: #f16b8f;
+  --follicular: #52c993;
+  --ovulation: #ffb454;
+  --luteal: #8b7bf0;
+  --luteal-soft: #ece9fd;
 
   /* domain-akcentek: aktivitás-típusonként egységes, a ciklusszínektől független szín */
-  --dom-ero: #2f6fed;
-  --dom-ero-2: #7ea6f5;
-  --dom-ero-soft: #dbe6ff;
-  --dom-tanc: #00c2a8;
-  --dom-tanc-2: #3dd9c2;
-  --dom-tanc-3: #7ee8d6;
-  --dom-tanc-4: #00877a;
-  --dom-tanc-soft: #ccf7ee;
+  --dom-ero: #ff8a65;
+  --dom-ero-2: #ffb08f;
+  --dom-ero-soft: #fff0e9;
+  --dom-tanc: #2dd4bf;
+  --dom-tanc-2: #6ee7d8;
+  --dom-tanc-3: #a4f2e7;
+  --dom-tanc-4: #14b8a6;
+  --dom-tanc-soft: #e2fbf7;
 
   --shadow-off: 4px;
 }
 body.dark{
-  --bg: #121316;
-  --card: #1c1e23;
-  --border: #f2f0e8;
-  --card-border: #f2f0e8;
-  --ink: #f2f0e8;
-  --ink-muted: #a5a49b;
-  --ink-faint: #6f6e67;
-  --accent: #ff6b85;
-  --accent-soft: #3a1f28;
-  --accent-ink: #14120f;
+  --bg: #17151f;
+  --card: #211f2c;
+  --border: #322e40;
+  --card-border: #322e40;
+  --ink: #f1f0f7;
+  --ink-muted: #a29cbb;
+  --ink-faint: #6d6884;
+  --accent: #9a8ff5;
+  --accent-soft: #2c2740;
+  --accent-ink: #17151f;
 
-  --menstrual: #ff5c78;
-  --follicular: #6bd066;
-  --ovulation: #ffc93c;
-  --luteal: #a684fc;
-  --luteal-soft: #2b2140;
+  --menstrual: #f78fac;
+  --follicular: #6fd9a8;
+  --ovulation: #ffc978;
+  --luteal: #a99af8;
+  --luteal-soft: #2c2740;
 
-  --dom-ero: #5c93f5;
-  --dom-ero-2: #a9c4f8;
-  --dom-ero-soft: #1c2c48;
-  --dom-tanc: #29d9bd;
-  --dom-tanc-2: #6ee8d4;
-  --dom-tanc-3: #9ff0e2;
-  --dom-tanc-4: #14a58f;
+  --dom-ero: #ffa585;
+  --dom-ero-2: #ffc4ab;
+  --dom-ero-soft: #322721;
+  --dom-tanc: #4fe0cb;
+  --dom-tanc-2: #85ecdb;
+  --dom-tanc-3: #b6f4e8;
+  --dom-tanc-4: #29b8a3;
   --dom-tanc-soft: #12332e;
 }
 
@@ -61,15 +61,17 @@ html{ overflow-x:hidden; max-width:100%; }
 body{
   overflow-x:hidden; max-width:100%;
   background-color: var(--bg);
-  background-image: radial-gradient(var(--card-border) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background-image:
+    radial-gradient(circle at 8% -6%, rgba(124,111,240,.10), transparent 40%),
+    radial-gradient(circle at 96% 10%, rgba(45,212,191,.10), transparent 38%);
+  background-attachment: fixed;
   color: var(--ink);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   margin:0;
   transition: background .2s ease, color .2s ease;
   -webkit-font-smoothing: antialiased;
 }
-.display{ font-family:'Space Grotesk', sans-serif; }
+.display{ font-family:'Plus Jakarta Sans', sans-serif; }
 .mono{ font-family:'Space Mono', monospace; }
 
 /* ---------- TOP BAR ---------- */
@@ -78,52 +80,51 @@ body{
   padding: 1rem 1.6rem;
   border-bottom: 1px solid var(--border);
   background: var(--card);
-  box-shadow: 0 3px 0 0 var(--ink);
+  box-shadow: 0 1px 2px rgba(38,35,56,.03), 0 10px 24px -18px rgba(38,35,56,.18);
   gap: 1rem; flex-wrap:wrap; position:sticky; top:0; z-index:20;
 }
 .topbar-left{ display:flex; align-items:center; gap:1.6rem; min-width:0; flex:1; }
 .back-link{
-  font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.8rem;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.8rem;
   color: var(--ink-muted); text-decoration:none; letter-spacing:.03em;
 }
 .header-title{
-  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.4rem;
-  color: var(--ink); letter-spacing:-.01em; text-decoration:none; flex:none;
-  text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1.4rem;
+  color: var(--ink); letter-spacing:-.02em; text-decoration:none; flex:none;
 }
 .header-title span{ color: var(--accent); }
 
 .page-nav{
-  display:flex; gap:.3rem; background: var(--bg); border:2px solid var(--border); border-radius:3px;
+  display:flex; gap:.3rem; background: var(--bg); border:1px solid var(--border); border-radius:999px;
   padding:.25rem; overflow-x:auto; scrollbar-width:none; min-width:0;
 }
 .page-nav::-webkit-scrollbar{ display:none; }
 .page-nav a{
-  font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.78rem; white-space:nowrap; flex:none;
-  padding:.45rem .9rem; border-radius:3px; text-decoration:none; color: var(--ink-muted); transition:.15s;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.78rem; white-space:nowrap; flex:none;
+  padding:.45rem .9rem; border-radius:999px; text-decoration:none; color: var(--ink-muted); transition:.15s;
 }
 .page-nav a.active{ background: var(--accent); color: var(--accent-ink); }
 .page-nav a:hover:not(.active){ color: var(--ink); }
 
 .dark-toggle{ display:flex; align-items:center; gap:.6rem; flex:none; }
-.dark-toggle span{ font-family:'Space Grotesk', sans-serif; font-size:.78rem; font-weight:600; color: var(--ink-muted); }
+.dark-toggle span{ font-family:'Plus Jakarta Sans', sans-serif; font-size:.78rem; font-weight:600; color: var(--ink-muted); }
 .switch{ position:relative; display:inline-block; width:42px; height:24px; flex:none; }
 .switch input{ opacity:0; width:0; height:0; }
 .slider{
   position:absolute; cursor:pointer; inset:0; background: var(--border);
-  border-radius:3px; transition:.2s;
+  border-radius:999px; transition:.2s;
 }
 @media (max-width:760px){
   .topbar{ padding:.85rem 1rem; }
   .nav-toggle{
     display:flex; align-items:center; justify-content:center;
-    width:38px; height:38px; border:2px solid var(--ink); background: var(--card); color: var(--ink);
-    font-size:1.1rem; cursor:pointer; flex:none; border-radius:0;
+    width:40px; height:40px; border:1px solid var(--border); background: var(--card); color: var(--ink);
+    font-size:1.1rem; cursor:pointer; flex:none; border-radius:50%;
   }
   .page-nav{
     display:none; position:absolute; left:1rem; right:1rem; top:100%; margin-top:.6rem;
-    flex-direction:column; gap:0; background: var(--card); border:2px solid var(--ink);
-    box-shadow: 4px 4px 0 0 var(--ink); border-radius:0; padding:.4rem; z-index:30;
+    flex-direction:column; gap:0; background: var(--card); border:1px solid var(--card-border);
+    box-shadow: 0 20px 40px -16px rgba(38,35,56,.28); border-radius:20px; padding:.5rem; z-index:30;
     overflow-x:visible;
   }
   .page-nav.nyitva{ display:flex; }
@@ -152,12 +153,12 @@ body{
 }
 
 .side-card{
-  background: var(--card); border:2px solid var(--card-border); border-radius:0px;
-  padding:1.1rem 1.2rem; box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
+  background: var(--card); border:1px solid var(--card-border); border-radius:22px;
+  padding:1.1rem 1.2rem; box-shadow: 0 1px 2px rgba(38,35,56,.04), 0 12px 28px -16px rgba(124,111,240,.28);
   transition: box-shadow .18s, transform .18s;
 }
 .side-label{
-  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.68rem;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.68rem;
   letter-spacing:.08em; text-transform:uppercase; color: var(--accent); margin:0 0 .8rem;
 }
 
@@ -165,7 +166,7 @@ body{
 .mini-wheel{ width:96px; height:96px; margin: 0 auto .6rem; }
 .mini-wheel svg{ width:100%; height:100%; }
 .phase-title{
-  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1rem; text-align:center; margin:0;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1rem; text-align:center; margin:0;
   color: var(--ink);
 }
 .phase-sub{ text-align:center; font-size:.72rem; color: var(--ink-muted); margin:.2rem 0 0; }
@@ -174,12 +175,12 @@ body{
 .pill-list{ display:flex; flex-wrap:wrap; gap:.5rem; }
 .pill{
   display:inline-flex; align-items:center; gap:.4rem;
-  padding:.5rem .8rem; border-radius:3px; border:2px solid var(--border);
-  background: var(--bg); color: var(--ink); font-family:'Space Grotesk', sans-serif;
+  padding:.5rem .8rem; border-radius:999px; border:1px solid var(--border);
+  background: var(--bg); color: var(--ink); font-family:'Plus Jakarta Sans', sans-serif;
   font-size:.76rem; font-weight:600; cursor:pointer; transition:.15s;
 }
 .pill:hover{ border-color: var(--accent); }
-.pill.active{ background: var(--accent); border-color: var(--ink); color: var(--accent-ink); font-weight:700; }
+.pill.active{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight:600; }
 
 /* stat list */
 .stat-list{ display:flex; flex-direction:column; gap:.85rem; }
@@ -195,7 +196,7 @@ body{
   display:block; font-size:.72rem; color: var(--ink-muted); margin-bottom:.3rem; font-weight:500;
 }
 .goal-row input{
-  width:100%; background: var(--bg); border:2px solid var(--border); border-radius:0px;
+  width:100%; background: var(--bg); border:1px solid var(--border); border-radius:22px;
   padding:.5rem .6rem; font-family:'Space Mono', monospace; font-size:.82rem; color: var(--ink);
 }
 .goal-row input:focus{ outline:none; border-color: var(--accent); }
@@ -213,15 +214,15 @@ body{
   margin-bottom:1.2rem;
 }
 .content-head h1{
-  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.5rem; margin:0;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1.5rem; margin:0;
   color: var(--ink);
 }
 .content-head p.sub{
-  font-family:'Space Grotesk', sans-serif; font-size:.82rem; color: var(--ink-muted); margin:.3rem 0 0;
+  font-family:'Plus Jakarta Sans', sans-serif; font-size:.82rem; color: var(--ink-muted); margin:.3rem 0 0;
 }
 .today-pill{
   font-family:'Space Mono', monospace; font-size:.76rem; font-weight:700;
-  background: var(--accent-soft); color: var(--ink); border:2px solid var(--ink); padding:.4rem .9rem; border-radius:3px;
+  background: var(--accent-soft); color: var(--accent); border:none; padding:.4rem .9rem; border-radius:999px;
 }
 
 .card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
@@ -229,13 +230,13 @@ body{
 .card-grid > .data-card:last-child:nth-child(odd){ grid-column: 1 / -1; }
 
 .data-card{
-  background: var(--card); border:2px solid var(--card-border); border-top:4px solid var(--accent-c, var(--accent));
-  border-radius:0px; padding:1.3rem 1.4rem 1.1rem;
-  box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
+  background: var(--card); border:1px solid var(--card-border); border-top:4px solid var(--accent-c, var(--accent));
+  border-radius:22px; padding:1.3rem 1.4rem 1.1rem;
+  box-shadow: 0 1px 2px rgba(38,35,56,.04), 0 12px 28px -16px rgba(124,111,240,.28);
   transition: box-shadow .18s, transform .18s;
 }
 .card-label{
-  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.02em;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.02em;
   text-transform:uppercase; color: var(--ink-muted); margin:0 0 .9rem;
 }
 .chart-box{ height:210px; position:relative; }
@@ -250,14 +251,14 @@ footer.foot{
 @media (max-width:520px){ .stat-cards-row{ grid-template-columns:1fr 1fr; } }
 
 .stat-card{
-  background: var(--card); border:2px solid var(--card-border); border-radius:0px;
+  background: var(--card); border:1px solid var(--card-border); border-radius:22px;
   padding:1.1rem 1.2rem; display:flex; align-items:center; gap:.8rem; min-width:0;
-  box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
+  box-shadow: 0 1px 2px rgba(38,35,56,.04), 0 12px 28px -16px rgba(124,111,240,.28);
   transition: box-shadow .18s, transform .18s;
 }
 .stat-card-icon{ font-size:1.6rem; line-height:1; }
 .stat-card-label{
-  font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.66rem;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.66rem;
   letter-spacing:.05em; text-transform:uppercase; color: var(--ink-muted); margin:0 0 .25rem;
 }
 .stat-card-value{
@@ -267,18 +268,18 @@ footer.foot{
 .stat-card > div{ min-width:0; }
 
 .exercise-picker-card{
-  background: var(--card); border:2px solid var(--card-border); border-radius:0px; padding:1.2rem 1.3rem;
-  box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
+  background: var(--card); border:1px solid var(--card-border); border-radius:22px; padding:1.2rem 1.3rem;
+  box-shadow: 0 1px 2px rgba(38,35,56,.04), 0 12px 28px -16px rgba(124,111,240,.28);
 }
 
 .category-tabs{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.9rem; }
 .tab{
-  font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.72rem;
-  padding:.4rem .85rem; border-radius:3px; border:1.5px solid transparent;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.72rem;
+  padding:.4rem .85rem; border-radius:999px; border:1.5px solid transparent;
   background: transparent; color: var(--ink-muted); cursor:pointer; transition:.15s;
 }
 .tab:hover{ color: var(--accent); }
-.tab.active{ background: var(--accent-soft); color: var(--ink); border-color: var(--ink); font-weight:700; }
+.tab.active{ background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); font-weight:600; }
 
 /* ---------- TÁNC NAPLÓ ---------- */
 .donut-box{ height:230px; position:relative; }
@@ -288,16 +289,16 @@ footer.foot{
   display:grid; grid-template-columns: 100px 1fr 140px 110px 80px;
   gap:.8rem; align-items:center;
   padding:.65rem 0; border-top:1px solid var(--border);
-  font-family:'Space Grotesk', sans-serif; font-size:.8rem; color: var(--ink);
+  font-family:'Plus Jakarta Sans', sans-serif; font-size:.8rem; color: var(--ink);
 }
 .tanc-row:first-child{ border-top:none; }
 .tanc-row .tanc-datum{ font-family:'Space Mono', monospace; font-size:.72rem; color: var(--ink-muted); }
 .tanc-row .tanc-nev{ font-weight:600; }
 .tanc-row .tanc-iskola{ color: var(--ink-muted); font-size:.76rem; }
 .tanc-row .tanc-tipus{
-  font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.68rem; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.68rem; text-transform:uppercase;
   letter-spacing:.03em; color: var(--accent); background: var(--accent-soft);
-  padding:.2rem .55rem; border-radius:3px; text-align:center; justify-self:start;
+  padding:.2rem .55rem; border-radius:999px; text-align:center; justify-self:start;
 }
 .tanc-row .tanc-perc{ font-family:'Space Mono', monospace; font-weight:700; text-align:right; }
 @media (max-width:700px){
@@ -312,33 +313,33 @@ footer.foot{
 /* ---------- NAPTÁR ---------- */
 .naptar-fejlec{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
 .naptar-fejlec-nav{ display:flex; align-items:center; gap:.6rem; }
-.naptar-fejlec h2{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.15rem; margin:0; min-width:110px; text-align:center; color: var(--ink); }
+.naptar-fejlec h2{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1.15rem; margin:0; min-width:110px; text-align:center; color: var(--ink); }
 .naptar-nav-btn{
-  width:32px; height:32px; border-radius:0; border:2px solid var(--border); background: var(--card);
+  width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background: var(--card);
   color: var(--ink-muted); font-size:.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none;
-  font-weight:700;
+  font-weight:600; transition:.15s;
 }
-.naptar-nav-btn:hover{ color: var(--accent-ink); background: var(--accent); border-color: var(--ink); }
+.naptar-nav-btn:hover{ color: var(--accent); background: var(--accent-soft); border-color: var(--accent-soft); }
 .naptar-ma-btn{
-  font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:.72rem; padding:.4rem .8rem;
-  border-radius:3px; border:2px solid var(--border); background: var(--card); color: var(--ink-muted); cursor:pointer;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.72rem; padding:.4rem .8rem;
+  border-radius:999px; border:1px solid var(--border); background: var(--card); color: var(--ink-muted); cursor:pointer;
 }
 .naptar-ev-valaszto{
   font-family:'Space Mono', monospace; font-size:.8rem; color: var(--ink); background: var(--bg);
-  border:2px solid var(--border); border-radius:0px; padding:.35rem .5rem;
+  border:1px solid var(--border); border-radius:22px; padding:.35rem .5rem;
 }
-.naptar-nezet-valto{ display:flex; gap:.3rem; background: var(--bg); border:2px solid var(--border); border-radius:3px; padding:.2rem; }
+.naptar-nezet-valto{ display:flex; gap:.3rem; background: var(--bg); border:1px solid var(--border); border-radius:999px; padding:.2rem; }
 
 .naptar-hetnapok{ display:grid; grid-template-columns:repeat(7,1fr) 0.7fr; gap:.5rem; margin-bottom:.5rem; }
 .naptar-hetnapok span{
-  text-align:center; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.68rem;
+  text-align:center; font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.68rem;
   letter-spacing:.05em; color: var(--ink-faint); text-transform:uppercase;
 }
 .naptar-osszesen-fejlec{ color: var(--accent) !important; }
 
 .naptar-racs{ display:grid; grid-template-columns:repeat(7,1fr) 0.7fr; gap:.5rem; }
 .nap-cella{
-  min-height:64px; background: var(--card); border:2px solid var(--border); border-radius:0px;
+  min-height:64px; background: var(--card); border:1px solid var(--border); border-radius:22px;
   padding:.45rem; display:flex; flex-direction:column; gap:.2rem; position:relative; cursor:pointer;
   border-top:3px solid var(--fazis-szin, var(--border)); transition:.12s;
 }
@@ -357,16 +358,17 @@ footer.foot{
 
 /* heti "Összesen" cella */
 .nap-cella.nap-osszesen{
-  cursor:default; background: var(--accent-soft); border-top-color: var(--ink); align-items:center; justify-content:center; gap:.15rem;
+  cursor:default; background: #fdedf1; border-top-color: var(--menstrual); align-items:center; justify-content:center; gap:.15rem;
 }
-.nap-cella.nap-osszesen:hover{ border-color: var(--ink); }
-.nap-osszesen-cim{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color: var(--accent); }
+body.dark .nap-cella.nap-osszesen{ background: #362430; }
+.nap-cella.nap-osszesen:hover{ border-color: var(--menstrual); }
+.nap-osszesen-cim{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color: var(--menstrual); }
 .nap-osszesen-sor{ font-family:'Space Mono', monospace; font-size:.64rem; color: var(--ink); text-align:center; }
 .nap-osszesen-ures{ color: var(--ink-faint); font-size:.7rem; }
 
 @media (max-width:700px){
   .naptar-racs, .naptar-hetnapok{ gap:.25rem; grid-template-columns:repeat(7,1fr) 0.9fr; }
-  .nap-cella{ padding:.3rem; border-radius:0px; min-height:48px; }
+  .nap-cella{ padding:.3rem; border-radius:22px; min-height:48px; }
   .nap-szam{ font-size:.62rem; }
   .nap-osszesen-cim{ font-size:.5rem; }
   .nap-osszesen-sor{ font-size:.54rem; }
@@ -375,12 +377,12 @@ footer.foot{
 /* havi összesítő táblázat */
 .naptar-tabla{ width:100%; border-collapse:collapse; margin-top:.6rem; }
 .naptar-tabla th{
-  text-align:left; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.68rem; letter-spacing:.04em;
+  text-align:left; font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.68rem; letter-spacing:.04em;
   text-transform:uppercase; color: var(--ink-faint); padding:.5rem .3rem; border-bottom:1px solid var(--border);
 }
 .naptar-tabla td{ padding:.6rem .3rem; font-size:.85rem; color: var(--ink); border-bottom:1px solid var(--border); }
 .naptar-tabla tr:last-child td{ border-bottom:none; }
-.tabla-pont{ display:inline-block; width:9px; height:9px; border-radius:0; margin-right:.5rem; border:1.5px solid var(--ink); }
+.tabla-pont{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.5rem; }
 
 /* felugró (modal) napi részletablak */
 .modal-hatter{
@@ -389,17 +391,18 @@ footer.foot{
 }
 .modal-hatter.nyitva{ opacity:1; pointer-events:auto; }
 .modal-box{
-  background: var(--card); border:2px solid var(--border); border-radius:0px; padding:1.4rem;
+  background: var(--card); border:1px solid var(--border); border-radius:22px; padding:1.4rem;
   max-width:420px; width:100%; max-height:80vh; overflow-y:auto; position:relative;
-  box-shadow: 8px 8px 0 0 var(--ink);
+  box-shadow: 0 30px 60px -20px rgba(38,35,56,.35);
   transform:translateY(8px); transition:.15s;
 }
 .modal-hatter.nyitva .modal-box{ transform:translateY(0); }
 .modal-close{
-  position:absolute; top:1rem; right:1rem; width:28px; height:28px; border-radius:0;
-  border:2px solid var(--ink); background: var(--bg); color: var(--ink); cursor:pointer; font-size:.85rem; font-weight:700;
+  position:absolute; top:1rem; right:1rem; width:30px; height:30px; border-radius:50%;
+  border:none; background: var(--bg); color: var(--ink-muted); cursor:pointer; font-size:.85rem; font-weight:600;
+  transition:.15s;
 }
-.modal-close:hover{ color: var(--accent-ink); background: var(--accent); border-color: var(--ink); }
+.modal-close:hover{ color: var(--accent); background: var(--accent-soft); }
 
 /* ---------- BETÖLTÉS (skeleton shimmer) ---------- */
 @keyframes shimmer{ 0%{ background-position:-400px 0; } 100%{ background-position:400px 0; } }
@@ -412,7 +415,7 @@ body.betoltes .today-pill{
   color:transparent !important; border-color:transparent !important;
   background-image: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
   background-size:400px 100%; animation:shimmer 1.3s infinite linear;
-  border-radius:0px; display:inline-block; min-width:56px;
+  border-radius:22px; display:inline-block; min-width:56px;
 }
 body.betoltes .hero-metric-value{ min-height:2.6rem; min-width:140px; }
 
@@ -420,7 +423,7 @@ body.betoltes .chart-box,
 body.betoltes .donut-box{ position:relative; overflow:hidden; }
 body.betoltes .chart-box::after,
 body.betoltes .donut-box::after{
-  content:''; position:absolute; inset:0; border-radius:0px;
+  content:''; position:absolute; inset:0; border-radius:22px;
   background-image: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
   background-size:400px 100%; animation:shimmer 1.3s infinite linear;
 }
@@ -439,19 +442,19 @@ body.betoltes .trend-line{ visibility:hidden; }
 /* ---------- HERO METRIKA (nagy, kiemelt szám minden oldal tetején) ---------- */
 .hero-metric{
   position:relative; overflow:hidden;
-  background: var(--card); border:2px solid var(--card-border); border-radius:0px;
+  background: var(--card); border:1px solid var(--card-border); border-radius:22px;
   padding:1.7rem 1.8rem; margin-bottom:1.2rem;
-  box-shadow: 6px 6px 0 0 var(--ink);
+  box-shadow: 0 2px 4px rgba(38,35,56,.05), 0 24px 48px -20px rgba(124,111,240,.35);
 }
 .hero-metric::before{
-  content:''; position:absolute; top:0; right:0; width:38%; height:100%;
-  background: var(--hero-glow, var(--accent));
-  opacity:.14; clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%); pointer-events:none;
+  content:''; position:absolute; top:-50%; right:-10%; width:60%; height:200%;
+  background: radial-gradient(circle, var(--hero-glow, var(--accent)) 0%, transparent 70%);
+  opacity:.20; pointer-events:none;
 }
 .hero-metric-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; position:relative; }
 .hero-metric-main{ position:relative; }
 .hero-metric-label{
-  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase;
+  font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase;
   letter-spacing:.07em; color: var(--ink-muted); display:flex; align-items:center; gap:.4rem;
 }
 .hero-metric-value{
@@ -469,22 +472,21 @@ body.betoltes .trend-line{ visibility:hidden; }
 
 /* ikon-jelvény: elforgatott négyzet, vastag kerettel, domain-színű háttérrel */
 .icon-badge{
-  width:34px; height:34px; border-radius:0; flex:none; border:2px solid var(--ink);
-  display:flex; align-items:center; justify-content:center; font-size:1.05rem;
+  width:38px; height:38px; border-radius:50%; flex:none; border:none;
+  display:flex; align-items:center; justify-content:center; font-size:1.1rem;
   background: var(--icon-bg, var(--accent-soft));
-  transform:rotate(6deg); margin-right:.15rem;
+  margin-right:.15rem;
 }
-.icon-badge > *{ transform:rotate(-6deg); }
 
 /* lista / agenda nézet */
 .naptar-lista{ display:flex; flex-direction:column; gap:.6rem; }
 .agenda-nap{
   display:flex; gap:1rem; align-items:flex-start; padding:.8rem 1rem; background: var(--card);
-  border:2px solid var(--border); border-left:4px solid var(--fazis-szin, var(--border)); border-radius:0px; cursor:pointer;
+  border:1px solid var(--border); border-left:4px solid var(--fazis-szin, var(--border)); border-radius:22px; cursor:pointer;
 }
 .agenda-nap:hover{ border-color: var(--accent); }
 .agenda-datum{ display:flex; flex-direction:column; align-items:center; min-width:42px; }
-.agenda-nap-szam{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.1rem; color: var(--ink); }
+.agenda-nap-szam{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1.1rem; color: var(--ink); }
 .agenda-het{ font-family:'Space Mono', monospace; font-size:.6rem; color: var(--ink-faint); text-transform:uppercase; }
 .agenda-tartalom{ display:flex; flex-direction:column; gap:.3rem; }
 .agenda-sor{ font-size:.8rem; color: var(--ink-muted); }
@@ -492,38 +494,38 @@ body.betoltes .trend-line{ visibility:hidden; }
 
 /* napi részletpanel */
 .reszlet-fejlec{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem; }
-.reszlet-fejlec h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.05rem; margin:0; color: var(--ink); }
+.reszlet-fejlec h3{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1.05rem; margin:0; color: var(--ink); }
 .reszlet-blokk{ margin-bottom:1rem; }
 .reszlet-blokk:last-child{ margin-bottom:0; }
-.reszlet-cim{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.8rem; color: var(--accent); margin:0 0 .4rem; }
+.reszlet-cim{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.8rem; color: var(--accent); margin:0 0 .4rem; }
 .reszlet-sor{ font-size:.82rem; color: var(--ink); margin:.2rem 0; }
 .reszlet-sor strong{ font-family:'Space Mono', monospace; }
 
 /* ---------- KEZDŐLAP: gyorslinkek ---------- */
 .quick-links{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:1rem; }
 .quick-link{
-  background: var(--card); border:2px solid var(--card-border); border-top:4px solid var(--accent-c, var(--accent));
-  border-radius:0px; padding:1.2rem; text-decoration:none; display:flex; flex-direction:column; gap:.3rem;
-  box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
+  background: var(--card); border:1px solid var(--card-border); border-top:4px solid var(--accent-c, var(--accent));
+  border-radius:22px; padding:1.2rem; text-decoration:none; display:flex; flex-direction:column; gap:.3rem;
+  box-shadow: 0 1px 2px rgba(38,35,56,.04), 0 12px 28px -16px rgba(124,111,240,.28);
   transition: box-shadow .18s, transform .18s, border-color .18s;
 }
-.quick-link:hover{ transform:translateY(-3px); border-color: var(--accent-c, var(--accent)); box-shadow: 7px 7px 0 0 var(--ink); }
+.quick-link:hover{ transform:translateY(-3px); border-color: var(--accent-c, var(--accent)); box-shadow: 0 4px 10px rgba(38,35,56,.06), 0 26px 40px -18px rgba(124,111,240,.38); }
 .quick-link-icon{ font-size:1.6rem; }
-.quick-link-title{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem; color: var(--ink); }
-.quick-link-sub{ font-family:'Space Grotesk', sans-serif; font-size:.74rem; color: var(--ink-muted); }
+.quick-link-title{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:.95rem; color: var(--ink); }
+.quick-link-sub{ font-family:'Plus Jakarta Sans', sans-serif; font-size:.74rem; color: var(--ink-muted); }
 
 /* ---------- TRENDEK: fázisonkénti elemzés ---------- */
 .fazis-elemzes-racs{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1.1rem; }
 .fazis-panel{
-  background: var(--card); border:2px solid var(--card-border); border-top:4px solid var(--fazis-szin);
-  border-radius:0px; padding:1.2rem 1.3rem;
-  box-shadow: var(--shadow-off) var(--shadow-off) 0 0 var(--ink);
+  background: var(--card); border:1px solid var(--card-border); border-top:4px solid var(--fazis-szin);
+  border-radius:22px; padding:1.2rem 1.3rem;
+  box-shadow: 0 1px 2px rgba(38,35,56,.04), 0 12px 28px -16px rgba(124,111,240,.28);
 }
-.fazis-panel-cim{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1rem; margin:0; color: var(--fazis-szin); }
+.fazis-panel-cim{ font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; font-size:1rem; margin:0; color: var(--fazis-szin); }
 .fazis-panel-nap{ font-family:'Space Mono', monospace; font-size:.7rem; color: var(--ink-faint); margin:.2rem 0 1rem; }
 .fazis-panel-sorok{ display:flex; flex-direction:column; gap:.55rem; }
 .fazis-panel-sorok div{ display:flex; justify-content:space-between; align-items:baseline; font-size:.8rem; }
 .fazis-panel-sorok span{ color: var(--ink-muted); }
 .fazis-panel-sorok strong{ font-family:'Space Mono', monospace; color: var(--ink); }
 
-.megjegyzes{ font-family:'Space Grotesk', sans-serif; font-size:.78rem; color: var(--ink-faint); margin-top:1.2rem; }
+.megjegyzes{ font-family:'Plus Jakarta Sans', sans-serif; font-size:.78rem; color: var(--ink-faint); margin-top:1.2rem; }
