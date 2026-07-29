@@ -5,77 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Napló — Naptár</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-
-  <header class="topbar">
-    <div class="topbar-left">
-      <a class="header-title" href="kezdolap.html">Napló<span>.</span></a>
-      <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü">☰</button>
-      <nav class="page-nav">
-        <a href="kezdolap.html">Kezdőlap</a>
-        <a href="index.html">Életmód</a>
-        <a href="erszint.html">Erőszint</a>
-        <a href="tanc.html">Tánc</a>
-        <a href="naptar.html" class="active">Naptár</a>
-        <a href="trendek.html">Trendek</a>
-      </nav>
-    </div>
-    <div class="dark-toggle">
-      <span>Sötét mód</span>
-      <label class="switch">
-        <input type="checkbox" id="darkToggle">
-        <span class="slider"></span>
-      </label>
-    </div>
-  </header>
-
-  <div class="layout-full">
-    <div class="content-head">
+<body class="betoltes">
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div class="leaf-decor leaf-tr" aria-hidden="true">🌿</div>
+    <header class="topbar" id="topbar"></header>
+    <div class="page-head">
       <div>
-        <h1>Naptár</h1>
-        <p class="sub">Edzések és táncórák hónapról hónapra — kattints egy napra a részletekért.</p>
+        <h1 class="page-title">Naptár <span class="leaf">🌿</span></h1>
+        <p class="page-sub">Minden esemény egy helyen, napról napra.</p>
       </div>
-      <button class="naptar-ma-btn" id="naptarMa">Ma</button>
+      <div class="seg">
+        <button class="active" data-nezet="honap">Hónap</button>
+        <button data-nezet="nap">Nap</button>
+      </div>
     </div>
 
-    <div class="data-card">
-      <div class="naptar-fejlec">
-        <div class="naptar-fejlec-nav">
-          <button class="naptar-nav-btn" id="naptarElozo">‹</button>
-          <h2 id="naptarCim">—</h2>
-          <select id="naptarEvValaszto" class="naptar-ev-valaszto"></select>
-          <button class="naptar-nav-btn" id="naptarKovetkezo">›</button>
+    <!-- szűrők -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-5)">
+      <button class="pill-btn active" data-szuro="osszes">Összes</button>
+      <button class="pill-btn" data-szuro="edzes">🏋️ Edzés</button>
+      <button class="pill-btn" data-szuro="tanc">💃 Tánc</button>
+      <button class="pill-btn" data-szuro="merleg">⚖️ Mérleg</button>
+      <button class="pill-btn" data-szuro="egyeb">🌿 Egyéb</button>
+    </div>
+
+    <!-- HÓNAP -->
+    <div id="view-honap">
+      <div class="card" style="margin-bottom:var(--space-5)">
+        <div class="card-head">
+          <div class="card-title" id="honapCim">—</div>
+          <div class="seg"><button id="honapPrev">‹</button><button id="honapNext">›</button></div>
         </div>
-        <div class="naptar-nezet-valto">
-          <button class="tab active" id="naptarNezetRacs" type="button">Rács</button>
-          <button class="tab" id="naptarNezetLista" type="button">Lista</button>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </div>
+
+    <!-- NAP -->
+    <div id="view-nap" style="display:none">
+      <div class="grid cols-2" style="margin-bottom:var(--space-5)">
+        <div class="card">
+          <div class="card-head"><div class="card-title" id="napCim">—</div></div>
+          <div id="napIdovonal"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Napi összegzés</div></div>
+          <div class="grid cols-2" id="napRingek"></div>
         </div>
       </div>
-
-      <div class="naptar-hetnapok" id="naptarHetnapokSor">
-        <span>H</span><span>K</span><span>SZE</span><span>CS</span><span>P</span><span>SZO</span><span>V</span><span class="naptar-osszesen-fejlec">Össz.</span>
-      </div>
-
-      <div class="naptar-racs" id="naptarRacs"></div>
-      <div class="naptar-lista" id="naptarLista" style="display:none;"></div>
     </div>
 
-    <div class="data-card" id="naptarHonapTabla"></div>
-  </div>
-
-  <footer class="foot">Adatforrás: Google Sheets — automatikusan frissül minden betöltéskor.</footer>
-
-  <div class="modal-hatter" id="napModalHatter">
-    <div class="modal-box">
-      <button class="modal-close" id="napModalBezar" type="button">✕</button>
-      <div id="napReszletPanel"></div>
+    <!-- ALSÓ SÁV -->
+    <div class="grid cols-3">
+      <div class="card"><div class="card-head"><div class="card-title">Havi aktivitás</div></div><div class="chart-box sm"><canvas id="haviAktivitas"></canvas></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">Aktivitás hőtérkép</div></div><div class="heat" id="hoterkep"></div>
+        <div class="heat-legend"><span>kevés</span><span class="swatch" style="background:var(--sage-soft)"></span><span class="swatch" style="background:var(--sage)"></span><span>sok</span></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">Heti balansz</div></div><div class="chart-box sm"><canvas id="hetiBalansz"></canvas></div></div>
     </div>
-  </div>
 
-<script src="script.js"></script>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/minta.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/components.js"></script>
+<script src="js/garden.js"></script>
+<script src="js/pages/naptar.js"></script>
 </body>
 </html>
