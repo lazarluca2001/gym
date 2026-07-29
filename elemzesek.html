@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Elemzések</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="betoltes">
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div class="leaf-decor leaf-tr" aria-hidden="true">🌿</div>
+    <header class="topbar" id="topbar"></header>
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Elemzések <span class="leaf">🌿</span></h1>
+        <p class="page-sub">Lásd az összképet, és ünnepeld a fejlődésed.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="seg">
+          <button data-range="7">7 nap</button>
+          <button data-range="30" class="active">30 nap</button>
+          <button data-range="90">90 nap</button>
+          <button data-range="0">Összes</button>
+        </div>
+        <button class="pill-btn sage" id="exportBtn">⬇ CSV export</button>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="tiles" id="kpi" style="grid-template-columns:repeat(5,1fr);margin-bottom:var(--space-5)"></div>
+
+    <div class="grid cols-2" style="margin-bottom:var(--space-5)">
+      <div class="card"><div class="card-head"><div class="card-title">Testsúly trend</div></div><div class="chart-box"><canvas id="sulyTrend"></canvas></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">Kalória vs testsúly</div></div><div class="chart-box"><canvas id="kalVsSuly"></canvas></div></div>
+    </div>
+
+    <div class="grid cols-3" style="margin-bottom:var(--space-5)">
+      <div class="card"><div class="card-head"><div class="card-title">Edzés vs tánc</div></div>
+        <div style="display:flex;gap:16px;align-items:center"><div style="width:130px;height:130px"><canvas id="edzVsTanc"></canvas></div><div id="edzVsTancLegend" style="flex:1"></div></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">Legaktívabb napszakok</div></div><div class="chart-box sm"><canvas id="napszakok"></canvas></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">Top teljesítmények</div></div><div class="records" id="topRek" style="grid-template-columns:1fr;gap:10px"></div></div>
+    </div>
+
+    <div class="grid cols-2">
+      <div class="card"><div class="card-head"><div class="card-title">Aktivitás hőtérkép</div></div><div class="heat" id="hoterkepE"></div>
+        <div class="heat-legend"><span>kevés</span><span class="swatch" style="background:var(--sage-soft)"></span><span class="swatch" style="background:var(--sage)"></span><span>sok</span></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">Havi áttekintés</div></div>
+        <table class="gtable" id="haviTabla"><thead><tr><th>Hónap</th><th>Átlag súly</th><th>Edzés</th><th>Tánc</th><th>Átlag lépés</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/minta.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/components.js"></script>
+<script src="js/garden.js"></script>
+<script src="js/pages/elemzesek.js"></script>
+</body>
+</html>
