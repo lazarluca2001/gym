@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Napló — Aktivitások</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="betoltes">
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div class="leaf-decor leaf-tr" aria-hidden="true">🌿</div>
+    <header class="topbar" id="topbar"></header>
+    <div class="page-head"><div>
+      <h1 class="page-title">Aktivitások <span class="leaf">🌿</span></h1>
+      <p class="page-sub">Kövesd az edzést, a táncot és a mindennapi mozgást.</p>
+    </div></div>
+
+    <div class="tabs">
+      <button class="active" data-tab="edzes">🏋️ Edzés</button>
+      <button data-tab="tanc">💃 Tánc</button>
+      <button data-tab="mindennapi">👟 Mindennapi</button>
+    </div>
+
+    <!-- EDZÉS -->
+    <div class="tabpanel active" id="tab-edzes">
+      <div class="card" style="margin-bottom:var(--space-5)">
+        <div class="card-head">
+          <div class="card-title">Heti összegzés · <span id="edzHetLabel" class="muted" style="font-weight:500">Aktuális hét</span></div>
+          <div class="seg"><button id="hetPrev">‹</button><button id="hetNext">›</button></div>
+        </div>
+        <div id="edzHeti" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"></div>
+      </div>
+      <div class="grid cols-2" style="margin-bottom:var(--space-5)">
+        <div class="card"><div class="card-head"><div class="card-title">Izomcsoportok</div><span class="muted" style="font-size:12px">heti szettszám</span></div><div id="izomcsoportok"></div></div>
+        <div class="card"><div class="card-head"><div class="card-title">Személyes rekordok</div></div><div class="records" id="rekordok"></div></div>
+      </div>
+      <div class="grid cols-2" style="margin-bottom:var(--space-5)">
+        <div class="card"><div class="card-head"><div class="card-title">Edzésmennyiség</div><span class="muted" id="volumenAtlag" style="font-size:12px"></span></div><div class="chart-box sm"><canvas id="volumenChart"></canvas></div></div>
+        <div class="card"><div class="card-head"><div class="card-title">Fejlődés (kumulatív)</div><span class="big-num" id="fejlodesFo"></span></div><div class="chart-box sm"><canvas id="fejlodesChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Gyakorlatok</div></div>
+        <table class="gtable" id="gyakTabla">
+          <thead><tr><th>Gyakorlat</th><th>Izomcsoport</th><th>Utolsó teljesítmény</th><th>Fejlődés</th><th>Trend</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TÁNC -->
+    <div class="tabpanel" id="tab-tanc">
+      <div class="card" style="margin-bottom:var(--space-5)"><div class="card-head"><div class="card-title">Heti tánc</div></div>
+        <div id="tancHeti" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div></div>
+      <div class="grid cols-2" style="margin-bottom:var(--space-5)">
+        <div class="card"><div class="card-head"><div class="card-title">Típus megoszlás</div></div>
+          <div style="display:flex;gap:20px;align-items:center"><div style="width:150px;height:150px"><canvas id="tancTipus"></canvas></div><div id="tancTipusLegend" style="flex:1"></div></div></div>
+        <div class="card"><div class="card-head"><div class="card-title">Értékelés & fáradtság</div></div><div class="chart-box sm"><canvas id="tancTrend"></canvas></div></div>
+      </div>
+      <div class="card"><div class="card-head"><div class="card-title">Rekord</div></div><div class="records" id="tancRekord" style="grid-template-columns:1fr;max-width:280px"></div></div>
+    </div>
+
+    <!-- MINDENNAPI -->
+    <div class="tabpanel" id="tab-mindennapi">
+      <div class="card"><div class="card-head"><div class="card-title">Lépések (14 nap)</div><span class="big-num" id="lepesAtlag"></span></div>
+        <div class="chart-box"><canvas id="lepesChart"></canvas></div></div>
+    </div>
+
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/minta.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/components.js"></script>
+<script src="js/garden.js"></script>
+<script src="js/pages/aktivitasok.js"></script>
+</body>
+</html>
