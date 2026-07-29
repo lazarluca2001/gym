@@ -1,0 +1,57 @@
+/* ==========================================================================
+   Napló — Design tokenek (Nature redesign)
+   A színek a látványtervekből mintavételezve. Csak :root változók.
+   Betűk betöltése a HTML <head>-ben:
+   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+   ========================================================================== */
+
+:root{
+  /* --- 3.1 Felületek és tinta --- */
+  --bg:        #fbf7f0;  /* meleg krém háttér */
+  --bg-2:      #f4efe4;  /* mélyebb krém: sidebar-árnyalat, insetek */
+  --card:      #fefbf6;  /* kártya */
+  --card-2:    #f5f0e6;  /* kártyán belüli panel (pl. Napi összegzés) */
+  --border:    #e7e1d3;  /* finom keret */
+  --ink:       #3f3d33;  /* meleg szénszürke szöveg */
+  --ink-muted: #8a8574;  /* másodlagos szöveg */
+  --ink-faint: #b3ae9e;  /* tengelyfelirat, halvány */
+
+  /* --- 3.2 Zsálya / olíva (elsődleges) --- */
+  --sage:      #7d8b5a;
+  --sage-deep: #6a7847;  /* aktív nav, hangsúly */
+  --sage-soft: #dce3cb;  /* sáv kitöltés, lágy fill */
+  --sage-tint: #eef1e4;  /* aktív nav-pill háttér */
+  --on-sage:   #ffffff;
+
+  /* --- 3.3 Domain-akcentek --- */
+  --kaloria:      #df8a43;  --kaloria-soft: #f6e3d0;
+  --lepes:        #8aa06a;  --lepes-soft:   #e3e8d5;
+  --viz:          #6ba4c6;  --viz-soft:     #d9e8f0;
+  --edzes:        #7d8b5a;  --edzes-soft:   #dce3cb;
+  --tanc:         #a58fc4;  --tanc-soft:    #e7e0f0;
+  --merleg:       #d9822b;  --merleg-soft:  #f6e0c8;
+
+  /* --- 3.5 Ciklus --- */
+  --menstrual:  #e07a86;
+  --follicular: #8bbf8f;
+  --ovulation:  #e39a72;
+  --luteal:     #a58fc4;
+
+  /* --- 3.6 Hangulat-skála (piros → zöld) --- */
+  --mood-1:#d9736a; --mood-2:#e0955a; --mood-3:#e3c25c; --mood-4:#a9bf72; --mood-5:#7fae6a;
+
+  /* --- 3.7 Forma, tipográfia, árnyék --- */
+  --radius-card: 22px;  --radius-sm: 12px;  --radius-pill: 999px;
+  --shadow:      0 2px 14px rgba(90,80,50,.06);
+  --shadow-soft: 0 1px 6px  rgba(90,80,50,.05);
+
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui:      'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-num:     'Plus Jakarta Sans', system-ui, sans-serif; /* + font-variant-numeric: tabular-nums */
+}
+
+/* Kényelmi utility a nagy számokhoz */
+.tnum{ font-variant-numeric: tabular-nums; font-family: var(--font-num); }
