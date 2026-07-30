@@ -54,14 +54,14 @@
     const maxSuly = all.reduce((m, e) => C.n(e, 'súly') > (m ? C.n(m, 'súly') : -1) ? e : m, null);
     const maxIsm = all.reduce((m, e) => C.n(e, 'ismétlés') > (m ? C.n(m, 'ismétlés') : -1) ? e : m, null);
     const napVol = {}; all.forEach(e => { const k = C.kulcs(e); napVol[k] = (napVol[k] || 0) + vol(e); });
-    const napPerc = {}; all.forEach(e => { const k = C.kulcs(e); napPerc[k] = Math.max(napPerc[k] || 0, C.n(e, 'időtartam') || 0); });
+    const napPerc = {}; all.forEach(e => { const k = C.kulcs(e); napPerc[k] = (napPerc[k] || 0) + (N.idoPerc(N.mezo(e, 'időtartam')) || 0); });
     const legVolNap = Object.entries(napVol).sort((a, b) => b[1] - a[1])[0] || ['', 0];
     const legPercNap = Object.entries(napPerc).sort((a, b) => b[1] - a[1])[0] || ['', 0];
     const fmtK = k => k ? `${k.slice(0, 4)}.${k.slice(4, 6)}.${k.slice(6, 8)}.` : '';
     document.getElementById('rekordok').innerHTML = [
       { k: 'Legnagyobb súly', v: N.szamFormat(maxSuly ? C.n(maxSuly, 'súly') : 0, 0) + ' kg', d: fmtK(maxSuly && C.kulcs(maxSuly)) },
       { k: 'Legtöbb ismétlés', v: (maxIsm ? C.n(maxIsm, 'ismétlés') : 0) + ' ism.', d: fmtK(maxIsm && C.kulcs(maxIsm)) },
-      { k: 'Leghosszabb edzés', v: legPercNap[1] + ' perc', d: fmtK(legPercNap[0]) },
+      { k: 'Leghosszabb edzés', v: N.szamFormat(legPercNap[1], 0) + ' perc', d: fmtK(legPercNap[0]) },
       { k: 'Legnagyobb volumen', v: N.szamFormat(legVolNap[1], 0) + ' kg', d: fmtK(legVolNap[0]) }
     ].map(r => `<div class="record"><div class="k">${r.k}</div><div class="v">${r.v}</div><div class="date">${r.d}</div></div>`).join('');
 
