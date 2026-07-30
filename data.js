@@ -70,6 +70,30 @@
     return parseFloat(String(str).replace(/\s/g, '').replace(',', '.'));
   }
 
+  // Idő/időtartam olvasása. Kezeli: "H:MM:SS(.mmm)" szöveget, nap-törtet (<1),
+  // és a sima számot. idoOra → órában, idoPerc → percben.
+  function idoReszek(x) {
+    if (x === undefined || x === null || x === '') return null;
+    const s = String(x).trim();
+    const m = s.match(/^(\d+):(\d{2})(?::(\d{2}(?:\.\d+)?))?$/);
+    if (m) return { o: +m[1], p: +m[2], mp: m[3] ? parseFloat(m[3]) : 0 };
+    return null;
+  }
+  function idoOra(x) {
+    const r = idoReszek(x);
+    if (r) return r.o + r.p / 60 + r.mp / 3600;
+    const n = szamErtek(x);
+    if (!isNaN(n) && n > 0 && n < 1) return n * 24; // nap-tört → óra
+    return n;
+  }
+  function idoPerc(x) {
+    const r = idoReszek(x);
+    if (r) return r.o * 60 + r.p + r.mp / 60;
+    const n = szamErtek(x);
+    if (!isNaN(n) && n > 0 && n < 1) return n * 1440; // nap-tört → perc
+    return n;
+  }
+
   // Szám → hu-HU formátum (vessző tizedes, ezres tagolás)
   function szamFormat(num, maxTizedes) {
     if (num === null || num === undefined || isNaN(num)) return '—';
@@ -124,16 +148,36 @@
 
   // ===================== Config =====================
 
+  // Config aliasok: emberi címke → belső kulcs (ékezet/space-független).
+  const CONFIG_ALIAS = {
+    celsuly: 'cel_sulycel', celsulycel: 'cel_sulycel',
+    kaloria: 'cel_kaloria', kaloriacel: 'cel_kaloria', napikaloria: 'cel_kaloria',
+    lepes: 'cel_lepes', lepesek: 'cel_lepes', lepesszam: 'cel_lepes',
+    viz: 'cel_viz',
+    'edzes/het': 'heti_edzes_cel', edzeshet: 'heti_edzes_cel', edzes: 'heti_edzes_cel',
+    'tanc/het': 'heti_tanc_cel', tanchet: 'heti_tanc_cel', tanc: 'heti_tanc_cel',
+    edzesperc: 'cel_edzes_perc', edzesido: 'cel_edzes_perc',
+    tancperc: 'cel_tanc_perc', tancido: 'cel_tanc_perc',
+    magassag: 'magassag_m', magassagm: 'magassag_m',
+    ciklus: 'ciklus_hossz', ciklushossz: 'ciklus_hossz',
+    nev: 'felhasznalo_nev', felhasznalo: 'felhasznalo_nev', felhasznalonev: 'felhasznalo_nev',
+    szint: 'szint', kaloriairany: 'kaloria_irany', irany: 'kaloria_irany'
+  };
+  function normKulcs(s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '').trim();
+  }
   function configToObject(configRows) {
     const ki = Object.assign({}, CONFIG_DEFAULTS);
     (configRows || []).forEach(sor => {
-      const kulcsRaw = mezo(sor, 'kulcs', 'key');
-      const ertekRaw = mezo(sor, 'érték', 'ertek', 'value');
-      if (kulcsRaw === undefined) return;
-      const k = String(kulcsRaw).trim().toLowerCase();
-      if (ertekRaw === undefined) return;
-      // Típus a defaultból: ha number → parse-olunk, különben string marad.
-      // Ismeretlen kulcsnál auto-detektálás.
+      // Kulcs: dedikált oszlop, vagy tartalékként az első oszlop.
+      let kulcsRaw = mezo(sor, 'kulcs', 'key');
+      if (kulcsRaw === undefined) { const vals = Object.values(sor); kulcsRaw = vals.length ? vals[0] : undefined; }
+      let ertekRaw = mezo(sor, 'érték', 'ertek', 'value');
+      if (ertekRaw === undefined) { const vals = Object.values(sor); ertekRaw = vals.length > 1 ? vals[1] : undefined; }
+      if (kulcsRaw === undefined || ertekRaw === undefined) return;
+
+      let k = String(kulcsRaw).trim().toLowerCase();
+      if (!(k in CONFIG_DEFAULTS)) { const alias = CONFIG_ALIAS[normKulcs(kulcsRaw)]; if (alias) k = alias; }
       const alap = CONFIG_DEFAULTS[k];
       if (typeof alap === 'number' || (alap === undefined && !isNaN(szamErtek(ertekRaw)))) {
         const n = szamErtek(ertekRaw);
@@ -205,11 +249,42 @@
     return csv;
   }
 
-  // Fő betöltő. Egy fül hibája/üressége nem dönti el az egészet:
-  // ha van beépített MINTA (window.MINTA), fülönként arra esik vissza.
+  // Eseménykeltés a meglévő fülekből (ha nincs külön Esemenyek fül/adat).
+  // Így a Naptár és az idővonalak működnek dupla adatbevitel nélkül.
+  function esemenyekSzarmaztat(data) {
+    const ki = [];
+    (data.napi || []).forEach(s => {
+      const d = mezo(s, 'dátum'); if (!d) return;
+      const suly = szamErtek(mezo(s, 'testsúly'));
+      if (!isNaN(suly)) ki.push({ 'Dátum': d, 'Időpont': '07:00', 'Típus': 'merleg', 'Cím': 'Mérlegelés', 'Leírás': szamFormat(suly, 1) + ' kg' });
+      const viz = szamErtek(mezo(s, 'víz'));
+      if (!isNaN(viz) && viz > 0) ki.push({ 'Dátum': d, 'Időpont': '08:00', 'Típus': 'viz', 'Cím': 'Vízbevitel', 'Leírás': szamFormat(viz, 1) + ' l' });
+      const jegyzet = mezo(s, 'jegyzet');
+      if (jegyzet && String(jegyzet).trim()) ki.push({ 'Dátum': d, 'Időpont': '12:30', 'Típus': 'jegyzet', 'Cím': 'Jegyzet', 'Leírás': String(jegyzet).trim() });
+    });
+    const edzNap = {};
+    (data.edzes || []).forEach(e => { const k = datumKulcs(mezo(e, 'dátum')); (edzNap[k] = edzNap[k] || []).push(e); });
+    Object.values(edzNap).forEach(arr => {
+      const d = mezo(arr[0], 'dátum');
+      const perc = arr.reduce((a, e) => a + (idoPerc(mezo(e, 'időtartam')) || 0), 0);
+      const vol = arr.reduce((a, e) => a + (szamErtek(mezo(e, 'széria')) || 0) * (szamErtek(mezo(e, 'ismétlés')) || 0) * (szamErtek(mezo(e, 'súly')) || 0), 0);
+      const gyakDb = new Set(arr.map(e => mezo(e, 'gyakorlat'))).size;
+      ki.push({ 'Dátum': d, 'Időpont': '18:00', 'Típus': 'edzes', 'Cím': 'Edzés', 'Leírás': (perc ? Math.round(perc) + ' perc · ' : '') + gyakDb + ' gyakorlat · ' + szamFormat(vol, 0) + ' kg' });
+    });
+    (data.tanc || []).forEach(t => {
+      const d = mezo(t, 'dátum'); if (!d) return;
+      const perc = szamErtek(mezo(t, 'idő')) || 0;
+      ki.push({ 'Dátum': d, 'Időpont': '20:00', 'Típus': 'tanc', 'Cím': mezo(t, 'óra') || 'Tánc', 'Leírás': (mezo(t, 'típus') || '') + (perc ? ' · ' + perc + ' perc' : '') });
+    });
+    return ki;
+  }
+
+  // Fő betöltő.
+  // - Ha van ÉLŐ adat (Napi/Edzés/Tánc valamelyike) → élő mód: a hiányzó
+  //   fülekhez NEM kever mintát, az Esemenyek-et pedig származtatja.
+  // - Ha semmi élő adat nincs → teljes MINTA (offline prototípus).
   async function betolt(opts) {
     opts = opts || {};
-    const minta = opts.minta || (typeof global.MINTA !== 'undefined' ? global.MINTA : null);
     if (typeof document !== 'undefined') document.body.classList.add('betoltes');
     const eredmenyek = await Promise.allSettled(FULEK.map(fulBetolt));
 
@@ -221,16 +296,19 @@
       else { csvMap[ful] = ''; hibak.push({ ful, hiba: String(r.reason) }); }
     });
 
-    // Élő adat, vagy ha üres/hibás → minta.
-    function vesz(ful, mintaKulcs) {
-      const arr = csvToObjects(csvMap[ful]);
-      if (arr.length) return { arr, forras: 'elo' };
-      if (minta && minta[mintaKulcs] && minta[mintaKulcs].length) return { arr: minta[mintaKulcs], forras: 'minta' };
-      return { arr: [], forras: 'ures' };
-    }
+    const napiElo = csvToObjects(csvMap['Napi_adatok']);
+    const edzesElo = csvToObjects(csvMap['Edzes_Naplo']);
+    const tancElo = csvToObjects(csvMap['Tanc_Naplo']);
+    const eloMod = napiElo.length > 0 || edzesElo.length > 0 || tancElo.length > 0;
+    const minta = eloMod ? null : (opts.minta || (typeof global.MINTA !== 'undefined' ? global.MINTA : null));
 
     const forrasok = {};
-    const beolvas = (ful, kulcs) => { const v = vesz(ful, kulcs); forrasok[kulcs] = v.forras; return v.arr; };
+    function beolvas(ful, mintaKulcs) {
+      const arr = csvToObjects(csvMap[ful]);
+      if (arr.length) { forrasok[mintaKulcs] = 'elo'; return arr; }
+      if (minta && minta[mintaKulcs] && minta[mintaKulcs].length) { forrasok[mintaKulcs] = 'minta'; return minta[mintaKulcs]; }
+      forrasok[mintaKulcs] = 'ures'; return [];
+    }
 
     const configRows = csvToObjects(csvMap['Config']);
     let config;
@@ -247,10 +325,16 @@
       tanctipusok: beolvas('Tanc_tipusok', 'tanctipusok')
     };
 
+    // Nincs élő/minta esemény → származtatjuk a többi fülből.
+    if (!data.esemenyek.length) {
+      data.esemenyek = esemenyekSzarmaztat(data);
+      forrasok.esemenyek = data.esemenyek.length ? 'szarmaztatott' : 'ures';
+    }
+
     if (typeof document !== 'undefined') document.body.classList.remove('betoltes');
 
-    const mintaMod = Object.values(forrasok).some(f => f === 'minta');
-    const app = { config, data, hibak, forrasok, mintaMod, betoltve: new Date() };
+    const mintaMod = !eloMod && Object.values(forrasok).some(f => f === 'minta');
+    const app = { config, data, hibak, forrasok, eloMod, mintaMod, betoltve: new Date() };
     if (vanBongeszo) global.App = app;
     return app;
   }
@@ -258,8 +342,8 @@
   // ===================== Export =====================
   const Naplo = {
     SPREADSHEET_ID, FULEK, CONFIG_DEFAULTS, CACHE_TTL_MS,
-    csvToObjects, mezo, szamErtek, szamFormat, datumKulcs, hetKulcs,
-    hetiTrendSzoveg, trendNyil, configToObject, bmi, kaloriaCelTeljesult,
+    csvToObjects, mezo, szamErtek, szamFormat, idoOra, idoPerc, datumKulcs, hetKulcs,
+    hetiTrendSzoveg, trendNyil, configToObject, esemenyekSzarmaztat, bmi, kaloriaCelTeljesult,
     fulUrl, betolt
   };
 
