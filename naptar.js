@@ -104,7 +104,7 @@
         norm(C.atlag(het.map(s => C.n(s, 'víz') || 0)), config.cel_viz),
         norm(C.atlag(het.map(s => C.n(s, 'lépés') || 0)), config.cel_lepes),
         norm(config.cel_kaloria, C.atlag(het.map(s => C.n(s, 'kalória', 'kcal') || config.cel_kaloria))),
-        norm(C.atlag(het.map(s => C.n(s, 'alvás') || 0)), 8)
+        norm(C.atlag(het.map(s => N.idoOra(N.mezo(s, 'alvás')) || 0)), 8)
       ], szin: gc('--sage')
     });
   }
