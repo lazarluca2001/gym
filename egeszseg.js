@@ -147,7 +147,7 @@
     document.getElementById('kiemeltFo').innerHTML = `${atlagDiff <= 0 ? '−' : '+'}${N.szamFormat(Math.abs(atlagDiff), 0)}<small class="muted"> kcal átlag</small>`;
     // Alvás/Energia + jegyzet
     document.getElementById('alvasEnergia').innerHTML = [
-      { k: '😴 Alvás', v: N.szamFormat(mai ? C.n(mai, 'alvás') : NaN, 1) + ' óra' },
+      { k: '😴 Alvás', v: N.szamFormat(mai ? N.idoOra(N.mezo(mai, 'alvás')) : NaN, 1) + ' óra' },
       { k: '⚡ Energia', v: (mai ? C.n(mai, 'energia') : NaN) + ' / 5' }
     ].map(t => `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}</div></div>`).join('');
     const jegyzet = mai ? N.mezo(mai, 'jegyzet') : '';
