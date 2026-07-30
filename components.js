@@ -29,10 +29,8 @@
     atlag(arr) { return arr.length ? this.osszeg(arr) / arr.length : 0; },
 
     napiEdzesPerc(edzes, kulcs) {
-      const napiak = edzes.filter(e => this.kulcs(e) === kulcs);
-      // egy edzésnapon az időtartam gyakorlatonként ismétlődik → egyedi max
-      const percek = [...new Set(napiak.map(e => this.n(e, 'időtartam') || 0))];
-      return Math.max(0, ...(percek.length ? percek : [0]));
+      // A napi rész-időtartamok összege (a te per-gyakorlat bejegyzéseidhez).
+      return this.osszeg(edzes.filter(e => this.kulcs(e) === kulcs).map(e => N.idoPerc(N.mezo(e, 'időtartam')) || 0));
     },
     napiTancPerc(tanc, kulcs) {
       return this.osszeg(tanc.filter(t => this.kulcs(t) === kulcs).map(t => this.n(t, 'idő') || 0));
