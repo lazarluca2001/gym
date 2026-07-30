@@ -25,7 +25,7 @@
     'Egy csíra kibújt. Szép kezdés!',
     'Nő a hajtás — jó úton jársz.',
     'Szárba szökken. Csak így tovább!',
-    'Formálódik a bonsai. Erős nap.',
+    'Formálódik a bonsaid. Erős nap.',
     'Majdnem teljes a kert — remek munka! 🌿',
     'Virágzó kert. Ma mindent megtettél magadért. 💚'
   ];
