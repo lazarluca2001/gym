@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Edzés">
+<meta name="apple-mobile-web-app-title" content="Napló">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -184,85 +184,12 @@ html,body{margin:0}
 .wrap{padding-top:max(28px,calc(env(safe-area-inset-top) + 12px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom) + 24px))}
 .divider{height:1px;background:var(--line)}
 .filebtn{display:inline-block;cursor:pointer;padding:9px 16px;border:1px solid var(--line);border-radius:8px;font-weight:600;color:var(--ink)}
+header{flex-wrap:nowrap}
+@media (max-width:520px){header{flex-wrap:wrap}}
 </style>
 </head>
 <body>
-<script>
-/* Helyi tárolás (a telefonon) + opcionális szinkron egy Google Táblázattal */
-(function(){
-  const KEY='edzes-tanc-v1', PKEY='edzes-tanc-v1-pending', CFG='edzes-tanc-sync';
-  const SEED={"workouts": {"2026-09-23": {"date": "2026-09-23", "items": [{"done": true, "ex": "Lat Pulldown", "kg": 13.75, "reps": 10, "rir": 1, "sets": 4}, {"done": true, "ex": "Chest Press", "kg": 20, "reps": 8, "rir": 0, "sets": 2}, {"done": true, "ex": "Triceps Extension", "kg": 12.5, "reps": 8, "rir": 2, "sets": 3}, {"done": true, "ex": "Abdominal Crunch", "kg": 20, "reps": 12, "rir": 4, "sets": 3}, {"done": true, "ex": "Seated Row", "kg": 20, "reps": 10, "rir": 2, "sets": 2}]}}, "dance": {"2026-09-24": {"date": "2026-09-24", "items": [{"intensity": 3, "kind": "ora", "min": 90, "note": "SH - Versenyző óra", "sub": "technika"}]}, "2026-09-22": {"date": "2026-09-22", "items": [{"intensity": 5, "kind": "ora", "min": 90, "note": "SH - Csoportos magánóra", "sub": "gyakorlas"}]}}, "settings": {"templates": {"hetfo": ["Hack guggolás", "Leg Press", "Leg Extension", "Glute drive", "Calf Raise", "Abdominal Crunch", "Leg Raise"], "pentek": ["Csípőfeszítés", "Glute drive", "Outer Thigh", "Inner Thigh", "Leg curl", "Abdominal Crunch", "Calf Raise"], "szerda": ["Lat Pulldown", "Seated Row", "Chest Press", "Shoulder Press", "Biceps Curl", "Triceps Extension", "Abdominal Crunch"]}, "goals": {"dance": 4, "gym": 2}}};
-  const clone=o=>JSON.parse(JSON.stringify(o));
-  const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
-  const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-  let st=read(KEY,null);
-  if(!st||typeof st!=='object'||!st.workouts){st=clone(SEED);write(KEY,st)}
-  let pending=read(PKEY,[]);
-  const save=()=>write(KEY,st), savePending=()=>write(PKEY,pending);
-  const col=c=>(st[c]=st[c]||{});
-  const subs=new Set(); const fire=()=>subs.forEach(f=>{try{f()}catch(e){console.error(e)}});
-  const listen=f=>{subs.add(f);setTimeout(f,0);return()=>subs.delete(f)};
-  function docRef(c,id){return{
-    async set(d){col(c)[id]=clone(d);save();pending.push({op:'set',c,id,d:clone(d)});savePending();fire();sync()},
-    async delete(){if(!(id in col(c)))return;delete col(c)[id];save();pending.push({op:'del',c,id});savePending();fire();sync()},
-    onSnapshot(n){return listen(()=>n({exists:!!col(c)[id],data:()=>col(c)[id]}))}
-  }}
-  const db={
-    collection:c=>({orderBy(){return this},doc:id=>docRef(c,id),
-      onSnapshot(n){return listen(()=>n({docs:Object.values(col(c)).slice().sort((a,b)=>String(a.date)<String(b.date)?-1:1).map(d=>({data:()=>d}))}))}}),
-    doc:p=>{const [c,id]=p.split('/');return docRef(c,id)}
-  };
-
-  const cfg=()=>read(CFG,{});
-  let syncing=false, again=false, lastErr='', lastOk=null;
-  const countDocs=o=>['workouts','dance','settings'].reduce((a,c)=>a+Object.keys((o&&o[c])||{}).length,0);
-  function allOps(){const ops=[];['workouts','dance','settings'].forEach(c=>Object.entries(col(c)).forEach(([id,d])=>ops.push({op:'set',c,id,d})));return ops}
-  function status(){
-    const el=document.getElementById('status'); if(!el) return; const c=cfg(); let t, ok=true;
-    if(!c.url) t='Mentve ezen a telefonon';
-    else if(syncing) t='Szinkronizálás…';
-    else if(lastErr){t=`Nincs szinkronizálva${pending.length?` (${pending.length} változás vár)`:''}`;ok=false}
-    else t='Szinkronizálva a táblázattal';
-    el.className='status'+(ok?' ok':''); el.querySelector('span').textContent=t;
-    const d=document.getElementById('syncinfo');
-    if(d) d.textContent=!c.url?'Nincs beállítva szinkron – az adatok csak ezen az eszközön vannak.':lastErr?(/titkos/.test(lastErr)?`Hiba: ${lastErr}. Ellenőrizd, hogy ugyanaz-e, mint a Code.gs fájlban.`:`Hiba: ${lastErr}. Újrapróbálom, amikor újra van internet.`):lastOk?`Utolsó szinkron: ${lastOk.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'})}`:'Kapcsolódás…';
-  }
-  async function sync(){
-    const c=cfg(); if(!c.url){status();return}
-    if(syncing){again=true;return}
-    syncing=true; status();
-    try{
-      const ops=pending.slice();
-      const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:c.token||'',ops})});
-      const j=await res.json();
-      if(!j.ok) throw new Error(j.error||'ismeretlen hiba');
-      pending=pending.slice(ops.length); savePending();
-      if(j.data&&!pending.length){
-        if(countDocs(j.data)===0&&countDocs(st)>0){pending=allOps();savePending();again=true}
-        else{st={workouts:j.data.workouts||{},dance:j.data.dance||{},settings:j.data.settings||{}};save();fire()}
-      }
-      lastErr=''; lastOk=new Date();
-    }catch(e){lastErr=e&&e.message&&!/Failed to fetch|NetworkError|Load failed/i.test(e.message)?e.message:'nincs internet vagy rossz a cím'}
-    finally{syncing=false;status();if(again){again=false;setTimeout(sync,300)}}
-  }
-  function download(){
-    const blob=new Blob([JSON.stringify(st,null,1)],{type:'application/json'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-    const t=new Date(); a.download=`edzes-tanc-mentes-${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}.json`;
-    document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
-  }
-  function importObj(o){
-    if(!o||typeof o!=='object'||!o.workouts) throw new Error('Ez nem egy edzésnapló-mentés.');
-    st={workouts:o.workouts||{},dance:o.dance||{},settings:o.settings||{}}; save();
-    pending=allOps(); savePending(); fire(); sync();
-  }
-  window.LocalDB={db,sync,status,cfg,setCfg:c=>{write(CFG,c);lastErr='';lastOk=null;sync()},download,importObj};
-  addEventListener('online',sync);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
-  setTimeout(sync,50);
-})();
-</script>
-
+<script src="store.js"></script>
 <div class="wrap">
   <header>
     <div>
@@ -335,11 +262,11 @@ html,body{margin:0}
       </form>
     </details>
   </section>
-  <section class="card">
+  <section class="card" id="szinkron">
     <details id="syncdetails">
       <summary>Adatok és szinkron</summary>
       <div class="settings" style="grid-template-columns:1fr">
-        <p class="note">Az adataid ezen a telefonon tárolódnak. Ha összekötöd egy Google Táblázattal, minden mentés oda is bekerül (Edzés és Tánc lap), és több eszközön is ugyanazt látod. A beállítás lépései a README-ben vannak.</p>
+        <p class="note">Az adataid (súlynapló, edzés, tánc) ezen a telefonon tárolódnak. Ha összekötöd egy Google Táblázattal, minden mentés oda is bekerül (Súly, Edzés és Tánc lap), és több eszközön is ugyanazt látod. A beállítás lépései a README-ben vannak.</p>
         <div class="field"><label for="s-url">Webes alkalmazás URL (Apps Script)</label><input id="s-url" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec"></div>
         <div class="field"><label for="s-token">Titkos szó</label><input id="s-token" type="password" autocomplete="off"></div>
         <div class="row"><button type="button" class="primary" id="s-save">Összekötés</button><button type="button" class="ghost" id="s-now">Szinkron most</button><button type="button" class="ghost" id="s-off">Leválasztás</button></div>
@@ -648,8 +575,10 @@ html,body{margin:0}
     try{L.importObj(JSON.parse(await f.text()));$('backupmsg').textContent='Visszatöltve.'}catch(e){$('backupmsg').textContent=e.message||'Nem sikerült beolvasni a fájlt.'}
     ev.target.value=''});
   L.status();
-  if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  if(location.hash==='#szinkron'){const d=$('syncdetails');d.open=true;setTimeout(()=>d.scrollIntoView({block:'start'}),100)}
 })();
 </script>
+<script src="nav.js"></script>
+<script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 </body>
 </html>
