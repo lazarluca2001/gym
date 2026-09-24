@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Edzés és tánc</title>
+<meta name="theme-color" content="#f4f6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Edzés">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f4f6f1; --surface:#ffffff; --sunk:#eef1ea; --ink:#1b2320; --muted:#5f6b66; --line:#dde3da;
+  --accent:#0ca678; --accent-ink:#ffffff; --accent-soft:#d3f5e8;
+  --hero1:#ffe8cc; --hero2:#f3e5ff;
+  --m-legs:#f76707; --m-core:#5c940d; --m-upper:#7048e8; --m-back:#1098ad;
+  --t-legs:#fff1e6; --t-core:#f1f8e4; --t-upper:#f1edff; --t-back:#e4f6f9;
+  --dance:#ae3ec9; --t-dance:#f8f0fc;
+  --good:#2b8a3e; --warn:#d9480f; --bad:#e03131;
+  --display:"Sora",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+    --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+    --hero1:#3a2612; --hero2:#2b1f45;
+    --m-legs:#ff922b; --m-core:#94d82d; --m-upper:#9775fa; --m-back:#3bc9db;
+    --t-legs:#2c2016; --t-core:#1f2a16; --t-upper:#221d36; --t-back:#132a2f;
+    --dance:#e599f7; --t-dance:#2a1a30;
+    --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+  --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+  --hero1:#3a2612; --hero2:#2b1f45;
+  --m-legs:#ff922b; --m-core:#94d82d; --m-upper:#9775fa; --m-back:#3bc9db;
+  --t-legs:#2c2016; --t-core:#1f2a16; --t-upper:#221d36; --t-back:#132a2f;
+  --dance:#e599f7; --t-dance:#2a1a30;
+  --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 48px;display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+h1 .a{color:var(--m-legs)} h1 .b{color:var(--dance)}
+h2{font-size:17px;font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+header p{margin:4px 0 0;color:var(--muted)}
+.status{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.ok i{background:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin:0;max-width:72ch}
+.msg{font-size:13px;color:var(--muted)}
+.dirty{color:var(--warn);font-weight:600}
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid transparent;padding:9px 16px}
+.primary{background:var(--accent);color:var(--accent-ink)}
+.primary:disabled{opacity:.45;cursor:default}
+.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.small{padding:6px 10px;font-size:13px}
+section.card,form.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.meal-empty{font-size:13px;color:var(--muted);padding:4px 0}
+
+/* week */
+.week{border-radius:18px;padding:18px;background:linear-gradient(120deg,var(--hero1),var(--hero2));display:flex;flex-direction:column;gap:14px}
+.week-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.week-h .nav{display:flex;align-items:center;gap:8px}
+.week-h .nav button{width:36px;height:36px;padding:0;border-radius:50%;background:var(--surface);color:var(--ink);font-size:16px}
+.week-h .nav .lbl{font-family:var(--display);font-weight:600;min-width:150px;text-align:center}
+.goals{display:flex;gap:8px;flex-wrap:wrap}
+.wk{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--surface);color:var(--m-legs)}
+.wk.dance{color:var(--dance)}
+.wk.ok::before{content:"✓ "}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:color-mix(in srgb,var(--surface) 80%,transparent);border:2px solid transparent;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:5px;cursor:pointer;text-align:left;color:var(--ink);font-weight:400;min-height:92px}
+.day.sel{border-color:var(--ink)}
+.day.today .dn{color:var(--accent)}
+.day .dn{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.day .dd{font-family:var(--mono);font-size:13px}
+.tag{font-size:11px;font-weight:600;border-radius:6px;padding:2px 6px;line-height:1.3}
+.tag.g{background:var(--tg);color:var(--gc)}
+.tag.g.plan{background:transparent;border:1px dashed var(--gc)}
+.tag.d{background:var(--t-dance);color:var(--dance)}
+@media (max-width:640px){
+  .days{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .day{padding:6px 4px;min-height:74px;align-items:center;text-align:center}
+  .day .tag{font-size:0;width:10px;height:10px;padding:0;border-radius:50%;background:var(--gc)}
+  .day .tag.d{background:var(--dance)}
+  .day .tag.g.plan{background:transparent;border:2px solid var(--gc)}
+}
+
+/* tabs */
+.tabs{display:flex;gap:6px;background:var(--sunk);padding:4px;border-radius:12px;width:max-content;max-width:100%}
+.tabs button{background:transparent;color:var(--muted);padding:8px 16px;border-radius:9px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tabs .cnt{font-family:var(--mono);font-size:12px;color:var(--accent);margin-left:4px}
+@media (max-width:520px){.tabs{width:100%}.tabs button{flex:1;padding:8px 4px}}
+.panel{display:flex;flex-direction:column;gap:14px}
+.flabel{font-size:12px;color:var(--muted);font-weight:500}
+
+/* gym rows */
+.exhead,.exrow{display:grid;grid-template-columns:minmax(0,1fr) 58px 58px 74px 64px 44px 58px 24px;gap:6px;align-items:start}
+.exhead{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 10px}
+.exhead span:nth-child(n+2){text-align:center}
+.exrow{background:var(--gt);border-radius:12px;padding:8px 10px}
+.exrow input{padding:7px 6px;font-size:14px;background:var(--surface);width:100%;text-align:center;font-family:var(--mono)}
+.exrow input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.exrow input[type=number]::-webkit-inner-spin-button,.exrow input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.exrow .exname input{text-align:left;font-family:var(--body);font-weight:600;color:var(--gc)}
+.exrow .prev{font-size:11px;color:var(--muted);padding:3px 2px 0;font-family:var(--mono)}
+.exrow .prev .up{color:var(--good);font-weight:600} .exrow .prev .down{color:var(--warn);font-weight:600}
+.exrow .vol{font-family:var(--mono);font-size:13px;text-align:center;padding-top:8px;color:var(--muted)}
+.exrow .done{display:grid;place-items:center;padding-top:6px}
+.exrow .done input{width:22px;height:22px;accent-color:var(--gc);cursor:pointer}
+.exrow .x{background:none;border:none;color:var(--muted);padding:8px 2px}
+.exrow .x:hover{color:var(--bad)}
+.gymtotal{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:14px;color:var(--muted)}
+.gymtotal b{color:var(--ink);font-weight:500}
+.tplbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tplbtn{background:var(--tt);color:var(--tc);border:1px solid color-mix(in srgb,var(--tc) 40%,transparent);padding:8px 14px;border-radius:10px;display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+.tplbtn small{font-weight:500;font-size:11px;opacity:.8}
+#addex{max-width:100%;font-weight:600;color:var(--accent);border-color:var(--accent);background:var(--surface)}
+.settings textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:170px;resize:vertical;width:100%}
+@media (max-width:620px){
+  .exhead{grid-template-columns:repeat(5,minmax(0,1fr)) 24px;padding:0 10px}
+  .exhead span:nth-child(1),.exhead span:nth-child(5),.exhead span:nth-child(8){display:none}
+  .exrow{grid-template-columns:repeat(5,minmax(0,1fr)) 24px;grid-template-areas:"n n n n n x" "s r k d i i"}
+  .exrow .exname{grid-area:n}.exrow .x{grid-area:x}
+  .exrow [data-k="sets"]{grid-area:s}.exrow [data-k="reps"]{grid-area:r}.exrow [data-k="kg"]{grid-area:k}
+  .exrow .vol{display:none}.exrow .done{grid-area:d}.exrow [data-k="rir"]{grid-area:i}
+}
+
+/* dance */
+.dsess{background:var(--t-dance);border:1px solid color-mix(in srgb,var(--dance) 30%,transparent);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:auto auto 1fr 24px;gap:10px 16px;align-items:center}
+.dsess .x{background:none;border:none;color:var(--muted);padding:4px;justify-self:end}
+.dsess .x:hover{color:var(--bad)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{background:transparent;color:var(--muted);padding:6px 12px;border-radius:7px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--dance);color:#fff}
+.seg.sub button[aria-pressed="true"]{background:color-mix(in srgb,var(--dance) 22%,var(--surface));color:var(--dance)}
+.dur{display:inline-flex;align-items:center;gap:6px}
+.dur button{width:34px;height:34px;padding:0;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--dance);font-size:18px;line-height:1}
+.dur .t{font-family:var(--mono);font-size:18px;min-width:52px;text-align:center}
+.ints{display:inline-flex;gap:5px;align-items:center}
+.ints button{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid var(--dance);background:transparent;color:var(--dance);font-family:var(--mono);font-size:12px}
+.ints button.on{background:var(--dance);color:#fff}
+.dsess .lbl{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dsess .note-in{grid-column:1/-1;width:100%;background:var(--surface);padding:7px 10px;font-size:14px}
+.dsess .r1{grid-column:1/-2;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dsess .r2{grid-column:1/-1;display:flex;gap:18px 24px;flex-wrap:wrap;align-items:center}
+.addd{align-self:flex-start;color:var(--dance);border-color:var(--dance)!important}
+
+/* log */
+.log-list{list-style:none;margin:0;padding:0;max-height:520px;overflow:auto}
+.log-list li{display:grid;grid-template-columns:86px 1fr auto;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px}
+.log-list .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+.log-list .gy{color:var(--m-legs);font-weight:600} .log-list .gyp{color:var(--muted);font-style:italic}
+.log-list .tn{color:var(--dance);font-weight:600}
+.log-list button{background:none;border:none;color:var(--muted);padding:4px 6px;font-size:13px}
+.log-list button:hover{color:var(--ink)}
+.log-list .confirm{color:var(--bad)}
+@media (max-width:520px){.log-list li{grid-template-columns:84px 1fr}.log-list li>span:first-child{white-space:nowrap}.log-list li>span:last-child{grid-column:2}.log-list button{padding:2px 10px 2px 0}.exrow input{font-size:13px;padding:7px 3px}}
+details summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:15px}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+html,body{margin:0}
+.wrap{padding-top:max(28px,calc(env(safe-area-inset-top) + 12px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom) + 24px))}
+.divider{height:1px;background:var(--line)}
+.filebtn{display:inline-block;cursor:pointer;padding:9px 16px;border:1px solid var(--line);border-radius:8px;font-weight:600;color:var(--ink)}
+</style>
+</head>
+<body>
+<script>
+/* Helyi tárolás (a telefonon) + opcionális szinkron egy Google Táblázattal */
+(function(){
+  const KEY='edzes-tanc-v1', PKEY='edzes-tanc-v1-pending', CFG='edzes-tanc-sync';
+  const SEED={"workouts": {"2026-09-23": {"date": "2026-09-23", "items": [{"done": true, "ex": "Lat Pulldown", "kg": 13.75, "reps": 10, "rir": 1, "sets": 4}, {"done": true, "ex": "Chest Press", "kg": 20, "reps": 8, "rir": 0, "sets": 2}, {"done": true, "ex": "Triceps Extension", "kg": 12.5, "reps": 8, "rir": 2, "sets": 3}, {"done": true, "ex": "Abdominal Crunch", "kg": 20, "reps": 12, "rir": 4, "sets": 3}, {"done": true, "ex": "Seated Row", "kg": 20, "reps": 10, "rir": 2, "sets": 2}]}}, "dance": {"2026-09-24": {"date": "2026-09-24", "items": [{"intensity": 3, "kind": "ora", "min": 90, "note": "SH - Versenyző óra", "sub": "technika"}]}, "2026-09-22": {"date": "2026-09-22", "items": [{"intensity": 5, "kind": "ora", "min": 90, "note": "SH - Csoportos magánóra", "sub": "gyakorlas"}]}}, "settings": {"templates": {"hetfo": ["Hack guggolás", "Leg Press", "Leg Extension", "Glute drive", "Calf Raise", "Abdominal Crunch", "Leg Raise"], "pentek": ["Csípőfeszítés", "Glute drive", "Outer Thigh", "Inner Thigh", "Leg curl", "Abdominal Crunch", "Calf Raise"], "szerda": ["Lat Pulldown", "Seated Row", "Chest Press", "Shoulder Press", "Biceps Curl", "Triceps Extension", "Abdominal Crunch"]}, "goals": {"dance": 4, "gym": 2}}};
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
+  const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  let st=read(KEY,null);
+  if(!st||typeof st!=='object'||!st.workouts){st=clone(SEED);write(KEY,st)}
+  let pending=read(PKEY,[]);
+  const save=()=>write(KEY,st), savePending=()=>write(PKEY,pending);
+  const col=c=>(st[c]=st[c]||{});
+  const subs=new Set(); const fire=()=>subs.forEach(f=>{try{f()}catch(e){console.error(e)}});
+  const listen=f=>{subs.add(f);setTimeout(f,0);return()=>subs.delete(f)};
+  function docRef(c,id){return{
+    async set(d){col(c)[id]=clone(d);save();pending.push({op:'set',c,id,d:clone(d)});savePending();fire();sync()},
+    async delete(){if(!(id in col(c)))return;delete col(c)[id];save();pending.push({op:'del',c,id});savePending();fire();sync()},
+    onSnapshot(n){return listen(()=>n({exists:!!col(c)[id],data:()=>col(c)[id]}))}
+  }}
+  const db={
+    collection:c=>({orderBy(){return this},doc:id=>docRef(c,id),
+      onSnapshot(n){return listen(()=>n({docs:Object.values(col(c)).slice().sort((a,b)=>String(a.date)<String(b.date)?-1:1).map(d=>({data:()=>d}))}))}}),
+    doc:p=>{const [c,id]=p.split('/');return docRef(c,id)}
+  };
+
+  const cfg=()=>read(CFG,{});
+  let syncing=false, again=false, lastErr='', lastOk=null;
+  const countDocs=o=>['workouts','dance','settings'].reduce((a,c)=>a+Object.keys((o&&o[c])||{}).length,0);
+  function allOps(){const ops=[];['workouts','dance','settings'].forEach(c=>Object.entries(col(c)).forEach(([id,d])=>ops.push({op:'set',c,id,d})));return ops}
+  function status(){
+    const el=document.getElementById('status'); if(!el) return; const c=cfg(); let t, ok=true;
+    if(!c.url) t='Mentve ezen a telefonon';
+    else if(syncing) t='Szinkronizálás…';
+    else if(lastErr){t=`Nincs szinkronizálva${pending.length?` (${pending.length} változás vár)`:''}`;ok=false}
+    else t='Szinkronizálva a táblázattal';
+    el.className='status'+(ok?' ok':''); el.querySelector('span').textContent=t;
+    const d=document.getElementById('syncinfo');
+    if(d) d.textContent=!c.url?'Nincs beállítva szinkron – az adatok csak ezen az eszközön vannak.':lastErr?(/titkos/.test(lastErr)?`Hiba: ${lastErr}. Ellenőrizd, hogy ugyanaz-e, mint a Code.gs fájlban.`:`Hiba: ${lastErr}. Újrapróbálom, amikor újra van internet.`):lastOk?`Utolsó szinkron: ${lastOk.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'})}`:'Kapcsolódás…';
+  }
+  async function sync(){
+    const c=cfg(); if(!c.url){status();return}
+    if(syncing){again=true;return}
+    syncing=true; status();
+    try{
+      const ops=pending.slice();
+      const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:c.token||'',ops})});
+      const j=await res.json();
+      if(!j.ok) throw new Error(j.error||'ismeretlen hiba');
+      pending=pending.slice(ops.length); savePending();
+      if(j.data&&!pending.length){
+        if(countDocs(j.data)===0&&countDocs(st)>0){pending=allOps();savePending();again=true}
+        else{st={workouts:j.data.workouts||{},dance:j.data.dance||{},settings:j.data.settings||{}};save();fire()}
+      }
+      lastErr=''; lastOk=new Date();
+    }catch(e){lastErr=e&&e.message&&!/Failed to fetch|NetworkError|Load failed/i.test(e.message)?e.message:'nincs internet vagy rossz a cím'}
+    finally{syncing=false;status();if(again){again=false;setTimeout(sync,300)}}
+  }
+  function download(){
+    const blob=new Blob([JSON.stringify(st,null,1)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    const t=new Date(); a.download=`edzes-tanc-mentes-${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}.json`;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  }
+  function importObj(o){
+    if(!o||typeof o!=='object'||!o.workouts) throw new Error('Ez nem egy edzésnapló-mentés.');
+    st={workouts:o.workouts||{},dance:o.dance||{},settings:o.settings||{}}; save();
+    pending=allOps(); savePending(); fire(); sync();
+  }
+  window.LocalDB={db,sync,status,cfg,setCfg:c=>{write(CFG,c);lastErr='';lastOk=null;sync()},download,importObj};
+  addEventListener('online',sync);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
+  setTimeout(sync,50);
+})();
+</script>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span class="a">Edzés</span> és <span class="b">tánc</span></h1>
+      <p>Heti terv, gyakorlatok és táncórák egy helyen</p>
+    </div>
+    <div class="status" id="status"><i></i><span>Betöltés…</span></div>
+  </header>
+
+  <div class="week">
+    <div class="week-h">
+      <div class="nav"><button type="button" id="prevw" aria-label="Előző hét">‹</button><span class="lbl" id="wlabel"></span><button type="button" id="nextw" aria-label="Következő hét">›</button></div>
+      <div class="goals"><span class="wk" id="wgym"></span><span class="wk dance" id="wdance"></span></div>
+    </div>
+    <div class="days" id="days"></div>
+  </div>
+
+  <form class="card" id="dayform" autocomplete="off">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <h2 id="daytitle">Nap</h2>
+      <span class="msg" id="dirtymsg"></span>
+    </div>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="gym" aria-selected="true">Edzés<span class="cnt" id="tabgym"></span></button>
+        <button type="button" role="tab" data-tab="dance" aria-selected="false">Tánc<span class="cnt" id="tabdance"></span></button>
+      </div>
+      <input type="date" id="date" aria-label="Dátum">
+    </div>
+
+    <div class="panel" id="panel-gym">
+      <span class="flabel">Pipáld ki, amit megcsináltál. RIR: hány ismétlés maradt volna még benned.</span>
+      <div class="tplbar" id="tplbar"></div>
+      <div class="exhead"><span>Gyakorlat</span><span>Széria</span><span>Ism.</span><span>Súly kg</span><span>Volumen</span><span>Kész</span><span>RIR</span><span></span></div>
+      <div id="exrows" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <select id="addex" aria-label="Gyakorlat hozzáadása"></select>
+        <div class="gymtotal" id="gymtotal"></div>
+      </div>
+      <datalist id="exlist"></datalist>
+    </div>
+
+    <div class="panel" id="panel-dance" hidden>
+      <span class="flabel">Minden alkalom külön sor, ha egy nap két órád is volt.</span>
+      <div id="drows" style="display:flex;flex-direction:column;gap:10px"></div>
+      <button type="button" class="ghost small addd" id="adddance">+ Tánc</button>
+    </div>
+
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="msg" id="logmsg">Válassz egy napot fent a heti sávban, vagy a dátummezővel.</div>
+      <button class="primary" type="submit" id="savebtn">Mentés</button>
+    </div>
+  </form>
+
+  <section class="card">
+    <h2>Napló</h2>
+    <ul class="log-list" id="entries"></ul>
+  </section>
+
+  <section class="card">
+    <details id="setdetails">
+      <summary>Heti célok és edzésnapok</summary>
+      <form class="settings" id="setform">
+        <div class="field"><label for="p-gym">Heti edzés cél (alkalom)</label><input type="number" id="p-gym" step="1" min="0" max="14"></div>
+        <div class="field"><label for="p-dance">Heti tánc cél (alkalom)</label><input type="number" id="p-dance" step="1" min="0" max="14"></div>
+        <div class="field"><label for="t-hetfo">Hétfő (soronként egy gyakorlat)</label><textarea id="t-hetfo"></textarea></div>
+        <div class="field"><label for="t-szerda">Szerda</label><textarea id="t-szerda"></textarea></div>
+        <div class="field"><label for="t-pentek">Péntek</label><textarea id="t-pentek"></textarea></div>
+        <div class="field" style="justify-content:flex-end"><button class="primary" type="submit">Mentés</button></div>
+      </form>
+    </details>
+  </section>
+  <section class="card">
+    <details id="syncdetails">
+      <summary>Adatok és szinkron</summary>
+      <div class="settings" style="grid-template-columns:1fr">
+        <p class="note">Az adataid ezen a telefonon tárolódnak. Ha összekötöd egy Google Táblázattal, minden mentés oda is bekerül (Edzés és Tánc lap), és több eszközön is ugyanazt látod. A beállítás lépései a README-ben vannak.</p>
+        <div class="field"><label for="s-url">Webes alkalmazás URL (Apps Script)</label><input id="s-url" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec"></div>
+        <div class="field"><label for="s-token">Titkos szó</label><input id="s-token" type="password" autocomplete="off"></div>
+        <div class="row"><button type="button" class="primary" id="s-save">Összekötés</button><button type="button" class="ghost" id="s-now">Szinkron most</button><button type="button" class="ghost" id="s-off">Leválasztás</button></div>
+        <p class="msg" id="syncinfo"></p>
+        <div class="divider"></div>
+        <div class="row"><button type="button" class="ghost" id="b-down">Biztonsági mentés letöltése</button><label class="filebtn">Visszatöltés fájlból<input type="file" id="b-up" accept=".json,application/json" hidden></label></div>
+        <p class="msg" id="backupmsg">Ha nincs táblázat-szinkron, érdemes havonta letölteni egy mentést.</p>
+      </div>
+    </details>
+  </section>
+</div>
+<script>
+(function(){
+  let goals={gym:2,dance:2};
+  let workouts=[], dances=[], db=null;
+  let formEx=[], formDance=[], dirty=false, weekMon=null;
+
+  const $=id=>document.getElementById(id);
+  const fmt=(n,d=1)=>n.toFixed(d).replace('.',',');
+  const kgTxt=v=>fmt(v,v%1?(Math.round(v*100)%10?2:1):0);
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const toD=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+  const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+  const HU=['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+  const DN=['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'], DS=['H','K','Sze','Cs','P','Szo','V'];
+  const huDate=d=>HU[d.getMonth()]+' '+d.getDate()+'.';
+  const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+  const mondayOf=d=>addDays(d,-((d.getDay()+6)%7));
+  const isNum=v=>typeof v==='number'&&isFinite(v);
+  const norm=s=>String(s||'').trim().toLowerCase();
+  const hm=m=>Math.floor(m/60)+':'+String(m%60).padStart(2,'0');
+  const setStatus=(t,ok)=>{$('status').className='status'+(ok?' ok':'');$('status').querySelector('span').textContent=t};
+
+  // ---- gym helpers ----
+  function group(n){n=norm(n);
+    if(/glute|hack|leg press|leg curl|leg ext|lábtoló|calf|thigh|comb|csípő|guggol|squat|kickback|kitörés|lunge|adduct|abduct|híd/.test(n)) return 'legs';
+    if(/crunch|leg raise|torso|abdominal|plank|has|core/.test(n)) return 'core';
+    if(/row|pulldown|back|hát|húz|evez/.test(n)) return 'back';
+    return 'upper';}
+  const vol=it=>(isNum(it.sets)?it.sets:0)*(isNum(it.reps)?it.reps:0)*(isNum(it.kg)?it.kg:0);
+  const setsTxt=it=>`${isNum(it.sets)?it.sets:'?'}×${isNum(it.reps)?it.reps:'?'}${isNum(it.kg)&&it.kg>0?' · '+kgTxt(it.kg)+' kg':''}`;
+  function lastDone(name,before){
+    const n=norm(name); if(!n) return null;
+    for(let i=workouts.length-1;i>=0;i--){const w=workouts[i];if(w.date>=before)continue;
+      const it=(w.items||[]).find(x=>norm(x.ex)===n&&x.done); if(it) return {date:w.date,...it};}
+    return null;
+  }
+  function sessType(w){let L=0,O=0;(w.items||[]).forEach(x=>{const g=group(x.ex);if(g==='legs')L++;else if(g!=='core')O++});return L>=O?'L':'U'}
+  const TYPEN={L:'Láb, far',U:'Felsőtest'};
+  const wOn=d=>workouts.find(w=>w.date===d&&(w.items||[]).length);
+  const dOn=d=>dances.find(w=>w.date===d&&(w.items||[]).length);
+
+  // ---- week strip ----
+  function renderWeek(){
+    const mon=weekMon, sel=$('date').value, t=iso(today());
+    $('wlabel').textContent=`${huDate(mon)} – ${huDate(addDays(mon,6))}`;
+    let gN=0,dN=0,dMin=0;
+    $('days').innerHTML=[0,1,2,3,4,5,6].map(k=>{
+      const d=iso(addDays(mon,k)), w=wOn(d), dz=dOn(d);
+      let tags='';
+      if(w){const done=w.items.some(x=>x.done); if(done)gN++; const ty=sessType(w), g=ty==='L'?'legs':'upper';
+        tags+=`<span class="tag g ${done?'':'plan'}" style="--gc:var(--m-${g});--tg:var(--t-${g})">${TYPEN[ty]}${done?'':' (terv)'}</span>`}
+      if(dz){const m=dz.items.reduce((a,x)=>a+(x.min||0),0);dN+=dz.items.length;dMin+=m;tags+=`<span class="tag d">Tánc ${hm(m)}</span>`}
+      return `<button type="button" class="day ${d===sel?'sel':''} ${d===t?'today':''}" data-d="${d}"><span class="dn">${innerWidth<640?DS[k]:DN[k]}</span><span class="dd">${toD(d).getDate()}.</span>${tags}</button>`;
+    }).join('');
+    $('wgym').textContent=`Edzés: ${gN} / ${goals.gym}`; $('wgym').className='wk'+(gN>=goals.gym?' ok':'');
+    $('wdance').textContent=`Tánc: ${dN} / ${goals.dance} · ${hm(dMin)} óra`; $('wdance').className='wk dance'+(dN>=goals.dance?' ok':'');
+  }
+  $('days').addEventListener('click',ev=>{const b=ev.target.closest('[data-d]');if(!b)return;selectDate(b.dataset.d)});
+  $('prevw').addEventListener('click',()=>{weekMon=addDays(weekMon,-7);renderWeek()});
+  $('nextw').addEventListener('click',()=>{weekMon=addDays(weekMon,7);renderWeek()});
+  function selectDate(d){
+    if(dirty&&d!==$('date').value){$('logmsg').innerHTML='<span class="dirty">Előbb mentsd el a változásokat</span>, vagy kattints még egyszer a napra az elvetésükhöz.';
+      if(pendingSwitch!==d){pendingSwitch=d;return}}
+    pendingSwitch=null; $('date').value=d; weekMon=mondayOf(toD(d)); loadForm(true); renderWeek();
+  }
+  let pendingSwitch=null;
+  $('date').addEventListener('change',()=>{const d=$('date').value;if(d){dirty=false;selectDate(d)}});
+
+  // ---- gym form ----
+  const numOrNull=v=>{const x=parseFloat(String(v).replace(',','.'));return isFinite(x)?x:null};
+  function exRowHTML(it,i){
+    const gr=group(it.ex), pv=lastDone(it.ex,$('date').value);
+    let prev='';
+    if(pv){const dd=isNum(it.kg)&&isNum(pv.kg)?it.kg-pv.kg:null;
+      prev=`Előző (${huDate(toD(pv.date))}): ${setsTxt(pv)}${isNum(pv.rir)?' · RIR '+pv.rir:''}${dd>0?' <span class="up">↑</span>':dd<0?' <span class="down">↓</span>':''}`}
+    else if(norm(it.ex)) prev='Első alkalom';
+    return `<div class="exrow" data-i="${i}" style="--gc:var(--m-${gr});--gt:var(--t-${gr})">
+      <div class="exname"><input list="exlist" data-k="ex" value="${esc(it.ex||'')}" placeholder="Gyakorlat neve" aria-label="Gyakorlat"><div class="prev" data-prev>${prev}</div></div>
+      <input type="number" data-k="sets" min="0" step="1" inputmode="numeric" value="${isNum(it.sets)?it.sets:''}" placeholder="Sz." aria-label="Széria">
+      <input type="number" data-k="reps" min="0" step="1" inputmode="numeric" value="${isNum(it.reps)?it.reps:''}" placeholder="Ism." aria-label="Ismétlés">
+      <input type="number" data-k="kg" min="0" step="0.25" inputmode="decimal" value="${isNum(it.kg)?it.kg:''}" placeholder="kg" aria-label="Súly kg">
+      <span class="vol" data-vol>${Math.round(vol(it))||'–'}</span>
+      <label class="done" title="Kész"><input type="checkbox" data-k="done" ${it.done?'checked':''} aria-label="Kész"></label>
+      <input type="number" data-k="rir" min="-3" max="10" step="1" inputmode="numeric" value="${isNum(it.rir)?it.rir:''}" placeholder="RIR" aria-label="RIR">
+      <button type="button" class="x" data-xe="${i}" aria-label="Gyakorlat törlése">✕</button></div>`;
+  }
+  function buildEx(){
+    $('exrows').innerHTML=formEx.length?formEx.map(exRowHTML).join(''):'<div class="meal-empty">Ezen a napon nincs edzés. Tölts be egy napot fent, vagy adj hozzá gyakorlatot.</div>';
+    const names=new Set(); workouts.forEach(w=>(w.items||[]).forEach(x=>x.ex&&names.add(x.ex.trim())));
+    $('exlist').innerHTML=[...names].sort().map(n=>`<option value="${esc(n)}"></option>`).join('');
+    const seen=new Map(); [...TPLKEYS.flatMap(k=>templates[k]||[]),...names].forEach(n=>{const k=norm(n);if(k&&!seen.has(k))seen.set(k,n.trim())});
+    const byG={}; [...seen.values()].forEach(n=>{(byG[group(n)]=byG[group(n)]||[]).push(n)});
+    $('addex').innerHTML='<option value="">+ Gyakorlat hozzáadása…</option>'+['legs','back','upper','core'].filter(g=>byG[g]).map(g=>`<optgroup label="${GNAME[g]}">${byG[g].sort((a,b)=>a.localeCompare(b,'hu')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}</optgroup>`).join('')+'<option value="__new">Új gyakorlat…</option>';
+    renderTplBar();
+    updGym();
+  }
+  function updGym(){
+    const done=formEx.filter(x=>x.done), tv=formEx.reduce((a,x)=>a+vol(x),0), dv=done.reduce((a,x)=>a+vol(x),0);
+    $('gymtotal').innerHTML=formEx.length?`<span>Gyakorlat: <b>${done.length} / ${formEx.length}</b> kész</span><span>Össz. volumen: <b>${Math.round(dv).toLocaleString('hu-HU')}</b> / ${Math.round(tv).toLocaleString('hu-HU')} kg</span>`:'';
+    $('tabgym').textContent=formEx.length?`${done.length}/${formEx.length}`:'';
+  }
+  $('exrows').addEventListener('input',ev=>{
+    const row=ev.target.closest('.exrow'); const k=ev.target.dataset.k; if(!row||!k) return;
+    const it=formEx[+row.dataset.i];
+    if(k==='ex'){it.ex=ev.target.value;const gr=group(it.ex);row.style.setProperty('--gc',`var(--m-${gr})`);row.style.setProperty('--gt',`var(--t-${gr})`)}
+    else if(k==='done') it.done=ev.target.checked;
+    else it[k]=numOrNull(ev.target.value);
+    row.querySelector('[data-vol]').textContent=Math.round(vol(it))||'–';
+    updGym(); setDirty(true);
+  });
+  $('exrows').addEventListener('change',ev=>{
+    const row=ev.target.closest('.exrow'); if(!row) return; const k=ev.target.dataset.k; if(k!=='ex'&&k!=='kg') return;
+    const i=+row.dataset.i, it=formEx[i];
+    if(k==='ex'){const pv=lastDone(it.ex,$('date').value);if(pv&&!isNum(it.sets)&&!isNum(it.reps)&&!isNum(it.kg)){it.sets=pv.sets;it.reps=pv.reps;it.kg=pv.kg;
+      ['sets','reps','kg'].forEach(f=>{row.querySelector(`[data-k="${f}"]`).value=isNum(it[f])?it[f]:''});row.querySelector('[data-vol]').textContent=Math.round(vol(it))||'–'}}
+    const tmp=document.createElement('div'); tmp.innerHTML=exRowHTML(it,i);
+    row.querySelector('[data-prev]').innerHTML=tmp.querySelector('[data-prev]').innerHTML; updGym();
+  });
+  $('exrows').addEventListener('click',ev=>{const x=ev.target.closest('[data-xe]');if(!x)return;formEx.splice(+x.dataset.xe,1);buildEx();setDirty(true)});
+  // ---- day templates ----
+  const TPLKEYS=['hetfo','szerda','pentek'], TPLNAME={hetfo:'Hétfő',szerda:'Szerda',pentek:'Péntek'};
+  const GNAME={legs:'Láb, far',back:'Hát',upper:'Mell, váll, kar',core:'Has'};
+  const DEF_TPL={
+    hetfo:['Hack guggolás','Leg Press','Leg Extension','Glute drive','Calf Raise','Abdominal Crunch','Leg Raise'],
+    szerda:['Lat Pulldown','Seated Row','Chest Press','Shoulder Press','Biceps Curl','Triceps Extension','Abdominal Crunch'],
+    pentek:['Csípőfeszítés','Glute drive','Outer Thigh','Inner Thigh','Leg curl','Abdominal Crunch','Calf Raise']};
+  let templates=structuredClone(DEF_TPL);
+  const stepFor=kg=>kg>=40?5:2.5;
+  function prefill(name){
+    const it={ex:name,sets:null,reps:null,kg:null,done:false,rir:null}, pv=lastDone(name,$('date').value);
+    if(!pv) return it;
+    it.sets=pv.sets??null; it.reps=pv.reps??null; it.kg=pv.kg??null;
+    if(isNum(pv.rir)&&isNum(it.kg)&&it.kg>0){ if(pv.rir>=2) it.kg+=stepFor(it.kg); else if(pv.rir===1&&isNum(it.reps)&&it.reps<15) it.reps+=1; }
+    return it;
+  }
+  function renderTplBar(){
+    const col={hetfo:'legs',szerda:'upper',pentek:'back'};
+    $('tplbar').innerHTML='<span class="flabel">Betöltés:</span>'+TPLKEYS.map(k=>`<button type="button" class="tplbtn" data-tpl="${k}" style="--tc:var(--m-${col[k]});--tt:var(--t-${col[k]})">${TPLNAME[k]}<small>${k==='pentek'?'ha belefér · ':''}${(templates[k]||[]).length} gyakorlat</small></button>`).join('');
+  }
+  $('tplbar').addEventListener('click',ev=>{
+    const b=ev.target.closest('[data-tpl]'); if(!b) return;
+    const list=templates[b.dataset.tpl]||[];
+    const keepDone=formEx.some(x=>x.done);
+    if(keepDone){const have=new Set(formEx.map(x=>norm(x.ex)));list.forEach(n=>{if(!have.has(norm(n)))formEx.push(prefill(n))})}
+    else formEx=list.map(prefill);
+    buildEx(); setDirty(true);
+    $('logmsg').textContent=`${TPLNAME[b.dataset.tpl]} betöltve${keepDone?' (a kipipált gyakorlatok megmaradtak)':''}. A súlyok a legutóbbi alkalomból jönnek; ahol 2+ RIR maradt, eggyel nehezebb.`;
+  });
+  $('addex').addEventListener('change',ev=>{
+    const v=ev.target.value; ev.target.value=''; if(!v) return;
+    formEx.push(v==='__new'?{ex:'',sets:null,reps:null,kg:null,done:false,rir:null}:prefill(v)); buildEx(); setDirty(true);
+    const ins=$('exrows').querySelectorAll('[data-k="ex"]'); const last=ins[ins.length-1]; if(v==='__new') last?.focus(); else last?.scrollIntoView({block:'nearest'});
+  });
+
+  // ---- dance ----
+  const DKIND={buli:'Buli',ora:'Óra'}, DSUB={technika:'Technika',gyakorlas:'Gyakorlás'};
+  function dRowHTML(d,i){
+    return `<div class="dsess" data-i="${i}">
+      <div class="r1"><span class="seg" role="group" aria-label="Típus">${Object.entries(DKIND).map(([k,l])=>`<button type="button" data-kind="${k}" aria-pressed="${d.kind===k}">${l}</button>`).join('')}</span>
+      ${d.kind==='ora'?`<span class="seg sub" role="group" aria-label="Óra típusa">${Object.entries(DSUB).map(([k,l])=>`<button type="button" data-sub="${k}" aria-pressed="${d.sub===k}">${l}</button>`).join('')}</span>`:''}</div>
+      <button type="button" class="x" data-xd="${i}" aria-label="Tánc törlése">✕</button>
+      <div class="r2">
+        <span class="dur"><span class="lbl">Idő</span><button type="button" data-dur="-15" aria-label="15 perccel kevesebb">−</button><span class="t">${hm(d.min)}</span><button type="button" data-dur="15" aria-label="15 perccel több">+</button></span>
+        <span class="ints" role="group" aria-label="Intenzitás"><span class="lbl">Intenzitás</span>${[1,2,3,4,5].map(v=>`<button type="button" data-int="${v}" class="${v<=d.intensity?'on':''}" aria-pressed="${v===d.intensity}" aria-label="Intenzitás ${v}">${v}</button>`).join('')}</span>
+      </div>
+      <input class="note-in" data-note value="${esc(d.note||'')}" placeholder="Hol? (nem kötelező, pl. Swinghearts)" aria-label="Megjegyzés">
+    </div>`;
+  }
+  function buildDance(){
+    $('drows').innerHTML=formDance.length?formDance.map(dRowHTML).join(''):'<div class="meal-empty">Ezen a napon nincs tánc.</div>';
+    const tot=formDance.reduce((a,x)=>a+x.min,0); $('tabdance').textContent=formDance.length?hm(tot):'';
+  }
+  $('drows').addEventListener('click',ev=>{
+    const row=ev.target.closest('.dsess'); if(!row) return; const i=+row.dataset.i, d=formDance[i]; const b=ev.target.closest('button'); if(!b) return;
+    if(b.dataset.xd!=null){formDance.splice(i,1);buildDance();setDirty(true);return}
+    if(b.dataset.kind){d.kind=b.dataset.kind;d.sub=d.kind==='ora'?(d.sub||'technika'):null}
+    else if(b.dataset.sub) d.sub=b.dataset.sub;
+    else if(b.dataset.dur) d.min=Math.max(15,Math.min(600,d.min+ +b.dataset.dur));
+    else if(b.dataset.int) d.intensity=+b.dataset.int;
+    else return;
+    row.outerHTML=dRowHTML(d,i); buildDance(); setDirty(true);
+  });
+  $('drows').addEventListener('input',ev=>{if(ev.target.dataset.note==null)return;formDance[+ev.target.closest('.dsess').dataset.i].note=ev.target.value;setDirty(true)});
+  $('adddance').addEventListener('click',()=>{formDance.push({kind:'ora',sub:'technika',min:90,intensity:3,note:''});buildDance();setDirty(true)});
+
+  // ---- form ----
+  function setDirty(v){dirty=v;$('dirtymsg').textContent=v?'Nem mentett változás':'';$('dirtymsg').className='msg'+(v?' dirty':'')}
+  function loadForm(force){
+    if(dirty&&!force) return;
+    const d=$('date').value, dt=toD(d);
+    $('daytitle').textContent=`${DN[(dt.getDay()+6)%7]}, ${huDate(dt)}`;
+    const w=workouts.find(x=>x.date===d);
+    formEx=w?(w.items||[]).map(x=>({ex:x.ex,sets:x.sets??null,reps:x.reps??null,kg:x.kg??null,done:!!x.done,rir:x.rir??null})):[];
+    const dn=dances.find(x=>x.date===d);
+    formDance=dn?(dn.items||[]).map(x=>({kind:x.kind==='buli'?'buli':'ora',sub:x.kind==='buli'?null:(x.sub||'technika'),min:x.min||90,intensity:x.intensity||3,note:x.note||''})):[];
+    buildEx(); buildDance(); setDirty(false);
+  }
+  document.querySelector('.tabs').addEventListener('click',ev=>{const b=ev.target.closest('[data-tab]');if(!b)return;
+    document.querySelectorAll('.tabs [data-tab]').forEach(t=>t.setAttribute('aria-selected',String(t===b)));
+    ['gym','dance'].forEach(t=>$('panel-'+t).hidden=b.dataset.tab!==t);});
+
+  $('dayform').addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const date=$('date').value; if(!date) return;
+    const exItems=formEx.filter(x=>norm(x.ex)).map(x=>{const o={ex:x.ex.trim(),done:!!x.done};['sets','reps','kg','rir'].forEach(k=>{if(isNum(x[k]))o[k]=x[k]});return o});
+    const dItems=formDance.map(x=>{const o={kind:x.kind,min:x.min,intensity:x.intensity};if(x.kind==='ora')o.sub=x.sub||'technika';if(x.note&&x.note.trim())o.note=x.note.trim();return o});
+    const hadW=workouts.some(w=>w.date===date), hadD=dances.some(w=>w.date===date);
+    if(!db){
+      workouts=workouts.filter(w=>w.date!==date); if(exItems.length) workouts.push({date,items:exItems}); workouts.sort((a,b)=>a.date<b.date?-1:1);
+      dances=dances.filter(w=>w.date!==date); if(dItems.length) dances.push({date,items:dItems}); dances.sort((a,b)=>a.date<b.date?-1:1);
+      setDirty(false); loadForm(true); renderAll();
+      $('logmsg').textContent='Mentve erre a munkamenetre (a tárolás nem elérhető, újratöltéskor elvész).'; return;
+    }
+    $('savebtn').disabled=true;
+    try{
+      if(exItems.length) await db.collection('workouts').doc(date).set({date,items:exItems}); else if(hadW) await db.collection('workouts').doc(date).delete();
+      if(dItems.length) await db.collection('dance').doc(date).set({date,items:dItems}); else if(hadD) await db.collection('dance').doc(date).delete();
+      setDirty(false);
+      const bits=[]; if(exItems.length)bits.push(`edzés (${exItems.filter(x=>x.done).length}/${exItems.length} kész)`); if(dItems.length)bits.push('tánc '+hm(dItems.reduce((a,x)=>a+x.min,0)));
+      $('logmsg').textContent=`Mentve: ${huDate(toD(date))}${bits.length?' – '+bits.join(', '):' (üres nap)'}`;
+    }catch(e){$('logmsg').textContent=e&&e.code==='invalid_argument'?'Ehhez a naplóhoz nincs írási jogod.':'A mentés nem sikerült. Próbáld újra.'}
+    finally{$('savebtn').disabled=false}
+  });
+
+  // ---- log ----
+  let pendingDel=null;
+  function renderEntries(){
+    const ul=$('entries');
+    const dates=[...new Set([...workouts.map(w=>w.date),...dances.map(w=>w.date)])].sort().reverse();
+    if(!dates.length){ul.innerHTML='<li class="muted" style="display:block">Még nincs bejegyzés.</li>';return}
+    ul.innerHTML=dates.map(dt=>{
+      const w=wOn(dt), dz=dOn(dt), parts=[];
+      if(w){const dn=w.items.filter(x=>x.done).length;
+        parts.push(dn?`<span class="gy">${TYPEN[sessType(w)]} · ${dn} gyak.</span>`:`<span class="gyp">Tervezett: ${TYPEN[sessType(w)].toLowerCase()} · ${w.items.length} gyak.</span>`)}
+      if(dz) dz.items.forEach(x=>parts.push(`<span class="tn">${x.kind==='buli'?'Buli':'Óra, '+(x.sub==='gyakorlas'?'gyakorlás':'technika')} · ${hm(x.min||0)} · ${x.intensity||'?'}/5</span>`));
+      return `<li><span>${huDate(toD(dt))}</span><span class="meta">${parts.join('')||'<span class="muted">–</span>'}</span><span><button type="button" data-edit="${dt}">Megnyitás</button>${db?`<button type="button" class="${pendingDel===dt?'confirm':''}" data-del="${dt}">${pendingDel===dt?'Biztos?':'Törlés'}</button>`:''}</span></li>`}).join('');
+  }
+  $('entries').addEventListener('click',async ev=>{
+    const ed=ev.target.closest('[data-edit]');
+    if(ed){dirty=false;selectDate(ed.dataset.edit);$('dayform').scrollIntoView({behavior:'smooth',block:'start'});return}
+    const b=ev.target.closest('[data-del]'); if(!b) return; const d=b.dataset.del;
+    if(pendingDel!==d){pendingDel=d;renderEntries();return}
+    pendingDel=null;
+    try{await db.collection('workouts').doc(d).delete();await db.collection('dance').doc(d).delete()}catch(e){$('logmsg').textContent='A törlés nem sikerült. Próbáld újra.'}
+  });
+
+  // ---- settings ----
+  function fillSettings(){$('p-gym').value=goals.gym;$('p-dance').value=goals.dance;TPLKEYS.forEach(k=>$('t-'+k).value=(templates[k]||[]).join('\n'))}
+  $('setform').addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const g=parseInt($('p-gym').value,10), d=parseInt($('p-dance').value,10);
+    goals={gym:isFinite(g)?g:2,dance:isFinite(d)?d:2};
+    TPLKEYS.forEach(k=>templates[k]=$('t-'+k).value.split('\n').map(x=>x.trim()).filter(Boolean));
+    renderWeek(); buildEx();
+    if(db){try{await db.doc('settings/goals').set(goals);await db.doc('settings/templates').set(templates);$('logmsg').textContent='Beállítások mentve.'}catch(e){$('logmsg').textContent='A beállítások mentése nem sikerült.'}}
+  });
+
+  function renderAll(){renderWeek();renderEntries()}
+  $('date').value=iso(today()); weekMon=mondayOf(today());
+  fillSettings(); loadForm(true); renderAll();
+  let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(renderWeek,150)});
+
+  (async()=>{
+    db=window.LocalDB.db;
+    if(!db){setStatus('Tárolás nem elérhető – csak helyben számol',false);return}
+    window.LocalDB.status();
+    const fail=()=>setStatus('A kapcsolat megszakadt – töltsd újra az oldalt',false);
+    db.doc('settings/templates').onSnapshot(s=>{if(s.exists){templates={...DEF_TPL,...s.data()};if(!$('setdetails').open)fillSettings();renderTplBar();if(!dirty)buildEx()}},()=>{});
+    db.doc('settings/goals').onSnapshot(s=>{if(s.exists){goals={gym:2,dance:2,...s.data()};if(!$('setdetails').open)fillSettings();renderWeek()}},()=>{});
+    db.collection('workouts').orderBy('date').onSnapshot(s=>{
+      workouts=s.docs.map(d=>d.data()).filter(x=>x&&x.date&&Array.isArray(x.items)).map(x=>({...x}));
+      if(!dirty) loadForm(false); renderAll();
+    },fail);
+    db.collection('dance').orderBy('date').onSnapshot(s=>{
+      dances=s.docs.map(d=>d.data()).filter(x=>x&&x.date&&Array.isArray(x.items)).map(x=>({...x}));
+      if(!dirty) loadForm(false); renderAll();
+    },fail);
+  })();
+})();
+</script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id), L=window.LocalDB, c=L.cfg();
+  $('s-url').value=c.url||''; $('s-token').value=c.token||'';
+  $('s-save').addEventListener('click',()=>{
+    const url=$('s-url').value.trim();
+    if(url&&!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)){$('syncinfo').textContent='A cím így nézzen ki: https://script.google.com/macros/s/…/exec';return}
+    L.setCfg(url?{url,token:$('s-token').value}:{});
+  });
+  $('s-now').addEventListener('click',()=>L.sync());
+  $('s-off').addEventListener('click',()=>{L.setCfg({});$('s-url').value='';$('s-token').value='';L.status()});
+  $('b-down').addEventListener('click',()=>L.download());
+  $('b-up').addEventListener('change',async ev=>{const f=ev.target.files[0];if(!f)return;
+    try{L.importObj(JSON.parse(await f.text()));$('backupmsg').textContent='Visszatöltve.'}catch(e){$('backupmsg').textContent=e.message||'Nem sikerült beolvasni a fájlt.'}
+    ev.target.value=''});
+  L.status();
+  if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+})();
+</script>
+</body>
+</html>
