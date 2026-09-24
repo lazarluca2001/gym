@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Súlynapló</title>
+<meta name="theme-color" content="#f4f6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Súlynapló">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f4f6f1; --surface:#ffffff; --sunk:#eef1ea; --ink:#1b2320; --muted:#5f6b66; --line:#dde3da;
+  --accent:#0ca678; --accent-ink:#ffffff; --accent-soft:#d3f5e8;
+  --hero1:#d8f5e9; --hero2:#ffe8cc; --hero3:#f3e5ff;
+  --m-reggeli:#f76707; --m-ebed:#5c940d; --m-vacsora:#7048e8; --m-nasi:#1098ad;
+  --t-reggeli:#fff1e6; --t-ebed:#f1f8e4; --t-vacsora:#f1edff; --t-nasi:#e4f6f9;
+  --dance:#ae3ec9; --t-dance:#f8f0fc; --c-kcal:#0ca678; --c-p:#1c7ed6; --c-c:#f59f00; --c-f:#e64980;
+  --planA:#7048e8; --planB:#f59f00; --goal:#0ca678; --fc:#0ca678;
+  --dot:#1b2320; --good:#2b8a3e; --warn:#d9480f; --bad:#e03131; --period:#e64980; --period-soft:rgba(230,73,128,.13);
+  --display:"Sora",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+    --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+    --hero1:#11352c; --hero2:#3a2612; --hero3:#2b1f45;
+    --m-reggeli:#ff922b; --m-ebed:#94d82d; --m-vacsora:#9775fa; --m-nasi:#3bc9db;
+    --t-reggeli:#2c2016; --t-ebed:#1f2a16; --t-vacsora:#221d36; --t-nasi:#132a2f;
+    --dance:#e599f7; --t-dance:#2a1a30; --c-kcal:#38d9a9; --c-p:#4dabf7; --c-c:#fcc419; --c-f:#f783ac;
+    --planA:#9775fa; --planB:#fcc419; --goal:#38d9a9; --fc:#38d9a9;
+    --dot:#e9eef3; --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b; --period:#f783ac; --period-soft:rgba(247,131,172,.15);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+  --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+  --hero1:#11352c; --hero2:#3a2612; --hero3:#2b1f45;
+  --m-reggeli:#ff922b; --m-ebed:#94d82d; --m-vacsora:#9775fa; --m-nasi:#3bc9db;
+  --t-reggeli:#2c2016; --t-ebed:#1f2a16; --t-vacsora:#221d36; --t-nasi:#132a2f;
+  --dance:#e599f7; --t-dance:#2a1a30; --c-kcal:#38d9a9; --c-p:#4dabf7; --c-c:#fcc419; --c-f:#f783ac;
+  --planA:#9775fa; --planB:#fcc419; --goal:#38d9a9; --fc:#38d9a9;
+  --dot:#e9eef3; --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b; --period:#f783ac; --period-soft:rgba(247,131,172,.15);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 48px;display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+h1 .g{color:var(--accent)}
+h2{font-size:17px;font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+header p{margin:4px 0 0;color:var(--muted)}
+.status{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.ok i{background:var(--accent)}
+.k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;border-radius:18px;padding:22px;background:linear-gradient(120deg,var(--hero1),var(--hero3) 55%,var(--hero2))}
+@media (max-width:720px){.hero{grid-template-columns:1fr}}
+.gauge-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big{font-family:var(--mono);font-size:46px;font-weight:500;letter-spacing:-.02em;line-height:1}
+.big small{font-size:18px;color:var(--muted);margin-left:4px}
+.bar{height:12px;background:color-mix(in srgb,var(--surface) 70%,transparent);border-radius:99px;overflow:hidden;margin:16px 0 6px}
+.bar i{display:block;height:100%;border-radius:99px;transition:width .4s;background:var(--accent)}
+.hero .bar i{background:linear-gradient(90deg,var(--c-c),var(--c-f),var(--m-vacsora))}
+.bar-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:color-mix(in srgb,var(--surface) 75%,transparent);border-radius:12px;padding:10px 12px}
+.stat .v{font-family:var(--mono);font-size:18px;font-weight:500}
+.stat .s{font-size:11px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--surface)}
+.pill.good{color:var(--good)} .pill.warn{color:var(--warn)} .pill.bad{color:var(--bad)}
+
+section.card,form.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label,.flabel{font-size:12px;color:var(--muted);font-weight:500}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+input{font-family:var(--mono)}
+input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#kg{width:110px;font-size:17px} #waist{width:100px} #extra{width:110px}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid transparent;padding:9px 16px}
+.primary{background:var(--accent);color:var(--accent-ink)}
+.primary:disabled{opacity:.45;cursor:default}
+.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.small{padding:6px 10px;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:99px;font-weight:500}
+.chip .box{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--muted);display:inline-grid;place-items:center;font-size:11px;line-height:1}
+.chip.period[aria-pressed="true"]{background:var(--period-soft);border-color:var(--period)}
+.chip.period[aria-pressed="true"] .box{background:var(--period);border-color:var(--period);color:#fff}
+.msg{font-size:13px;color:var(--muted)}
+.dirty{color:var(--warn);font-weight:600}
+
+/* meals */
+.meals{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.meals{grid-template-columns:1fr}}
+.meal{background:var(--mt);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid color-mix(in srgb,var(--mc) 25%,transparent)}
+.meal-h{display:flex;align-items:center;gap:8px}
+.meal-h .dot{width:10px;height:10px;border-radius:50%;background:var(--mc)}
+.meal-h b{font-family:var(--display);font-weight:600;color:var(--mc)}
+.meal-h .mk{margin-left:auto;font-family:var(--mono);font-size:14px}
+.meal-h .mm{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) 78px 54px 28px;gap:6px;align-items:center}
+.frow select{padding:7px 8px;font-size:14px;background:var(--surface)}
+.frow input{padding:7px 8px;font-size:14px;text-align:right;background:var(--surface);width:100%}
+.frow .rk{font-family:var(--mono);font-size:13px;text-align:right;color:var(--muted)}
+.frow .x{background:none;border:none;padding:4px;color:var(--muted);font-size:14px}
+.frow .x:hover{color:var(--bad)}
+@media (max-width:520px){
+  .meal{padding:10px 10px}
+  .meal-h{flex-wrap:wrap}
+  .meal-h .mm{order:3;flex-basis:100%;padding-left:18px}
+  .frow{grid-template-columns:minmax(0,1fr) 62px 36px 22px;gap:4px}
+  .frow select{padding:7px 4px;font-size:13px}
+  .frow input{padding:7px 6px}
+  .frow .rk{font-size:12px}
+  .gl{padding-right:26px}
+}
+.meal-empty{font-size:13px;color:var(--muted);padding:4px 0}
+.meal-f{display:flex;gap:6px;flex-wrap:wrap}
+.meal-f button{padding:5px 10px;font-size:12px;background:var(--surface);border:1px solid color-mix(in srgb,var(--mc) 35%,transparent);color:var(--ink)}
+.meal-f .add{color:var(--mc);border-color:var(--mc)}
+.gl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:0 34px 0 2px}
+
+/* macros */
+.macros{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:640px){.macros{grid-template-columns:1fr 1fr}}
+.mac{background:var(--sunk);border-radius:12px;padding:10px 12px}
+.mac .top{display:flex;justify-content:space-between;align-items:baseline}
+.mac .n{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--mcol)}
+.mac .t{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.mac .bar{margin:8px 0 0;height:8px;background:var(--surface)}
+.mac .bar i{background:var(--mcol)}
+.mac.over .t{color:var(--warn)}
+
+.twocol{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:start}
+@media (max-width:820px){.twocol{grid-template-columns:1fr}}
+.twocol>*,.hero>*,.meals>*{min-width:0}
+.tdee-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tdee-top .big{font-size:36px}
+.cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cmp>div{border-radius:10px;padding:10px 12px;background:var(--sunk)}
+.cmp .a{background:var(--t-vacsora)} .cmp .b{background:var(--t-reggeli)} .cmp .r{background:var(--accent-soft)}
+.cmp .v{font-family:var(--mono);font-size:16px}
+.cmp .on{outline:2px solid var(--accent)}
+.note{font-size:13px;color:var(--muted);margin:0;max-width:72ch}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:0;border-top:2px solid}
+.chart{width:100%;overflow:hidden}
+.chart svg{display:block;width:100%;height:auto}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.now td{background:var(--accent-soft)}
+.d-good{color:var(--good)} .d-bad{color:var(--bad)}
+.log-list{list-style:none;margin:0;padding:0;max-height:480px;overflow:auto}
+.log-list li{display:grid;grid-template-columns:78px 1fr auto;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px}
+.log-list .meta{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:13px}
+.log-list .kc{color:var(--c-kcal)} .log-list .pr{color:var(--c-p)} .log-list .wa{color:var(--m-vacsora)}
+.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--period);margin-left:6px;vertical-align:middle}
+.log-list button{background:none;border:none;color:var(--muted);padding:4px 6px;font-size:13px}
+.log-list button:hover{color:var(--ink)}
+.log-list .confirm{color:var(--bad)}
+.waist-list{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px}
+.waist-list div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:5px 0}
+details summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:15px}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.settings input{width:100%}
+.settings h3{grid-column:1/-1;margin:8px 0 0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.foods{grid-column:1/-1;overflow-x:auto}
+.foods table td{padding:4px}
+.foods input{width:100%;min-width:64px;padding:6px 8px;font-size:13px}
+.foods td:first-child input{min-width:140px;font-family:var(--body)}
+/* tabs */
+.tabs{display:flex;gap:6px;background:var(--sunk);padding:4px;border-radius:12px;width:max-content;max-width:100%}
+.tabs button{background:transparent;color:var(--muted);padding:8px 16px;border-radius:9px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tabs .cnt{font-family:var(--mono);font-size:12px;color:var(--accent);margin-left:4px}
+.panel{display:flex;flex-direction:column;gap:14px}
+@media (max-width:520px){.tabs{width:100%}.tabs button{flex:1;padding:8px 4px}}
+/* gym */
+.wk{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--t-reggeli);color:var(--m-reggeli)}
+.wk.ok{background:var(--accent-soft);color:var(--good)}
+.exhead,.exrow{display:grid;grid-template-columns:minmax(0,1fr) 58px 58px 74px 64px 44px 58px 24px;gap:6px;align-items:start}
+.exhead{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 10px}
+.exhead span:nth-child(n+2){text-align:center}
+.exrow{background:var(--gt);border-radius:12px;padding:8px 10px}
+.exrow input{padding:7px 6px;font-size:14px;background:var(--surface);width:100%;text-align:center}
+.exrow .exname input{text-align:left;font-family:var(--body);font-weight:600;color:var(--gc)}
+.exrow .prev{font-size:11px;color:var(--muted);padding:3px 2px 0;font-family:var(--mono)}
+.exrow .prev .up{color:var(--good);font-weight:600} .exrow .prev .down{color:var(--warn);font-weight:600}
+.exrow .vol{font-family:var(--mono);font-size:13px;text-align:center;padding-top:8px;color:var(--muted)}
+.exrow .done{display:grid;place-items:center;padding-top:6px}
+.exrow .done input{width:22px;height:22px;accent-color:var(--gc);cursor:pointer}
+.exrow .x{background:none;border:none;color:var(--muted);padding:8px 2px}
+.exrow .x:hover{color:var(--bad)}
+.exrow.isdone .exname input{text-decoration:none}
+.gymtotal{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:14px;color:var(--muted)}
+.gymtotal b{color:var(--ink);font-weight:500}
+#copyfrom{max-width:100%}
+.exrow input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.exrow input[type=number]::-webkit-inner-spin-button,.exrow input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+@media (max-width:620px){
+  .exhead{grid-template-columns:repeat(5,minmax(0,1fr)) 24px;padding:0 10px}
+  .exhead span:nth-child(1),.exhead span:nth-child(5),.exhead span:nth-child(8){display:none}
+  .exrow{grid-template-columns:repeat(5,minmax(0,1fr)) 24px;grid-template-areas:"n n n n n x" "s r k d i i"}
+  .exrow .exname{grid-area:n}.exrow .x{grid-area:x}
+  .exrow [data-k="sets"]{grid-area:s}.exrow [data-k="reps"]{grid-area:r}.exrow [data-k="kg"]{grid-area:k}
+  .exrow .vol{display:none}.exrow .done{grid-area:d}.exrow [data-k="rir"]{grid-area:i}
+}
+.dsess{background:var(--t-dance);border:1px solid color-mix(in srgb,var(--dance) 30%,transparent);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:auto auto 1fr 24px;gap:10px 16px;align-items:center}
+.dsess .x{background:none;border:none;color:var(--muted);padding:4px;justify-self:end}
+.dsess .x:hover{color:var(--bad)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{background:transparent;color:var(--muted);padding:6px 12px;border-radius:7px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--dance);color:#fff}
+.seg.sub button[aria-pressed="true"]{background:color-mix(in srgb,var(--dance) 22%,var(--surface));color:var(--dance)}
+.dur{display:inline-flex;align-items:center;gap:6px}
+.dur button{width:34px;height:34px;padding:0;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--dance);font-size:18px;line-height:1}
+.dur .t{font-family:var(--mono);font-size:18px;min-width:52px;text-align:center}
+.dur .l{font-size:11px;color:var(--muted)}
+.ints{display:inline-flex;gap:5px;align-items:center}
+.ints button{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid var(--dance);background:transparent;color:var(--dance);font-family:var(--mono);font-size:12px}
+.ints button.on{background:var(--dance);color:#fff}
+.dsess .lbl{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dsess .note-in{grid-column:1/-1;width:100%;font-family:var(--body);background:var(--surface);padding:7px 10px;font-size:14px}
+.dsess .r1{grid-column:1/-2;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dsess .r2{grid-column:1/-1;display:flex;gap:18px 24px;flex-wrap:wrap;align-items:center}
+.wk.dance{background:var(--t-dance);color:var(--dance)}
+.addd{align-self:flex-start;color:var(--dance);border-color:var(--dance)!important}
+.log-list .tn{color:var(--dance)}
+.gen{background:var(--sunk);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.gencols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.gday{background:var(--surface);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.gday .gh{display:flex;justify-content:space-between;align-items:baseline}
+.gday .gh b{font-family:var(--display);font-size:15px}
+.gday select{width:100%;font-size:13px;padding:7px 8px}
+.gover{font-size:12px;color:var(--warn);display:flex;gap:6px;align-items:center}
+.glist{display:flex;flex-direction:column;gap:4px}
+.gex{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;font-size:13px;padding:6px 9px;border-radius:8px;background:var(--gt)}
+.gex span:first-child{color:var(--gc);font-weight:600;min-width:0}
+.gex span:last-child{font-family:var(--mono);white-space:nowrap;margin-left:auto}
+.gw{font-style:normal;font-size:11px;font-weight:600;color:var(--good);margin-left:4px}
+.gw.new{color:var(--muted)}
+.gskip{font-size:13px;color:var(--muted)}
+.log-list .gy{color:var(--m-reggeli)} .log-list .gyp{color:var(--muted);font-style:italic}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+html,body{margin:0}
+.wrap{padding-top:max(28px,calc(env(safe-area-inset-top) + 12px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom) + 24px))}
+.divider{height:1px;background:var(--line)}
+.filebtn{display:inline-block;cursor:pointer;padding:9px 16px;border:1px solid var(--line);border-radius:8px;font-weight:600;color:var(--ink)}
+header{flex-wrap:nowrap}
+@media (max-width:520px){header{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<script src="store.js"></script>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Súlynapló <span class="g">54</span></h1>
+      <p>Cél: <span class="num" id="h-goal">54,0</span> kg · napi <span class="num" id="h-intake">1396</span> kcal</p>
+    </div>
+    <div class="status" id="status"><i></i><span>Betöltés…</span></div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="k">Jelenlegi súly (7 napos átlag)</div>
+      <div class="gauge-top">
+        <div class="big" id="cur">60,0<small>kg</small></div>
+        <span class="pill" id="pace">Kezdés</span>
+      </div>
+      <div class="bar"><i id="bar" style="width:0%"></i></div>
+      <div class="bar-legend"><span class="num" id="bl-start">60,0 kg</span><span id="bl-pct">0% kész</span><span class="num" id="bl-goal">54,0 kg</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Leadva</div><div class="v" id="s-lost">0,0 kg</div></div>
+      <div class="stat"><div class="k">Még hátra</div><div class="v" id="s-left">6,0 kg</div></div>
+      <div class="stat"><div class="k">Heti tempó</div><div class="v" id="s-rate">–</div></div>
+      <div class="stat"><div class="k">Várható céldátum</div><div class="v" id="s-eta">–</div><div class="s" id="s-eta-src">a terv alapján</div></div>
+    </div>
+  </div>
+
+  <form class="card" id="dayform" autocomplete="off">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <h2>Napi bejegyzés</h2>
+      <span class="msg" id="dirtymsg"></span>
+    </div>
+    <div class="row">
+      <div class="field"><label for="date">Dátum</label><input type="date" id="date" required></div>
+      <div class="field"><label for="kg">Súly (kg)</label><input type="number" id="kg" step="0.1" min="30" max="200" inputmode="decimal" placeholder="59,6"></div>
+      <div class="field"><label for="waist">Derék (cm)</label><input type="number" id="waist" step="0.5" min="40" max="150" inputmode="decimal" placeholder="heti 1×"></div>
+      <button type="button" class="chip period" id="period" aria-pressed="false"><span class="box"></span>Menstruáció</button>
+    </div>
+
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <span class="flabel">Mit ettél? Írd be grammra, amit ténylegesen megettél.</span>
+      <span class="row" style="gap:6px"><button type="button" class="ghost small" id="alltpl">Egész nap terv szerint</button><button type="button" class="ghost small" id="clearall">Mind törlése</button></span>
+    </div>
+    <div class="meals" id="meals"></div>
+    <div class="row">
+      <div class="field"><label for="extra">Egyéb (kcal, ±)</label><input type="number" id="extra" step="10" inputmode="numeric" placeholder="pl. 150"></div>
+      <p class="note" style="padding-bottom:8px">Ha valamit nem találsz a listában (pl. egy kávé tejjel), a kalóriáját ide írd. Új ételt a „Terv beállításai” részben vehetsz fel.</p>
+    </div>
+
+    <div class="macros" id="macros"></div>
+
+
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="msg" id="logmsg">Mérj reggel, WC után, evés előtt. Egy napra egy bejegyzés van, a mentés felülírja.</div>
+      <button class="primary" type="submit" id="savebtn">Mentés</button>
+    </div>
+  </form>
+
+  <div class="twocol">
+    <section class="card">
+      <h2>Valós szintentartó kalória</h2>
+      <div id="tdee"></div>
+    </section>
+    <section class="card">
+      <h2>Derékbőség</h2>
+      <div id="waistbox"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Súlygörbe</h2>
+    <div class="legend">
+      <span><i class="sw" style="border-color:var(--planA);border-top-style:dashed"></i>A) terv</span>
+      <span><i class="sw" style="border-color:var(--planB);border-top-style:dashed"></i>B) terv</span>
+      <span><i class="sw" style="border-color:var(--fc);border-top-style:dotted;border-top-width:3px"></i>Előrejelzés a te adataidból</span>
+      <span><i class="sw" style="border-color:var(--ink);border-top-width:3px"></i>7 napos átlag</span>
+      <span><i style="width:7px;height:7px;border-radius:50%;background:var(--dot);opacity:.45;display:inline-block"></i>napi mérés</span>
+      <span><i style="width:12px;height:12px;background:var(--period-soft);border:1px solid var(--period);display:inline-block"></i>menstruáció</span>
+    </div>
+    <div class="chart" id="chart"></div>
+  </section>
+
+
+  <div class="twocol">
+    <section class="card">
+      <h2>Heti bontás</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Hét</th><th>Dátum</th><th>A) terv</th><th>B) terv</th><th>Tényleges</th><th>vs. B</th><th>Átl. kcal</th></tr></thead>
+        <tbody id="weeks"></tbody>
+      </table></div>
+      <p class="note">A „Tényleges” az adott dátumig tartó 7 nap súlyátlaga, az „Átl. kcal” az előző hét naplózott napjainak átlaga. A „vs. B” negatív értéke azt jelenti, hogy gyorsabban haladsz a B) tervnél.</p>
+    </section>
+    <section class="card">
+      <h2>Napló</h2>
+      <ul class="log-list" id="entries"></ul>
+    </section>
+  </div>
+
+  <section class="card">
+    <details id="setdetails">
+      <summary>Terv beállításai és ételek</summary>
+      <form class="settings" id="setform">
+        <h3>Cél és kalória</h3>
+        <div class="field"><label for="p-start">Kezdő súly (kg)</label><input type="number" id="p-start" step="0.1"></div>
+        <div class="field"><label for="p-goal">Célsúly (kg)</label><input type="number" id="p-goal" step="0.1"></div>
+        <div class="field"><label for="p-date">Kezdés napja</label><input type="date" id="p-date"></div>
+        <div class="field"><label for="p-intake">Tervezett napi bevitel (kcal)</label><input type="number" id="p-intake" step="1"></div>
+        <div class="field"><label for="p-tA">A) szintentartó (kcal)</label><input type="number" id="p-tA" step="1"></div>
+        <div class="field"><label for="p-tB">B) szintentartó (kcal)</label><input type="number" id="p-tB" step="1"></div>
+        <h3>Ételek (100 g-ra)</h3>
+        <div class="foods"><table>
+          <thead><tr><th>Étel</th><th>kcal</th><th>Fehérje</th><th>Szénhidrát</th><th>Zsír</th><th></th></tr></thead>
+          <tbody id="foodrows"></tbody>
+        </table>
+        <button type="button" class="ghost small" id="addfood" style="margin-top:8px">+ Új étel</button></div>
+        <div class="field" style="justify-content:flex-end;grid-column:1/-1;align-items:flex-start"><button class="primary" type="submit">Beállítások mentése</button></div>
+      </form>
+      <p class="note" style="margin-top:10px">A tápértékek nyers csirkére és burgonyára vonatkoznak, a fehérjeporé 30 g-os adaggal számol (1 adag ≈ 30 g). Ha a te termékeid címkéjén mások az értékek, írd át őket. Egy étkezés „tervét” a kártyáján a „Legyen ez a terv” gombbal mentheted el. A terv 7700 kcal-t számol 1 kg-ra.</p>
+    </details>
+  </section>
+</div>
+<script>
+(function(){
+  const MEALS=[['reggeli','Reggeli'],['ebed','Ebéd'],['vacsora','Vacsora'],['nasi','Nasi']];
+  const DEF_FOODS={
+    feherjepor:{name:'Fehérjepor',kcal:400,p:80,c:10,f:5},
+    mogyorovaj:{name:'Mogyoróvaj',kcal:590,p:25,c:20,f:50},
+    banan:{name:'Banán',kcal:89,p:1.1,c:22.8,f:0.3},
+    csirkemell:{name:'Csirkemell (nyers)',kcal:110,p:23,c:0,f:1.5},
+    burgonya:{name:'Burgonya (nyers)',kcal:77,p:2,c:17,f:0.1},
+    paradicsom:{name:'Paradicsom',kcal:18,p:0.9,c:3.9,f:0.2},
+    mandula:{name:'Mandula',kcal:580,p:21,c:22,f:50},
+    alma:{name:'Alma',kcal:52,p:0.3,c:13.8,f:0.2},
+    afonya:{name:'Áfonya',kcal:57,p:0.7,c:14.5,f:0.3}
+  };
+  const DEF_TPL={
+    reggeli:[{f:'feherjepor',g:30},{f:'mogyorovaj',g:30},{f:'banan',g:140}],
+    ebed:[{f:'csirkemell',g:160},{f:'burgonya',g:180},{f:'paradicsom',g:125}],
+    vacsora:[{f:'csirkemell',g:160},{f:'burgonya',g:180},{f:'paradicsom',g:125}],
+    nasi:[{f:'mandula',g:20},{f:'alma',g:350}]
+  };
+  const DEF={start:60,goal:54,startDate:"2026-09-24",intake:1396,tdeeA:2267,tdeeB:2000,foods:DEF_FOODS,templates:DEF_TPL};
+  let plan=structuredClone(DEF);
+  let days=[], entries=[];
+  let db=null, planRef=null;
+
+  const $=id=>document.getElementById(id);
+  const fmt=(n,d=1)=>n.toFixed(d).replace('.',',');
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const DAY=86400000;
+  const toD=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+  const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+  const daysBetween=(a,b)=>Math.round((b-a)/DAY);
+  const HU=['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+  const huDate=d=>HU[d.getMonth()]+' '+d.getDate()+'.';
+  const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+  const isNum=v=>typeof v==='number'&&isFinite(v);
+  const setStatus=(t,ok)=>{$('status').className='status'+(ok?' ok':'');$('status').querySelector('span').textContent=t};
+
+  // ---- nutrition ----
+  function rowMacro(r){const fd=plan.foods[r.f];const g=isNum(r.g)?r.g:0;if(!fd)return{kcal:0,p:0,c:0,f:0};const k=g/100;return{kcal:fd.kcal*k,p:fd.p*k,c:fd.c*k,f:fd.f*k}}
+  function sumRows(rows){return (rows||[]).reduce((a,r)=>{const m=rowMacro(r);a.kcal+=m.kcal;a.p+=m.p;a.c+=m.c;a.f+=m.f;return a},{kcal:0,p:0,c:0,f:0})}
+  function targets(){const t={kcal:0,p:0,c:0,f:0};MEALS.forEach(([id])=>{const s=sumRows(plan.templates[id]);t.kcal+=s.kcal;t.p+=s.p;t.c+=s.c;t.f+=s.f});return t}
+
+  // ---- plan math ----
+  function simulate(tdee0,w0=plan.start,intake=plan.intake,maxDays=7*40){
+    const out=[w0]; let w=w0;
+    for(let i=1;i<=maxDays;i++){const def=(tdee0-17.25*(w0-w))-intake;if(def<=0)break;w-=def/7700;out.push(w);if(w<=plan.goal)break;}
+    return out;
+  }
+  const reachDay=s=>{const i=s.findIndex(w=>w<=plan.goal);return i<0?null:i};
+  function avgAt(d){const lo=addDays(d,-6);const xs=entries.filter(e=>{const t=toD(e.date);return t>=lo&&t<=d}).map(e=>e.kg);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null}
+  function kcalAvg(lo,hi){const xs=days.filter(e=>isNum(e.kcal)&&toD(e.date)>=lo&&toD(e.date)<=hi).map(e=>e.kcal);return xs.length?{avg:xs.reduce((a,b)=>a+b,0)/xs.length,n:xs.length}:null}
+  function trend(win=21){
+    if(entries.length<2) return null;
+    const last=toD(entries[entries.length-1].date);
+    const pts=entries.filter(e=>daysBetween(toD(e.date),last)<win); if(pts.length<2) return null;
+    const x0=toD(pts[0].date); const xs=pts.map(e=>daysBetween(x0,toD(e.date))), ys=pts.map(e=>e.kg);
+    const span=xs[xs.length-1]-xs[0]; const n=xs.length, mx=xs.reduce((a,b)=>a+b)/n, my=ys.reduce((a,b)=>a+b)/n;
+    let num=0,den=0; xs.forEach((x,i)=>{num+=(x-mx)*(ys[i]-my);den+=(x-mx)**2});
+    const slope=den?num/den:0; return {slope,valueAtLast:my+slope*(daysBetween(x0,last)-mx),last,first:x0,span,n};
+  }
+  function adaptive(){
+    const tr=trend(21), need=14;
+    if(!tr) return {ready:false,have:0,need,kcalN:0,wN:entries.length};
+    const k=kcalAvg(tr.first,tr.last); const kcalN=k?k.n:0; const have=Math.min(tr.span+1,kcalN);
+    if(!(tr.span>=13&&tr.n>=5&&kcalN>=10)) return {ready:false,have,need,kcalN,wN:tr.n};
+    return {ready:true,tdee:k.avg+(-tr.slope)*7700,intake:k.avg,slope:tr.slope,tr,kcalN,wN:tr.n,span:tr.span};
+  }
+
+  function render(){
+    const s0=toD(plan.startDate);
+    const A=simulate(plan.tdeeA), B=simulate(plan.tdeeB), rA=reachDay(A), rB=reachDay(B);
+    $('h-goal').textContent=fmt(plan.goal); $('h-intake').textContent=Math.round(plan.intake);
+    $('bl-start').textContent=fmt(plan.start)+' kg'; $('bl-goal').textContent=fmt(plan.goal)+' kg';
+    let cur=plan.start, curDate=s0;
+    if(entries.length){curDate=toD(entries[entries.length-1].date);cur=avgAt(curDate)??entries[entries.length-1].kg}
+    const total=plan.start-plan.goal, lost=plan.start-cur, left=Math.max(0,cur-plan.goal);
+    const pct=Math.max(0,Math.min(100,lost/total*100));
+    $('cur').innerHTML=fmt(cur)+'<small>kg</small>'; $('bar').style.width=pct+'%'; $('bl-pct').textContent=Math.round(pct)+'% kész';
+    $('s-lost').textContent=(lost<0?'+':'')+fmt(Math.abs(lost))+' kg'; $('s-left').textContent=fmt(left)+' kg';
+    const ad=adaptive(); const fc=ad.ready?{start:ad.tr.last,series:simulate(ad.tdee,ad.tr.valueAtLast,plan.intake)}:null;
+    const tr=trend(21), trOk=tr&&tr.span>=5, pace=$('pace');
+    $('s-rate').textContent=trOk?((-tr.slope*7>=0?'−':'+')+fmt(Math.abs(tr.slope*7),2)+' kg/hét'):'–';
+    if(fc&&reachDay(fc.series)!=null){$('s-eta').textContent=huDate(addDays(fc.start,reachDay(fc.series)));$('s-eta-src').textContent='a valós szintentartód alapján'}
+    else if(trOk&&tr.slope<0&&tr.valueAtLast>plan.goal){$('s-eta').textContent=huDate(addDays(tr.last,Math.ceil((tr.valueAtLast-plan.goal)/-tr.slope)));$('s-eta-src').textContent='az eddigi tempód alapján'}
+    else if(rA!=null&&rB!=null){$('s-eta').textContent=huDate(addDays(s0,rA))+' – '+huDate(addDays(s0,rB));$('s-eta-src').textContent='a terv alapján'}
+    else {$('s-eta').textContent='–';$('s-eta-src').textContent=''}
+    if(cur<=plan.goal){pace.textContent='Cél elérve';pace.className='pill good'}
+    else if(trOk){const dd=daysBetween(s0,curDate),pb=B[Math.min(dd,B.length-1)],pa=A[Math.min(dd,A.length-1)];
+      if(cur<=pa+0.05){pace.textContent='Az A) terv szerint';pace.className='pill good'}
+      else if(cur<=pb+0.2){pace.textContent='Terv szerint';pace.className='pill good'}
+      else if(cur<=pb+0.8){pace.textContent='Kicsit lassabb';pace.className='pill warn'}
+      else {pace.textContent='Elmarad a tervtől';pace.className='pill bad'}}
+    else {pace.textContent='Kezdés';pace.className='pill'}
+    renderTdee(ad,fc); renderWaist(); renderChart(s0,A,B,rA,rB,fc); renderWeeks(s0,A,B,rB??rA); renderEntries();
+  }
+
+  function renderTdee(ad,fc){
+    const el=$('tdee');
+    if(!ad.ready){
+      const p=Math.round(Math.min(ad.have,ad.need)/ad.need*100);
+      el.innerHTML=`<p class="note" style="margin:0">Ha beírod, mit ettél, és méred magad, az app a fogyásod üteméből visszaszámolja, mennyi valójában a szintentartó kalóriád. Ehhez kb. 2 hét adat kell.</p>
+      <div><div class="bar" style="margin:6px 0;background:var(--sunk)"><i style="width:${p}%"></i></div>
+      <div class="bar-legend"><span class="num">${Math.min(ad.have,ad.need)} / ${ad.need} nap</span><span>${ad.kcalN} nap kalória · ${ad.wN} mérés</span></div></div>
+      <div class="cmp"><div class="a"><div class="k">A) terv</div><div class="v">${Math.round(plan.tdeeA)}</div></div><div class="b"><div class="k">B) terv</div><div class="v">${Math.round(plan.tdeeB)}</div></div><div class="r"><div class="k">Valós</div><div class="v">?</div></div></div>`;
+      return;
+    }
+    const t=Math.round(ad.tdee/10)*10, closer=Math.abs(ad.tdee-plan.tdeeA)<Math.abs(ad.tdee-plan.tdeeB)?'A':'B';
+    const def=Math.round(ad.tdee-plan.intake), r=fc?reachDay(fc.series):null;
+    el.innerHTML=`<div class="tdee-top"><div class="big">~${t}<small>kcal</small></div><span class="pill" style="background:var(--sunk)">${closer}) tervhez közelebb</span></div>
+      <div class="cmp"><div class="a ${closer==='A'?'on':''}"><div class="k">A) terv</div><div class="v">${Math.round(plan.tdeeA)}</div></div><div class="b ${closer==='B'?'on':''}"><div class="k">B) terv</div><div class="v">${Math.round(plan.tdeeB)}</div></div><div class="r"><div class="k">Valós</div><div class="v">${t}</div></div></div>
+      <p class="note">Az elmúlt ${ad.span+1} napban átlagosan <b class="num">${Math.round(ad.intake)}</b> kcal-t ettél, és heti <b class="num">${fmt(-ad.slope*7,2)}</b> kg-ot fogytál. Napi ${Math.round(plan.intake)} kcal mellett ez kb. ${def} kcal deficit${r!=null?`, ezzel ${huDate(addDays(fc.start,r))} körül éred el a célt`:''}. A menstruáció előtti vízvisszatartás torzíthatja, 3–4 hét után lesz stabil a szám.</p>`;
+  }
+
+  function renderWaist(){
+    const w=days.filter(d=>isNum(d.waist)), el=$('waistbox');
+    if(!w.length){el.innerHTML='<p class="note" style="margin:0">Hetente egyszer, ugyanabban az időpontban mérd, a köldök magasságában, kilégzés után. Ha a mérleg megáll, ez mutatja meg, hogy közben fogy-e a zsír.</p>';return}
+    const first=w[0].waist,last=w[w.length-1].waist,df=last-first;
+    el.innerHTML=`<div class="tdee-top"><div class="big" style="font-size:32px;color:var(--m-vacsora)">${fmt(last)}<small>cm</small></div>${w.length>1?`<span class="pill ${df<0?'good':df>0?'bad':''}" style="background:var(--sunk)">${df>0?'+':df<0?'−':'±'}${fmt(Math.abs(df))} cm az első óta</span>`:''}</div>
+      <div class="waist-list">${[...w].reverse().slice(0,8).map(x=>`<div><span>${huDate(toD(x.date))}</span><span>${fmt(x.waist)} cm</span></div>`).join('')}</div>`;
+  }
+
+  function renderChart(s0,A,B,rA,rB,fc){
+    const box=$('chart'); const W=Math.max(320,box.clientWidth||900), H=W<520?260:320, m={l:40,r:14,t:12,b:28};
+    const lastEntry=entries.length?daysBetween(s0,toD(entries[entries.length-1].date)):0;
+    const firstDay=days.length?Math.min(0,daysBetween(s0,toD(days[0].date))):0;
+    const fcEnd=fc?daysBetween(s0,fc.start)+fc.series.length-1:0;
+    const endDay=Math.min(Math.max((rB??B.length-1)+7,(rA??0)+7,lastEntry+7,fc?Math.min(fcEnd,lastEntry+180)+7:0,daysBetween(s0,today())+3),400);
+    const x0=firstDay, allY=[plan.start,plan.goal,...entries.map(e=>e.kg)];
+    const yMax=Math.ceil(Math.max(...allY)+0.5), yMin=Math.floor(Math.min(...allY)-0.5);
+    const X=d=>m.l+(d-x0)/(endDay-x0)*(W-m.l-m.r), Y=w=>m.t+(yMax-w)/(yMax-yMin)*(H-m.t-m.b), dayW=(W-m.l-m.r)/(endDay-x0);
+    let g='';
+    days.filter(d=>d.period).forEach(d=>{const x=daysBetween(s0,toD(d.date));g+=`<rect x="${X(x)-dayW/2}" y="${m.t}" width="${Math.max(dayW,2)}" height="${H-m.t-m.b}" fill="var(--period-soft)"/>`});
+    const stepY=(yMax-yMin)>8?2:1;
+    for(let v=yMin;v<=yMax;v+=stepY) g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+    const stepX=W<520?21:14;
+    for(let d=0;d<=endDay;d+=stepX){if(d<x0)continue;g+=`<line x1="${X(d)}" x2="${X(d)}" y1="${m.t}" y2="${H-m.b}" stroke="var(--line)" stroke-width="1" opacity=".5"/><text x="${X(d)}" y="${H-8}" text-anchor="middle">${huDate(addDays(s0,d))}</text>`}
+    g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(plan.goal)}" y2="${Y(plan.goal)}" stroke="var(--goal)" stroke-width="1.5" stroke-dasharray="2 4"/><text x="${W-m.r}" y="${Y(plan.goal)-6}" text-anchor="end" style="fill:var(--goal)">cél ${fmt(plan.goal)}</text>`;
+    const td=daysBetween(s0,today()); if(td>=x0&&td<=endDay) g+=`<line x1="${X(td)}" x2="${X(td)}" y1="${m.t}" y2="${H-m.b}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="1 3"/><text x="${X(td)+4}" y="${m.t+10}">ma</text>`;
+    const path=(arr,off=0)=>arr.map((w,i)=>(i?'L':'M')+X(i+off).toFixed(1)+' '+Y(w).toFixed(1)).join('');
+    g+=`<path d="${path(A)}" fill="none" stroke="var(--planA)" stroke-width="2" stroke-dasharray="6 5"/><path d="${path(B)}" fill="none" stroke="var(--planB)" stroke-width="2" stroke-dasharray="6 5"/>`;
+    if(fc){const off=daysBetween(s0,fc.start);g+=`<path d="${path(fc.series.slice(0,Math.max(2,endDay-off+1)),off)}" fill="none" stroke="var(--fc)" stroke-width="3" stroke-dasharray="1 5" stroke-linecap="round"/>`}
+    entries.forEach(e=>{const d=daysBetween(s0,toD(e.date));g+=`<circle cx="${X(d)}" cy="${Y(e.kg)}" r="3.2" fill="var(--dot)" opacity=".4"><title>${huDate(toD(e.date))}: ${fmt(e.kg)} kg</title></circle>`});
+    if(entries.length){
+      const f=toD(entries[0].date), l=toD(entries[entries.length-1].date); let p='';
+      for(let d=f;d<=l;d=addDays(d,1)){const a=avgAt(d);if(a==null)continue;p+=(p?'L':'M')+X(daysBetween(s0,d)).toFixed(1)+' '+Y(a).toFixed(1)}
+      g+=`<path d="${p}" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(daysBetween(s0,l))}" cy="${Y(avgAt(l))}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+    }
+    box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Súlygörbe a tervvel">${g}</svg>`;
+  }
+
+  function renderWeeks(s0,A,B,lastReach){
+    const lastD=days.length?daysBetween(s0,toD(days[days.length-1].date)):0;
+    const weeks=Math.max(Math.ceil((lastReach??84)/7),Math.ceil(lastD/7)); const t=today(); let h='',aDone=false,bDone=false;
+    for(let w=0;w<=weeks;w++){
+      const d=addDays(s0,w*7), i=w*7, a=i<A.length?A[i]:null, b=i<B.length?B[i]:null;
+      const aTxt=aDone?'':(a==null?'<b>✓ cél</b>':fmt(a)); if(a==null||a<=plan.goal) aDone=true;
+      const bTxt=bDone?'':(b==null?'<b>✓ cél</b>':fmt(b)); if(b==null||b<=plan.goal) bDone=true;
+      const act=avgAt(d); let diff='';
+      if(act!=null){const df=act-(b??plan.goal);diff=`<span class="${df<=0?'d-good':'d-bad'}">${df>0?'+':df<0?'−':''}${fmt(Math.abs(df))}</span>`}
+      const k=w>0?kcalAvg(addDays(d,-7),addDays(d,-1)):null, now=t>=d&&t<addDays(d,7);
+      h+=`<tr class="${now?'now':''}"><td>${w}.</td><td style="font-family:var(--body)">${huDate(d)}</td><td style="color:var(--planA)">${aTxt}</td><td style="color:var(--planB)">${bTxt}</td><td>${act!=null?fmt(act):'<span class="muted">·</span>'}</td><td>${diff}</td><td>${k?Math.round(k.avg):'<span class="muted">·</span>'}</td></tr>`;
+    }
+    $('weeks').innerHTML=h;
+  }
+
+  let pendingDel=null;
+  function renderEntries(){
+    const ul=$('entries');
+    const dates=days.map(d=>d.date).slice().reverse();
+    if(!dates.length){ul.innerHTML='<li class="muted" style="display:block">Még nincs bejegyzés.</li>';return}
+    ul.innerHTML=dates.map(dt=>{
+      const e=days.find(d=>d.date===dt)||{date:dt};
+      const parts=[];
+      if(isNum(e.kg)) parts.push(`<span>${fmt(e.kg)} kg</span>`);
+      if(isNum(e.kcal)) parts.push(`<span class="kc">${Math.round(e.kcal)} kcal</span>`);
+      if(isNum(e.p)) parts.push(`<span class="pr">${Math.round(e.p)} g feh.</span>`);
+      if(isNum(e.waist)) parts.push(`<span class="wa">${fmt(e.waist)} cm</span>`);
+      return `<li><span>${huDate(toD(e.date))}${e.period?'<i class="pdot" title="menstruáció"></i>':''}</span><span class="meta">${parts.join('')||'<span class="muted">–</span>'}</span><span><button type="button" data-edit="${e.date}">Szerk.</button>${db?`<button type="button" class="${pendingDel===e.date?'confirm':''}" data-del="${e.date}">${pendingDel===e.date?'Biztos?':'Törlés'}</button>`:''}</span></li>`}).join('');
+  }
+  $('entries').addEventListener('click',async ev=>{
+    const ed=ev.target.closest('[data-edit]');
+    if(ed){$('date').value=ed.dataset.edit;loadForm(true);$('dayform').scrollIntoView({behavior:'smooth',block:'start'});return}
+    const b=ev.target.closest('[data-del]'); if(!b) return; const d=b.dataset.del;
+    if(pendingDel!==d){pendingDel=d;renderEntries();return}
+    pendingDel=null;
+    try{await db.collection('weighins').doc(d).delete()}catch(e){$('logmsg').textContent='A törlés nem sikerült. Próbáld újra.'}
+  });
+
+  // ---- day form ----
+  let formItems={}, formPeriod=false, dirty=false;
+
+  const foodOptions=sel=>Object.entries(plan.foods).map(([id,f])=>`<option value="${id}" ${id===sel?'selected':''}>${esc(f.name)}</option>`).join('')+(sel&&!plan.foods[sel]?`<option value="${sel}" selected>(törölt étel)</option>`:'');
+  function mealHTML(mid,name){
+    const rows=formItems[mid]||[], s=sumRows(rows);
+    return `<div class="meal" data-meal="${mid}" style="--mc:var(--m-${mid});--mt:var(--t-${mid})">
+      <div class="meal-h"><span class="dot"></span><b>${name}</b><span class="mm" data-mm>${rows.length?`F ${Math.round(s.p)} · Sz ${Math.round(s.c)} · Zs ${Math.round(s.f)}`:''}</span><span class="mk" data-mk>${Math.round(s.kcal)} kcal</span></div>
+      ${rows.length?`<div class="gl"><span>Étel</span><span>gramm · kcal</span></div>`:''}
+      ${rows.map((r,i)=>`<div class="frow"><select data-i="${i}" aria-label="Étel">${foodOptions(r.f)}</select><input type="number" min="0" step="5" inputmode="numeric" data-i="${i}" value="${isNum(r.g)?r.g:''}" aria-label="Gramm"><span class="rk" data-rk="${i}">${Math.round(rowMacro(r).kcal)}</span><button type="button" class="x" data-x="${i}" aria-label="Sor törlése">✕</button></div>`).join('')||'<div class="meal-empty">Még nincs beírva semmi.</div>'}
+      <div class="meal-f"><button type="button" class="add" data-act="add">+ Étel</button><button type="button" data-act="tpl">Terv szerint</button><button type="button" data-act="savetpl">Legyen ez a terv</button></div>
+    </div>`;
+  }
+  function buildMeals(){$('meals').innerHTML=MEALS.map(([id,n])=>mealHTML(id,n)).join('');buildPeriod();updTotals()}
+  function rebuildMeal(mid){const el=$('meals').querySelector(`[data-meal="${mid}"]`);const n=MEALS.find(m=>m[0]===mid)[1];el.outerHTML=mealHTML(mid,n);updTotals()}
+  function buildPeriod(){const p=$('period');p.setAttribute('aria-pressed',String(formPeriod));p.querySelector('.box').textContent=formPeriod?'✓':''}
+  function dayTotals(){
+    const t={kcal:0,p:0,c:0,f:0}; let any=false;
+    MEALS.forEach(([id])=>{const r=formItems[id]||[];if(r.length)any=true;const s=sumRows(r);t.kcal+=s.kcal;t.p+=s.p;t.c+=s.c;t.f+=s.f});
+    const ex=parseFloat($('extra').value); if(isFinite(ex)){t.kcal+=ex;any=true}
+    return any?t:null;
+  }
+  function updTotals(){
+    const t=dayTotals()||{kcal:0,p:0,c:0,f:0}, tg=targets();
+    const defs=[['kcal','Kalória','kcal','--c-kcal',plan.intake],['p','Fehérje','g','--c-p',tg.p],['c','Szénhidrát','g','--c-c',tg.c],['f','Zsír','g','--c-f',tg.f]];
+    $('macros').innerHTML=defs.map(([k,l,u,c,target])=>{const v=t[k],pct=target?Math.min(100,v/target*100):0,over=target&&v>target*1.05;
+      return `<div class="mac ${over?'over':''}" style="--mcol:var(${c})"><div class="k">${l}</div><div class="top"><span class="n">${Math.round(v)}<small style="font-size:12px;color:var(--muted)"> ${u}</small></span><span class="t">/ ${Math.round(target)}</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`}).join('');
+    MEALS.forEach(([id])=>{const el=$('meals').querySelector(`[data-meal="${id}"]`);if(!el)return;const rows=formItems[id]||[],s=sumRows(rows);
+      el.querySelector('[data-mk]').textContent=Math.round(s.kcal)+' kcal';
+      el.querySelector('[data-mm]').textContent=rows.length?`F ${Math.round(s.p)} · Sz ${Math.round(s.c)} · Zs ${Math.round(s.f)}`:'';
+      rows.forEach((r,i)=>{const rk=el.querySelector(`[data-rk="${i}"]`);if(rk)rk.textContent=Math.round(rowMacro(r).kcal)})});
+  }
+  function setDirty(v){dirty=v;$('dirtymsg').textContent=v?'Nem mentett változás':'';$('dirtymsg').className='msg'+(v?' dirty':'')}
+  const cloneTpl=mid=>(plan.templates[mid]||[]).map(r=>({f:r.f,g:r.g}));
+  function loadForm(force){
+    if(dirty&&!force) return;
+    const d=days.find(x=>x.date===$('date').value)||{};
+    $('kg').value=isNum(d.kg)?d.kg:''; $('waist').value=isNum(d.waist)?d.waist:''; $('extra').value=isNum(d.extra)&&d.extra!==0?d.extra:'';
+    formItems={};
+    if(d.items) MEALS.forEach(([id])=>formItems[id]=(d.items[id]||[]).map(r=>({f:r.f,g:r.g})));
+    else if(d.meals) MEALS.forEach(([id])=>formItems[id]=d.meals[id]?cloneTpl(id):[]); // older checkbox entries
+    formPeriod=!!d.period; buildMeals(); setDirty(false);
+  }
+  $('meals').addEventListener('input',ev=>{
+    const card=ev.target.closest('[data-meal]'); if(!card||ev.target.tagName!=='INPUT') return;
+    const mid=card.dataset.meal,i=+ev.target.dataset.i,v=parseFloat(ev.target.value);
+    formItems[mid][i].g=isFinite(v)?v:null; updTotals(); setDirty(true);
+  });
+  $('meals').addEventListener('change',ev=>{
+    const card=ev.target.closest('[data-meal]'); if(!card||ev.target.tagName!=='SELECT') return;
+    formItems[card.dataset.meal][+ev.target.dataset.i].f=ev.target.value; updTotals(); setDirty(true);
+  });
+  $('meals').addEventListener('click',async ev=>{
+    const card=ev.target.closest('[data-meal]'); if(!card) return; const mid=card.dataset.meal;
+    const x=ev.target.closest('[data-x]');
+    if(x){formItems[mid].splice(+x.dataset.x,1);rebuildMeal(mid);setDirty(true);return}
+    const act=ev.target.closest('[data-act]')?.dataset.act; if(!act) return;
+    if(act==='add'){(formItems[mid]=formItems[mid]||[]).push({f:Object.keys(plan.foods)[0],g:null});rebuildMeal(mid);setDirty(true);
+      const ins=$('meals').querySelector(`[data-meal="${mid}"]`).querySelectorAll('select');ins[ins.length-1]?.focus()}
+    if(act==='tpl'){formItems[mid]=cloneTpl(mid);rebuildMeal(mid);setDirty(true)}
+    if(act==='savetpl'){
+      const rows=(formItems[mid]||[]).filter(r=>isNum(r.g)&&r.g>0).map(r=>({f:r.f,g:r.g}));
+      plan.templates={...plan.templates,[mid]:rows}; updTotals();
+      if(db){try{await planRef.set(plan);$('logmsg').textContent=`A(z) ${MEALS.find(m=>m[0]===mid)[1].toLowerCase()} terve frissítve.`}catch(e){$('logmsg').textContent='A terv mentése nem sikerült.'}}
+    }
+  });
+  $('alltpl').addEventListener('click',()=>{MEALS.forEach(([id])=>formItems[id]=cloneTpl(id));buildMeals();setDirty(true)});
+  $('clearall').addEventListener('click',()=>{formItems={};$('extra').value='';buildMeals();setDirty(true)});
+  $('period').addEventListener('click',()=>{formPeriod=!formPeriod;buildPeriod();setDirty(true)});
+  ['kg','waist'].forEach(id=>$(id).addEventListener('input',()=>setDirty(true)));
+  $('extra').addEventListener('input',()=>{updTotals();setDirty(true)});
+  $('date').addEventListener('change',()=>loadForm(true));
+
+  $('dayform').addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const date=$('date').value; if(!date) return;
+    const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)?v:null};
+    const kg=num('kg'), waist=num('waist'), extra=num('extra');
+    if(kg!=null&&!(kg>30&&kg<200)){$('logmsg').textContent='A súly 30 és 200 kg között legyen.';return}
+    if(waist!=null&&!(waist>40&&waist<150)){$('logmsg').textContent='A derékbőség 40 és 150 cm között legyen.';return}
+    const items={}; MEALS.forEach(([id])=>items[id]=(formItems[id]||[]).filter(r=>isNum(r.g)&&r.g>0).map(r=>({f:r.f,g:r.g})));
+    formItems=structuredClone(items);
+    const t=dayTotals();
+    const doc={date,items,period:formPeriod};
+    if(kg!=null) doc.kg=Math.round(kg*10)/10;
+    if(waist!=null) doc.waist=Math.round(waist*10)/10;
+    if(extra!=null) doc.extra=extra;
+    if(t){doc.kcal=Math.round(t.kcal);doc.p=Math.round(t.p);doc.c=Math.round(t.c);doc.f=Math.round(t.f)}
+    const empty=kg==null&&waist==null&&!t&&!formPeriod;
+    if(!db){
+      days=days.filter(e=>e.date!==date); if(!empty) days.push(doc); days.sort((a,b)=>a.date<b.date?-1:1);
+      entries=days.filter(e=>isNum(e.kg)); setDirty(false); buildMeals();
+      $('logmsg').textContent='Mentve erre a munkamenetre (a tárolás nem elérhető, újratöltéskor elvész).'; render(); return;
+    }
+    $('savebtn').disabled=true;
+    try{
+      if(empty) await db.collection('weighins').doc(date).delete(); else await db.collection('weighins').doc(date).set(doc);
+      setDirty(false); buildMeals();
+      const bits=[]; if(kg!=null)bits.push(fmt(kg)+' kg'); if(t)bits.push(Math.round(t.kcal)+' kcal'); if(waist!=null)bits.push(fmt(waist)+' cm'); if(formPeriod)bits.push('menstruáció');
+      $('logmsg').textContent=`Mentve: ${huDate(toD(date))}${bits.length?' – '+bits.join(', '):''}`;
+    }catch(e){$('logmsg').textContent=e&&e.code==='invalid_argument'?'Ehhez a naplóhoz nincs írási jogod.':'A mentés nem sikerült. Próbáld újra.'}
+    finally{$('savebtn').disabled=false}
+  });
+
+  // ---- settings ----
+  let editFoods={};
+  function renderFoodRows(){
+    $('foodrows').innerHTML=Object.entries(editFoods).map(([id,f])=>`<tr data-id="${id}"><td><input data-k="name" value="${esc(f.name)}" aria-label="Étel neve"></td>${['kcal','p','c','f'].map(k=>`<td><input type="number" step="0.1" data-k="${k}" value="${f[k]}" aria-label="${k}"></td>`).join('')}<td><button type="button" class="ghost small" data-delfood>✕</button></td></tr>`).join('');
+  }
+  $('foodrows').addEventListener('input',ev=>{const tr=ev.target.closest('tr');const k=ev.target.dataset.k;if(!tr||!k)return;const f=editFoods[tr.dataset.id];f[k]=k==='name'?ev.target.value:parseFloat(ev.target.value)});
+  $('foodrows').addEventListener('click',ev=>{if(!ev.target.closest('[data-delfood]'))return;const id=ev.target.closest('tr').dataset.id;delete editFoods[id];renderFoodRows()});
+  $('addfood').addEventListener('click',()=>{editFoods['u'+Date.now().toString(36)]={name:'Új étel',kcal:0,p:0,c:0,f:0};renderFoodRows();const ins=$('foodrows').querySelectorAll('input[data-k="name"]');const last=ins[ins.length-1];last.focus();last.select()});
+  function fillSettings(){
+    $('p-start').value=plan.start;$('p-goal').value=plan.goal;$('p-date').value=plan.startDate;
+    $('p-intake').value=plan.intake;$('p-tA').value=plan.tdeeA;$('p-tB').value=plan.tdeeB;
+    editFoods=structuredClone(plan.foods); renderFoodRows();
+  }
+  $('setform').addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const n=id=>parseFloat($(id).value);
+    const foods={}; for(const [id,f] of Object.entries(editFoods)){ if(!String(f.name).trim()) continue; foods[id]={name:String(f.name).trim(),kcal:+f.kcal||0,p:+f.p||0,c:+f.c||0,f:+f.f||0}; }
+    const p={start:n('p-start'),goal:n('p-goal'),startDate:$('p-date').value,intake:n('p-intake'),tdeeA:n('p-tA'),tdeeB:n('p-tB'),foods,templates:plan.templates};
+    if([p.start,p.goal,p.intake,p.tdeeA,p.tdeeB].some(v=>!isFinite(v))||!p.startDate||p.goal>=p.start||!Object.keys(foods).length) return;
+    plan=p; buildMeals(); render();
+    if(db){try{await planRef.set(p);$('logmsg').textContent='Beállítások mentve.'}catch(e){$('logmsg').textContent='A beállítások mentése nem sikerült.'}}
+  });
+
+  $('date').value=iso(today());
+  fillSettings(); buildMeals(); render();
+  let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(render,150)});
+
+  (async()=>{
+    db=window.LocalDB.db;
+    if(!db){setStatus('Tárolás nem elérhető – csak helyben számol',false);return}
+    window.LocalDB.status();
+    planRef=db.doc('settings/plan');
+    planRef.onSnapshot(s=>{if(s.exists){const d=s.data();plan={...DEF,...d,foods:d.foods&&Object.keys(d.foods).length?d.foods:DEF_FOODS,templates:{...DEF_TPL,...(d.templates||{})}};
+      if(!$('setdetails').open) fillSettings(); if(!dirty) loadForm(false); else updTotals(); render()}},()=>{});
+    db.collection('weighins').orderBy('date').onSnapshot(s=>{
+      days=s.docs.map(d=>d.data()).filter(x=>x&&x.date).map(x=>({...x}));
+      entries=days.filter(e=>isNum(e.kg)); loadForm(false); render();
+    },()=>setStatus('A kapcsolat megszakadt – töltsd újra az oldalt',false));
+  })();
+})();
+</script>
+
+<script src="nav.js"></script>
+<script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>
