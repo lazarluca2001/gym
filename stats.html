@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Statisztika</title>
+<meta name="theme-color" content="#f4f6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Statisztika">
+
+<style>
+
+:root{
+  --bg:#f4f6f1; --surface:#ffffff; --sunk:#eef1ea; --ink:#1b2320; --muted:#5f6b66; --line:#dde3da;
+  --accent:#0ca678; --accent-ink:#ffffff; --accent-soft:#d3f5e8;
+  --hero1:#ffe8cc; --hero2:#f3e5ff;
+  --m-legs:#f76707; --m-core:#5c940d; --m-upper:#7048e8; --m-back:#1098ad;
+  --t-legs:#fff1e6; --t-core:#f1f8e4; --t-upper:#f1edff; --t-back:#e4f6f9;
+  --dance:#ae3ec9; --t-dance:#f8f0fc;
+  --good:#2b8a3e; --warn:#d9480f; --bad:#e03131;
+  --display:"Sora",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+    --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+    --hero1:#3a2612; --hero2:#2b1f45;
+    --m-legs:#ff922b; --m-core:#94d82d; --m-upper:#9775fa; --m-back:#3bc9db;
+    --t-legs:#2c2016; --t-core:#1f2a16; --t-upper:#221d36; --t-back:#132a2f;
+    --dance:#e599f7; --t-dance:#2a1a30;
+    --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+  --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+  --hero1:#3a2612; --hero2:#2b1f45;
+  --m-legs:#ff922b; --m-core:#94d82d; --m-upper:#9775fa; --m-back:#3bc9db;
+  --t-legs:#2c2016; --t-core:#1f2a16; --t-upper:#221d36; --t-back:#132a2f;
+  --dance:#e599f7; --t-dance:#2a1a30;
+  --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 48px;display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+h1 .a{color:var(--m-legs)} h1 .b{color:var(--dance)}
+h2{font-size:17px;font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+header p{margin:4px 0 0;color:var(--muted)}
+.status{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.ok i{background:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin:0;max-width:72ch}
+.msg{font-size:13px;color:var(--muted)}
+.dirty{color:var(--warn);font-weight:600}
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid transparent;padding:9px 16px}
+.primary{background:var(--accent);color:var(--accent-ink)}
+.primary:disabled{opacity:.45;cursor:default}
+.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.small{padding:6px 10px;font-size:13px}
+section.card,form.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.meal-empty{font-size:13px;color:var(--muted);padding:4px 0}
+
+/* week */
+.week{border-radius:18px;padding:18px;background:linear-gradient(120deg,var(--hero1),var(--hero2));display:flex;flex-direction:column;gap:14px}
+.week-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.week-h .nav{display:flex;align-items:center;gap:8px}
+.week-h .nav button{width:36px;height:36px;padding:0;border-radius:50%;background:var(--surface);color:var(--ink);font-size:16px}
+.week-h .nav .lbl{font-family:var(--display);font-weight:600;min-width:150px;text-align:center}
+.goals{display:flex;gap:8px;flex-wrap:wrap}
+.wk{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--surface);color:var(--m-legs)}
+.wk.dance{color:var(--dance)}
+.wk.ok::before{content:"✓ "}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:color-mix(in srgb,var(--surface) 80%,transparent);border:2px solid transparent;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:5px;cursor:pointer;text-align:left;color:var(--ink);font-weight:400;min-height:92px}
+.day.sel{border-color:var(--ink)}
+.day.today .dn{color:var(--accent)}
+.day .dn{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.day .dd{font-family:var(--mono);font-size:13px}
+.tag{font-size:11px;font-weight:600;border-radius:6px;padding:2px 6px;line-height:1.3}
+.tag.g{background:var(--tg);color:var(--gc)}
+.tag.g.plan{background:transparent;border:1px dashed var(--gc)}
+.tag.d{background:var(--t-dance);color:var(--dance)}
+@media (max-width:640px){
+  .days{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .day{padding:6px 4px;min-height:74px;align-items:center;text-align:center}
+  .day .tag{font-size:0;width:10px;height:10px;padding:0;border-radius:50%;background:var(--gc)}
+  .day .tag.d{background:var(--dance)}
+  .day .tag.g.plan{background:transparent;border:2px solid var(--gc)}
+}
+
+/* tabs */
+.tabs{display:flex;gap:6px;background:var(--sunk);padding:4px;border-radius:12px;width:max-content;max-width:100%}
+.tabs button{background:transparent;color:var(--muted);padding:8px 16px;border-radius:9px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tabs .cnt{font-family:var(--mono);font-size:12px;color:var(--accent);margin-left:4px}
+@media (max-width:520px){.tabs{width:100%}.tabs button{flex:1;padding:8px 4px}}
+.panel{display:flex;flex-direction:column;gap:14px}
+.flabel{font-size:12px;color:var(--muted);font-weight:500}
+
+/* gym rows */
+.excard{background:var(--gt);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.exhd{display:flex;gap:8px;align-items:center}
+.exname-in{flex:1;min-width:0;font-weight:700;color:var(--gc);background:var(--surface);font-size:16px;padding:8px 10px}
+.excnt{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--muted);background:var(--surface);border-radius:99px;padding:3px 9px}
+.excnt.all{background:var(--gc);color:#fff}
+.excard .x{background:none;border:none;color:var(--muted);padding:6px 4px;font-size:15px}
+.excard .x:hover{color:var(--bad)}
+.excard .prev{font-size:12px;color:var(--muted);font-family:var(--mono);padding:0 2px}
+.excard .prev .up{color:var(--good);font-weight:600}
+.sets{display:flex;flex-direction:column;gap:6px}
+.setrow{display:grid;grid-template-columns:26px minmax(0,1fr) 14px minmax(0,1fr) 48px;gap:8px;align-items:center;background:var(--surface);border-radius:10px;padding:6px 8px;border:1px solid transparent}
+.setrow.done{border-color:var(--gc);background:color-mix(in srgb,var(--gc) 10%,var(--surface))}
+.setrow .sn{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:right}
+.setrow .fld{display:flex;align-items:center;gap:6px;min-width:0}
+.setrow .fld input{width:100%;min-width:0;font-family:var(--mono);font-size:17px;text-align:center;padding:8px 4px;background:var(--bg)}
+.setrow .fld span{font-size:12px;color:var(--muted)}
+.setrow .mul{color:var(--muted);text-align:center}
+.setrow input[type=number],.exft input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.setrow input::-webkit-inner-spin-button,.setrow input::-webkit-outer-spin-button,.exft input::-webkit-inner-spin-button,.exft input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.chk{width:44px;height:44px;border-radius:12px;border:2px solid var(--gc);background:transparent;color:transparent;font-size:20px;padding:0;line-height:1}
+.chk[aria-pressed="true"]{background:var(--gc);color:#fff}
+.exft{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.exft .ghost{background:var(--surface)}
+.exft .rir{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.exft .rir input{width:56px;text-align:center;font-family:var(--mono);font-size:16px;padding:6px;background:var(--surface)}
+.exft .vol{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.gymtotal{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:14px;color:var(--muted)}
+.gymtotal b{color:var(--ink);font-weight:500}
+.tplbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tplbtn{background:var(--tt);color:var(--tc);border:1px solid color-mix(in srgb,var(--tc) 40%,transparent);padding:8px 14px;border-radius:10px;display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+.tplbtn small{font-weight:500;font-size:11px;opacity:.8}
+#addex{max-width:100%;font-weight:600;color:var(--accent);border-color:var(--accent);background:var(--surface)}
+.settings textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:170px;resize:vertical;width:100%}
+
+
+/* dance */
+.dsess{background:var(--t-dance);border:1px solid color-mix(in srgb,var(--dance) 30%,transparent);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:auto auto 1fr 24px;gap:10px 16px;align-items:center}
+.dsess .x{background:none;border:none;color:var(--muted);padding:4px;justify-self:end}
+.dsess .x:hover{color:var(--bad)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{background:transparent;color:var(--muted);padding:6px 12px;border-radius:7px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--dance);color:#fff}
+.seg.sub button[aria-pressed="true"]{background:color-mix(in srgb,var(--dance) 22%,var(--surface));color:var(--dance)}
+.dur{display:inline-flex;align-items:center;gap:6px}
+.dur button{width:34px;height:34px;padding:0;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--dance);font-size:18px;line-height:1}
+.dur .t{font-family:var(--mono);font-size:18px;min-width:52px;text-align:center}
+.ints{display:inline-flex;gap:5px;align-items:center}
+.ints button{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid var(--dance);background:transparent;color:var(--dance);font-family:var(--mono);font-size:12px}
+.ints button.on{background:var(--dance);color:#fff}
+.dsess .lbl{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dsess .note-in{grid-column:1/-1;width:100%;background:var(--surface);padding:7px 10px;font-size:14px}
+.dsess .r1{grid-column:1/-2;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dsess .r2{grid-column:1/-1;display:flex;gap:18px 24px;flex-wrap:wrap;align-items:center}
+.addd{align-self:flex-start;color:var(--dance);border-color:var(--dance)!important}
+
+/* log */
+.log-list{list-style:none;margin:0;padding:0;max-height:520px;overflow:auto}
+.log-list li{display:grid;grid-template-columns:86px 1fr auto;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px}
+.log-list .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+.log-list .gy{color:var(--m-legs);font-weight:600} .log-list .gyp{color:var(--muted);font-style:italic}
+.log-list .tn{color:var(--dance);font-weight:600}
+.log-list button{background:none;border:none;color:var(--muted);padding:4px 6px;font-size:13px}
+.log-list button:hover{color:var(--ink)}
+.log-list .confirm{color:var(--bad)}
+@media (max-width:520px){.log-list li{grid-template-columns:84px 1fr}.log-list li>span:first-child{white-space:nowrap}.log-list li>span:last-child{grid-column:2}.log-list button{padding:2px 10px 2px 0}}
+details summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:15px}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+
+
+:root{--s-gym:#f76707;--s-dance:#ae3ec9;--s-weight:#0ca678;--s-waist:#7048e8;--s-kcal:#0ca678;--s-prot:#1c7ed6;--s-vol:#f76707;--s-goal:#5f6b66;--s-period:rgba(214,51,108,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--s-gym:#e8590c;--s-dance:#cc5de8;--s-weight:#20c997;--s-waist:#9775fa;--s-kcal:#20c997;--s-prot:#4dabf7;--s-vol:#e8590c;--s-goal:#9aa6b2;--s-period:rgba(247,131,172,.14)}}
+:root[data-theme="dark"]{--s-gym:#e8590c;--s-dance:#cc5de8;--s-weight:#20c997;--s-waist:#9775fa;--s-kcal:#20c997;--s-prot:#4dabf7;--s-vol:#e8590c;--s-goal:#9aa6b2;--s-period:rgba(247,131,172,.14)}
+.filters{display:flex;gap:6px;background:var(--sunk);padding:4px;border-radius:12px;width:max-content;max-width:100%}
+.filters button{background:transparent;color:var(--muted);padding:8px 14px;border-radius:9px}
+.filters button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+@media (max-width:520px){.tiles{grid-template-columns:1fr 1fr}.tiles>.tile:first-child{grid-column:span 2}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.tile .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tile .v{font-family:var(--mono);font-size:22px;font-weight:500;margin-top:2px}
+.tile .v small{font-size:13px;color:var(--muted)}
+.tile .s{font-size:12px;color:var(--muted)}
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.charts{grid-template-columns:1fr}}
+.ch{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ch .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ch h2{font-size:15px}
+.ch .sub{font-size:12px;color:var(--muted)}
+.ch .lg{display:flex;gap:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.ch .lg span{display:inline-flex;gap:5px;align-items:center}
+.ch .lg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.ch .lg i.ln{height:2px;width:14px;border-radius:1px}
+.ch .lg i.ds{height:0;width:14px;border-top:2px dashed}
+.plot{position:relative;width:100%}
+.plot svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
+.plot text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;border-radius:8px;padding:6px 9px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .1s;z-index:2;font-family:var(--body)}
+.tip b{font-family:var(--mono);font-weight:500}
+.tip .r{display:flex;gap:6px;align-items:center}
+.tip .r i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.empty{font-size:13px;color:var(--muted);padding:30px 0;text-align:center}
+#exsel{max-width:100%;font-size:14px;padding:6px 8px}
+details.tbl summary{font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--body);font-weight:500}
+details.tbl table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);margin-top:6px}
+details.tbl td,details.tbl th{padding:3px 6px;border-bottom:1px solid var(--line);text-align:right}
+details.tbl td:first-child,details.tbl th:first-child{text-align:left}
+details.tbl .wrapt{max-height:220px;overflow:auto}
+html,body{margin:0}
+.wrap{padding-top:max(28px,calc(env(safe-area-inset-top) + 12px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom) + 24px))}
+.divider{height:1px;background:var(--line)}
+.filebtn{display:inline-block;cursor:pointer;padding:9px 16px;border:1px solid var(--line);border-radius:8px;font-weight:600;color:var(--ink)}
+header{flex-wrap:nowrap}
+@media (max-width:520px){header{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<script src="store.js"></script>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Statisztika</h1>
+      <p>Súly, derék, étkezés, edzés és tánc egy helyen</p>
+    </div>
+    <div class="status" id="status"><i></i><span>Betöltés…</span></div>
+  </header>
+
+  <div class="filters" role="group" aria-label="Időszak" id="range">
+    <button type="button" data-r="28" aria-pressed="true">4 hét</button>
+    <button type="button" data-r="91" aria-pressed="false">3 hónap</button>
+    <button type="button" data-r="0" aria-pressed="false">Minden</button>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="charts">
+    <section class="ch"><div class="hd"><h2>Testsúly</h2><div class="lg"><span><i style="background:var(--s-weight);border-radius:50%;opacity:.45"></i>napi</span><span><i class="ln" style="background:var(--s-weight)"></i>7 napos átlag</span><span><i class="ds" style="border-color:var(--s-goal)"></i>cél</span><span><i style="background:var(--s-period)"></i>menstruáció</span></div></div><div class="plot" id="c-weight"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-weight"></div></details></section>
+    <section class="ch"><div class="hd"><h2>Derékbőség</h2><span class="sub">cm</span></div><div class="plot" id="c-waist"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-waist"></div></details></section>
+    <section class="ch"><div class="hd"><h2>Kalória</h2><div class="lg"><span><i style="background:var(--s-kcal)"></i>naponta</span><span><i class="ds" style="border-color:var(--s-goal)"></i><span id="lg-kcal">terv</span></span></div></div><div class="plot" id="c-kcal"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-kcal"></div></details></section>
+    <section class="ch"><div class="hd"><h2>Fehérje</h2><div class="lg"><span><i style="background:var(--s-prot)"></i>g naponta</span><span><i class="ds" style="border-color:var(--s-goal)"></i><span id="lg-prot">cél</span></span></div></div><div class="plot" id="c-prot"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-prot"></div></details></section>
+    <section class="ch"><div class="hd"><h2>Edzés és tánc hetente</h2><div class="lg"><span><i style="background:var(--s-gym)"></i>edzés</span><span><i style="background:var(--s-dance)"></i>tánc</span></div></div><div class="plot" id="c-act"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-act"></div></details></section>
+    <section class="ch"><div class="hd"><h2>Edzés volumen hetente</h2><span class="sub">kész szériák, kg × ismétlés</span></div><div class="plot" id="c-vol"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-vol"></div></details></section>
+    <section class="ch" style="grid-column:1/-1"><div class="hd"><h2>Gyakorlat</h2><select id="exsel" aria-label="Gyakorlat"></select></div><div class="lg"><span><i class="ln" style="background:var(--s-gym)"></i>legnagyobb súly alkalmanként (kg)</span></div><div class="plot" id="c-ex"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-ex"></div></details></section>
+  </div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const isNum=v=>typeof v==='number'&&isFinite(v);
+  const fmt=(n,d=1)=>n.toFixed(d).replace('.',',');
+  const kgTxt=v=>fmt(v,v%1?(Math.round(v*100)%10?2:1):0);
+  const toD=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+  const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+  const DAY=86400000, days=(a,b)=>Math.round((b-a)/DAY);
+  const HU=['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+  const huDate=d=>HU[d.getMonth()]+' '+d.getDate()+'.';
+  const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+  const mondayOf=d=>addDays(d,-((d.getDay()+6)%7));
+  const hm=m=>Math.floor(m/60)+':'+String(m%60).padStart(2,'0');
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const db=window.LocalDB.db;
+  let weighins=[], workouts=[], dances=[], settings={}, range=28, exSel='';
+
+  const setsOf=it=>Array.isArray(it.setsArr)&&it.setsArr.length?it.setsArr:Array.from({length:isNum(it.sets)&&it.sets>0?it.sets:1},()=>({reps:it.reps,kg:it.kg,done:!!it.done}));
+  const itemVol=it=>setsOf(it).reduce((a,s)=>a+(s.done&&isNum(s.reps)&&isNum(s.kg)?s.reps*s.kg:0),0);
+  const itemMax=it=>Math.max(0,...setsOf(it).filter(s=>s.done&&isNum(s.kg)).map(s=>s.kg));
+
+  // ---------- generic time chart ----------
+  // opts: {el, from, to, series:[{name,color,type:'dots'|'line'|'bars', pts:[{d,y}], fmtv}], ref:{y,label}, bands:[Date], unit, bw:days per bar, yZero}
+  function chart(o){
+    const box=$(o.el); const W=Math.max(300,box.clientWidth||600), H=W<520?200:230, m={l:40,r:12,t:12,b:24};
+    const all=o.series.flatMap(s=>s.pts.map(p=>p.y)); if(o.ref) all.push(o.ref.y);
+    if(!o.series.some(s=>s.pts.length)){box.innerHTML='<div class="empty">Ebben az időszakban még nincs adat.</div>';return}
+    let lo=Math.min(...all), hi=Math.max(...all);
+    if(o.yZero) lo=0;
+    if(hi===lo){hi+=1;lo=o.yZero?0:lo-1}
+    const pad=(hi-lo)*0.08; if(!o.yZero) lo-=pad; hi+=pad;
+    // nice ticks
+    const span=hi-lo, raw=span/4, mag=Math.pow(10,Math.floor(Math.log10(raw))), step=[1,2,2.5,5,10].map(x=>x*mag).find(x=>x>=raw)||raw;
+    lo=Math.floor(lo/step)*step; hi=Math.ceil(hi/step)*step;
+    const hasDayBars=o.series.some(s=>s.type==='bars')&&!(o.bw>1);
+    const t0=new Date(o.from.getTime()-(hasDayBars?0.7*DAY:0)), t1=new Date(o.to.getTime()+(hasDayBars?0.7*DAY:(o.bw>1?DAY:0))), tspan=Math.max(1,(t1-t0)/DAY);
+    const X=d=>m.l+((d-t0)/DAY)/tspan*(W-m.l-m.r), Y=v=>m.t+(hi-v)/(hi-lo)*(H-m.t-m.b);
+    let g='';
+    (o.bands||[]).forEach(d=>{const w=Math.max(2,(W-m.l-m.r)/tspan);g+=`<rect x="${X(d)-w/2}" y="${m.t}" width="${w}" height="${H-m.t-m.b}" fill="var(--s-period)"/>`});
+    for(let v=lo;v<=hi+1e-9;v+=step){g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${Number.isInteger(v)?v:fmt(v,1)}</text>`}
+    // x labels
+    const nl=W<520?2:5; for(let k=0;k<=nl;k++){const d=new Date(o.from.getTime()+Math.round(((o.to-o.from)/DAY)*k/nl)*DAY);g+=`<text x="${X(d)}" y="${H-6}" text-anchor="${k===0?'start':k===nl?'end':'middle'}">${huDate(d)}</text>`}
+    const refLine=o.ref?`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(o.ref.y)}" y2="${Y(o.ref.y)}" stroke="var(--s-goal)" stroke-width="1.5" stroke-dasharray="5 4"/>${o.ref.label?`<text x="${W-m.r}" y="${Y(o.ref.y)-5}" text-anchor="end">${o.ref.label}</text>`:''}`:'';
+    const nb=o.series.filter(s=>s.type==='bars').length; let bi=0;
+    o.series.forEach(s=>{
+      if(s.type==='bars'){
+        const slot=Math.max(3,(W-m.l-m.r)/tspan*(o.bw||1)*0.8), bw=Math.max(2,slot/nb-2), off=-slot/2+bi*(bw+2);
+        s.pts.forEach(p=>{const x=X(p.d)+off+(o.bw>1?slot/2:0), y=Y(Math.max(p.y,lo)), h=Y(lo)-y; const r=Math.min(4,bw/2,h);
+          if(h<=0) return;
+          g+=`<path d="M${x},${Y(lo)} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${Y(lo)} Z" fill="${s.color}"/>`});
+        bi++;
+      } else if(s.type==='line'){
+        if(s.pts.length>1) g+=`<path d="${s.pts.map((p,i)=>(i?'L':'M')+X(p.d).toFixed(1)+' '+Y(p.y).toFixed(1)).join('')}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if(s.markers||s.pts.length<3) s.pts.forEach(p=>g+=`<circle cx="${X(p.d)}" cy="${Y(p.y)}" r="4" fill="${s.color}" stroke="var(--surface)" stroke-width="2"/>`);
+        const l=s.pts[s.pts.length-1]; if(l) g+=`<circle cx="${X(l.d)}" cy="${Y(l.y)}" r="5" fill="${s.color}" stroke="var(--surface)" stroke-width="2"/>`;
+      } else {
+        s.pts.forEach(p=>g+=`<circle cx="${X(p.d)}" cy="${Y(p.y)}" r="3.5" fill="${s.color}" opacity=".45"/>`);
+      }
+    });
+    g+=refLine;
+    g+=`<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${H-m.b}" stroke="var(--muted)" stroke-width="1" opacity="0"/>`;
+    box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||'')}">${g}<rect class="hit" x="${m.l}" y="0" width="${W-m.l-m.r}" height="${H}" fill="transparent"/></svg><div class="tip"></div>`;
+    // hover / tap
+    const svg=box.querySelector('svg'), tip=box.querySelector('.tip'), xh=box.querySelector('.xh');
+    const keys=[...new Set(o.series.flatMap(s=>s.pts.map(p=>iso(p.d))))].sort();
+    function show(ev){
+      const r=svg.getBoundingClientRect(), px=(ev.clientX-r.left)/r.width*W;
+      let best=null,bd=1e9; keys.forEach(k=>{const dx=Math.abs(X(toD(k))-px);if(dx<bd){bd=dx;best=k}});
+      if(!best){hide();return}
+      const d=toD(best), rows=o.series.map(s=>{const p=s.pts.find(q=>iso(q.d)===best);return p?`<div class="r"><i style="background:${s.color}"></i>${s.name}: <b>${(s.fmtv||(v=>fmt(v)))(p.y,p)}</b></div>`:''}).join('');
+      if(!rows){hide();return}
+      const x=X(d); xh.setAttribute('x1',x);xh.setAttribute('x2',x);xh.setAttribute('opacity','.5');
+      tip.innerHTML=`<div>${o.bw>1?huDate(d)+' – '+huDate(addDays(d,o.bw-1)):huDate(d)}</div>${rows}`;
+      const bx=Math.min(Math.max(x/W*r.width,70),r.width-70); tip.style.left=bx+'px'; tip.style.top=(m.t/H*r.height+4)+'px'; tip.style.opacity=1;
+    }
+    function hide(){tip.style.opacity=0;xh.setAttribute('opacity','0')}
+    svg.addEventListener('pointermove',show); svg.addEventListener('pointerdown',show); svg.addEventListener('pointerleave',hide);
+  }
+  function table(el,head,rows){$(el).innerHTML=rows.length?`<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.slice().reverse().map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'<div class="empty">Nincs adat.</div>'}
+
+  function render(){
+    const t=today();
+    const allDates=[...weighins,...workouts,...dances].map(x=>x.date).filter(Boolean).sort();
+    const from=range?addDays(t,-range+1):(allDates.length?toD(allDates[0]):addDays(t,-27));
+    const to=t, inR=d=>{const x=toD(d);return x>=from&&x<=to};
+    const plan=settings.plan||{}, goal=isNum(plan.goal)?plan.goal:54, intake=isNum(plan.intake)?plan.intake:1396, pT=121;
+
+    // weight
+    const wAll=weighins.filter(e=>isNum(e.kg));
+    const avgAt=d=>{const lo=addDays(d,-6);const xs=wAll.filter(e=>{const x=toD(e.date);return x>=lo&&x<=d}).map(e=>e.kg);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null};
+    const wIn=wAll.filter(e=>inR(e.date));
+    const avgPts=[]; if(wIn.length){for(let d=toD(wIn[0].date);d<=toD(wIn[wIn.length-1].date);d=addDays(d,1)){const a=avgAt(d);if(a!=null)avgPts.push({d,y:a})}}
+    chart({el:'c-weight',label:'Testsúly',from,to,ref:{y:goal,label:'cél '+fmt(goal,0)},bands:weighins.filter(e=>e.period&&inR(e.date)).map(e=>toD(e.date)),
+      series:[{name:'Napi',color:'var(--s-weight)',type:'dots',pts:wIn.map(e=>({d:toD(e.date),y:e.kg})),fmtv:v=>fmt(v)+' kg'},{name:'7 napos átlag',color:'var(--s-weight)',type:'line',pts:avgPts,fmtv:v=>fmt(v)+' kg'}]});
+    table('t-weight',['Dátum','Súly','7 napos átl.'],wIn.map(e=>[huDate(toD(e.date)),fmt(e.kg),fmt(avgAt(toD(e.date)))]));
+
+    const waist=weighins.filter(e=>isNum(e.waist)&&inR(e.date));
+    chart({el:'c-waist',label:'Derékbőség',from,to,series:[{name:'Derék',color:'var(--s-waist)',type:'line',markers:true,pts:waist.map(e=>({d:toD(e.date),y:e.waist})),fmtv:v=>fmt(v)+' cm'}]});
+    table('t-waist',['Dátum','Derék (cm)'],waist.map(e=>[huDate(toD(e.date)),fmt(e.waist)]));
+
+    $('lg-kcal').textContent=`terv (${Math.round(intake)})`; $('lg-prot').textContent=`cél (${pT} g)`;
+    const kc=weighins.filter(e=>isNum(e.kcal)&&inR(e.date));
+    chart({el:'c-kcal',label:'Kalória',from,to,yZero:true,ref:{y:intake},series:[{name:'Kalória',color:'var(--s-kcal)',type:'bars',pts:kc.map(e=>({d:toD(e.date),y:e.kcal})),fmtv:v=>Math.round(v)+' kcal'}]});
+    table('t-kcal',['Dátum','kcal'],kc.map(e=>[huDate(toD(e.date)),Math.round(e.kcal)]));
+    const pr=weighins.filter(e=>isNum(e.p)&&inR(e.date));
+    chart({el:'c-prot',label:'Fehérje',from,to,yZero:true,ref:{y:pT},series:[{name:'Fehérje',color:'var(--s-prot)',type:'bars',pts:pr.map(e=>({d:toD(e.date),y:e.p})),fmtv:v=>Math.round(v)+' g'}]});
+    table('t-prot',['Dátum','Fehérje (g)'],pr.map(e=>[huDate(toD(e.date)),Math.round(e.p)]));
+
+    // weekly activity
+    const wks=[]; for(let d=mondayOf(from);d<=to;d=addDays(d,7)) wks.push(d);
+    const inWk=(d,w)=>{const x=toD(d);return x>=w&&x<=addDays(w,6)};
+    const gymW=wks.map(w=>({d:w,y:workouts.filter(x=>inWk(x.date,w)&&(x.items||[]).some(i=>i.done)).length}));
+    const danW=wks.map(w=>{const ds=dances.filter(x=>inWk(x.date,w));return {d:w,y:ds.reduce((a,x)=>a+(x.items||[]).length,0),min:ds.reduce((a,x)=>a+(x.items||[]).reduce((b,y)=>b+(y.min||0),0),0)}});
+    const xFrom=wks[0]||from, xTo=addDays(wks[wks.length-1]||to,6);
+    chart({el:'c-act',label:'Edzés és tánc hetente',from:xFrom,to:xTo,yZero:true,bw:7,series:[
+      {name:'Edzés',color:'var(--s-gym)',type:'bars',pts:gymW,fmtv:v=>v+' alkalom'},
+      {name:'Tánc',color:'var(--s-dance)',type:'bars',pts:danW,fmtv:(v,p)=>`${v} alkalom · ${hm(p.min)} óra`}]});
+    table('t-act',['Hét','Edzés','Tánc','Tánc idő'],wks.map((w,i)=>[huDate(w),gymW[i].y,danW[i].y,hm(danW[i].min)]));
+    const volW=wks.map(w=>({d:w,y:workouts.filter(x=>inWk(x.date,w)).reduce((a,x)=>a+(x.items||[]).reduce((b,i)=>b+itemVol(i),0),0)}));
+    chart({el:'c-vol',label:'Edzés volumen hetente',from:xFrom,to:xTo,yZero:true,bw:7,series:[{name:'Volumen',color:'var(--s-vol)',type:'bars',pts:volW,fmtv:v=>Math.round(v).toLocaleString('hu-HU')+' kg'}]});
+    table('t-vol',['Hét','Volumen (kg)'],volW.map(x=>[huDate(x.d),Math.round(x.y).toLocaleString('hu-HU')]));
+
+    // exercise
+    const names=[...new Map(workouts.flatMap(w=>(w.items||[]).filter(i=>i.done&&i.ex).map(i=>[i.ex.trim().toLowerCase(),i.ex.trim()]))).values()].sort((a,b)=>a.localeCompare(b,'hu'));
+    if(!names.includes(exSel)) exSel=names[0]||'';
+    $('exsel').innerHTML=names.length?names.map(n=>`<option ${n===exSel?'selected':''}>${esc(n)}</option>`).join(''):'<option>Még nincs kész gyakorlat</option>';
+    const exPts=[]; workouts.forEach(w=>{if(!inR(w.date))return;(w.items||[]).forEach(i=>{if(i.done&&i.ex&&i.ex.trim().toLowerCase()===exSel.toLowerCase()){const mx=itemMax(i);if(mx>0)exPts.push({d:toD(w.date),y:mx,it:i})}})});
+    const sumTxt=i=>setsOf(i).filter(s=>s.done).map(s=>`${isNum(s.reps)?s.reps:'?'}×${isNum(s.kg)?kgTxt(s.kg):'?'}`).join(', ');
+    chart({el:'c-ex',label:'Gyakorlat',from,to,series:[{name:exSel||'Gyakorlat',color:'var(--s-gym)',type:'line',markers:true,pts:exPts,fmtv:(v,p)=>`${kgTxt(v)} kg (${sumTxt(p.it)})`}]});
+    table('t-ex',['Dátum','Max kg','Szériák'],exPts.map(p=>[huDate(p.d),kgTxt(p.y),sumTxt(p.it)]));
+
+    // tiles
+    const aNow=wIn.length?avgAt(toD(wIn[wIn.length-1].date)):null, aStart=wIn.length?avgAt(toD(wIn[0].date)):null;
+    const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+    const kAvg=avg(kc.map(e=>e.kcal)), pAvg=avg(pr.map(e=>e.p));
+    const gN=workouts.filter(x=>inR(x.date)&&(x.items||[]).some(i=>i.done)).length;
+    const dz=dances.filter(x=>inR(x.date)), dMin=dz.reduce((a,x)=>a+(x.items||[]).reduce((b,y)=>b+(y.min||0),0),0);
+    const tl=(k,v,s)=>`<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s||''}</div></div>`;
+    $('tiles').innerHTML=
+      tl('Súly (7 napos átl.)',aNow!=null?`${fmt(aNow)}<small> kg</small>`:'–',aNow!=null&&aStart!=null?`${aNow<=aStart?'−':'+'}${fmt(Math.abs(aNow-aStart))} kg az időszakban`:'')+
+      tl('Átl. kalória',kAvg!=null?`${Math.round(kAvg)}<small> kcal</small>`:'–',kc.length?`${kc.length} naplózott nap`:'')+
+      tl('Átl. fehérje',pAvg!=null?`${Math.round(pAvg)}<small> g</small>`:'–',pAvg!=null?`cél: ${pT} g`:'')+
+      tl('Edzés',`${gN}<small> alkalom</small>`,'')+
+      tl('Tánc',`${dz.reduce((a,x)=>a+(x.items||[]).length,0)}<small> alkalom</small>`,`${hm(dMin)} óra`);
+  }
+  $('range').addEventListener('click',ev=>{const b=ev.target.closest('[data-r]');if(!b)return;range=+b.dataset.r;$('range').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render()});
+  $('exsel').addEventListener('change',ev=>{exSel=ev.target.value;render()});
+  const docs=s=>s.docs.map(d=>d.data()).filter(x=>x&&x.date);
+  db.collection('weighins').orderBy('date').onSnapshot(s=>{weighins=docs(s);render()});
+  db.collection('workouts').orderBy('date').onSnapshot(s=>{workouts=docs(s);render()});
+  db.collection('dance').orderBy('date').onSnapshot(s=>{dances=docs(s);render()});
+  db.doc('settings/plan').onSnapshot(s=>{if(s.exists){settings.plan=s.data();render()}});
+  let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(render,150)});
+  window.LocalDB.status();
+})();
+</script>
+
+<script src="nav.js"></script>
+<script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>

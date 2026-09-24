@@ -1,10 +1,13 @@
-/* Hamburger menü: váltás a Súlynapló és az Edzés és tánc között */
+/* Hamburger menü a lapok között + értesítés, ha új verzió van fent */
 (function(){
-  const onSuly=/suly\.html$/.test(location.pathname);
-  const here=onSuly?'suly':'edzes';
+  const path=location.pathname;
+  const here=/suly\.html$/.test(path)?'suly':/edzes\.html$/.test(path)?'edzes':/stats\.html$/.test(path)?'stats':'ma';
+  const onMa=here==='ma';
   const items=[
+    {id:'ma',href:'./',t:'Ma',s:'Mai súly, étkezés, edzés, tánc',c:'#1b2320'},
     {id:'suly',href:'suly.html',t:'Súlynapló',s:'Súly, étkezés, derék, ciklus',c:'#0ca678'},
-    {id:'edzes',href:'./',t:'Edzés és tánc',s:'Gyakorlatok, táncórák, heti célok',c:'#f76707'},
+    {id:'edzes',href:'edzes.html',t:'Edzés és tánc',s:'Gyakorlatok szériánként, táncórák',c:'#f76707'},
+    {id:'stats',href:'stats.html',t:'Statisztika',s:'Grafikonok: súly, derék, kcal, edzés',c:'#1c7ed6'},
     {id:'sync',href:'./#szinkron',t:'Adatok és szinkron',s:'Google Táblázat, biztonsági mentés',c:'#ae3ec9'}
   ];
   const css=`
@@ -26,6 +29,9 @@
   .drawer a b{display:block;font-family:var(--display);font-weight:600}
   .drawer a small{display:block;color:var(--muted);font-size:12px}
   .drawer .foot{margin-top:auto;padding:10px 12px}
+  .drawer a[data-id="ma"] i{background:var(--ink)!important}
+  .updbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:60;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:14px;max-width:calc(100vw - 32px)}
+  .updbar button{background:var(--accent);color:var(--accent-ink);border:none;border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer}
   @media (prefers-reduced-motion:reduce){.drawer,.navov{transition:none}}`;
   const st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
 
@@ -51,7 +57,32 @@
   dr.addEventListener('click',e=>{
     const a=e.target.closest('a'); if(!a) return;
     if(a.dataset.id===here){e.preventDefault();close();window.scrollTo({top:0,behavior:'smooth'});return}
-    if(a.dataset.id==='sync'&&!onSuly){e.preventDefault();close();const d=document.getElementById('syncdetails');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}}
+    if(a.dataset.id==='sync'&&onMa){e.preventDefault();close();const d=document.getElementById('syncdetails');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}}
   });
   if(window.LocalDB) LocalDB.status();
+
+  // --- frissítésjelzés: ha a GitHubra új változat kerül, szól ---
+  const WATCH=['./','edzes.html','suly.html','stats.html','store.js','nav.js'];
+  async function sig(){
+    try{
+      const parts=await Promise.all(WATCH.map(u=>fetch(u,{method:'HEAD',cache:'no-store'}).then(r=>r.ok?(r.headers.get('etag')||r.headers.get('last-modified')||''):'')));
+      const s=parts.join('|'); return s.replace(/\|/g,'')?s:null;
+    }catch(e){return null}
+  }
+  let base=null, lastCheck=0, shown=false;
+  sig().then(s=>{base=s;lastCheck=Date.now()});
+  async function check(){
+    if(shown||!navigator.onLine||Date.now()-lastCheck<5*60*1000) return;
+    lastCheck=Date.now(); const s=await sig(); if(!s) return;
+    if(base==null){base=s;return}
+    if(s!==base) showUpdate();
+  }
+  function showUpdate(){
+    shown=true; const b=document.createElement('div'); b.className='updbar'; b.setAttribute('role','status');
+    b.innerHTML='<span>Új verzió érhető el.</span><button type="button">Frissítés</button>';
+    b.querySelector('button').addEventListener('click',()=>location.reload());
+    document.body.appendChild(b);
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
+  setInterval(check,15*60*1000);
 })();

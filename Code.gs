@@ -1,5 +1,5 @@
 /**
- * Edzés és tánc – Google Táblázat szinkron
+ * Súlynapló + Edzés és tánc – Google Táblázat szinkron
  *
  * 1. Írj be egy saját titkos szót a TOKEN-hez (ugyanezt kell majd az appba is beírni).
  * 2. Telepítés → Új telepítés → Típus: Webes alkalmazás
@@ -7,12 +7,12 @@
  * 3. A kapott „Webes alkalmazás URL”-t másold be az appba (Adatok és szinkron).
  *
  * A „_adatok” lapot ne szerkeszd kézzel – ebből dolgozik az app.
- * Az „Edzés” és „Tánc” lapok minden mentéskor újragenerálódnak, ezeket nyugodtan nézegetheted.
+ * A „Súly”, „Edzés” és „Tánc” lapok minden mentéskor újragenerálódnak, ezeket nyugodtan nézegetheted.
  */
 const TOKEN = 'ide-írd-a-titkos-szót';
 
 const DATA_SHEET = '_adatok';
-const COLLECTIONS = ['workouts', 'dance', 'settings'];
+const COLLECTIONS = ['workouts', 'dance', 'weighins', 'settings'];
 const DAYS = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
 
 function doPost(e) {
@@ -38,7 +38,7 @@ function doPost(e) {
 }
 
 function doGet() {
-  return out({ ok: true, info: 'Az Edzés és tánc szinkron működik.' });
+  return out({ ok: true, info: 'A napló szinkron működik (3. verzió).' });
 }
 
 function out(o) {
@@ -49,9 +49,8 @@ function sheet(name, header) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(name);
   if (!sh) { sh = ss.insertSheet(name); }
-  if (header && sh.getLastRow() === 0) {
-    sh.appendRow(header);
-    sh.getRange(1, 1, 1, header.length).setFontWeight('bold').setBackground('#cfe2f3');
+  if (header) {
+    sh.getRange(1, 1, 1, header.length).setValues([header]).setFontWeight('bold').setBackground('#cfe2f3');
     sh.setFrozenRows(1);
   }
   return sh;
@@ -79,7 +78,7 @@ function writeMap(map) {
 }
 
 function toData(map) {
-  const data = { workouts: {}, dance: {}, settings: {} };
+  const data = { workouts: {}, dance: {}, weighins: {}, settings: {} };
   Object.keys(map).forEach(function (k) {
     const r = map[k];
     try { data[r[0]][r[1]] = JSON.parse(r[2]); } catch (err) {}
@@ -99,13 +98,26 @@ function dayName(iso) {
 function rebuildViews(map) {
   const data = toData(map);
 
-  const gymHeader = ['Dátum', 'Nap', 'Gyakorlat', 'Széria', 'Ismétlés', 'Súly (kg)', 'Össz. volumen (kg)', 'Kész', 'RIR'];
+  const wHeader = ['Dátum', 'Nap', 'Testsúly (kg)', 'Bevitt kalória (kcal)', 'Fehérje (g)', 'Szénhidrát (g)', 'Zsír (g)', 'Derék (cm)', 'Menstruáció'];
+  const wsh = sheet('Súly', wHeader);
+  const wRows = Object.keys(data.weighins).sort().map(function (d) {
+    const x = data.weighins[d];
+    return [huDate(d), dayName(d), num(x.kg), num(x.kcal), num(x.p), num(x.c), num(x.f), num(x.waist), x.period ? true : false];
+  });
+  fill(wsh, wHeader.length, wRows);
+  if (wRows.length) wsh.getRange(2, 9, wRows.length, 1).insertCheckboxes();
+
+  const gymHeader = ['Dátum', 'Nap', 'Gyakorlat', 'Széria (hányadik)', 'Ismétlés', 'Súly (kg)', 'Volumen (kg)', 'Kész', 'RIR (gyakorlat)'];
   const gym = sheet('Edzés', gymHeader);
   const gymRows = [];
   Object.keys(data.workouts).sort().forEach(function (d) {
     (data.workouts[d].items || []).forEach(function (it) {
-      const vol = (it.sets || 0) * (it.reps || 0) * (it.kg || 0);
-      gymRows.push([huDate(d), dayName(d), it.ex || '', num(it.sets), num(it.reps), num(it.kg), vol || '', it.done ? true : false, num(it.rir)]);
+      let sets = Array.isArray(it.setsArr) && it.setsArr.length ? it.setsArr : null;
+      if (!sets) { sets = []; for (let k = 0; k < Math.max(1, it.sets || 1); k++) sets.push({ reps: it.reps, kg: it.kg, done: it.done }); }
+      sets.forEach(function (st, k) {
+        const vol = (st.reps || 0) * (st.kg || 0);
+        gymRows.push([huDate(d), dayName(d), it.ex || '', k + 1, num(st.reps), num(st.kg), vol || '', st.done ? true : false, k === sets.length - 1 ? num(it.rir) : '']);
+      });
     });
   });
   fill(gym, gymHeader.length, gymRows);
