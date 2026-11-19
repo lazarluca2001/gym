@@ -1,6 +1,6 @@
 # Napló – súly, edzés, tánc
 
-Telefonra tehető napló: **Ma** kezdőképernyő, **Heti terv** (A/B edzés, tánc, lépéscél), **Súlynapló**, **Edzés és tánc** (szériánkénti súllyal és ismétléssel) és **Statisztika**. A lapok között a bal felső hamburger menüvel váltasz. GitHub Pages-en fut, internet nélkül is megnyílik, és ha szeretnéd, minden mentést beír egy Google Táblázatba.
+Telefonra tehető napló: **Ma** kezdőképernyő, **Heti terv** (A/B edzés, tánc, lépéscél), **Edzés és tánc** (szériánkénti súllyal és ismétléssel) és **Statisztika** (edzés, tánc, lépés). Súlyt és étkezést nem naplóz. A lapok között a bal felső hamburger menüvel váltasz. GitHub Pages-en fut, internet nélkül is megnyílik, és ha szeretnéd, minden mentést beír egy Google Táblázatba.
 
 ## 1. Feltöltés GitHubra (kb. 5 perc)
 
@@ -8,7 +8,7 @@ Telefonra tehető napló: **Ma** kezdőképernyő, **Heti terv** (A/B edzés, t�
 2. Név: például `edzes`. Legyen **Public** (az ingyenes GitHub Pages-hez ez kell; az adataid nem kerülnek bele, csak a program). **Create repository**.
 3. A következő oldalon kattints az **uploading an existing file** linkre.
 4. Húzd be az összes fájlt ebből a mappából (a mappa tartalmát, nem magát a mappát):
-   `index.html`, `terv.html`, `edzes.html`, `suly.html`, `stats.html`, `store.js`, `plan.js`, `nav.js`, `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `Code.gs`, `README.md`
+   `index.html`, `terv.html`, `edzes.html`, `stats.html`, `store.js`, `plan.js`, `nav.js`, `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `Code.gs`, `README.md`
 5. Lent **Commit changes**.
 6. Fent **Settings → Pages**. A *Build and deployment* résznél: Source: **Deploy from a branch**, Branch: **main**, mappa: **/ (root)** → **Save**.
 7. 1–2 perc múlva ugyanitt megjelenik a címed, például:
@@ -38,7 +38,7 @@ Az adatok alapból csak a telefonon vannak. Ha törlöd az ikont, vagy törlöd 
 7. Az appban: menü → **Adatok és szinkron** → illeszd be az URL-t és a titkos szót → **Összekötés**.
 
 A jobb felső sarokban ezután a „Szinkronizálva a táblázattal” felirat látszik. Az első összekötéskor a telefonon lévő adatok feltöltődnek a táblázatba. A táblázatban öt lap jön létre:
-- **Súly**: dátum, testsúly, kalória, fehérje, szénhidrát, zsír, derék, menstruáció
+- **Súly**: csak a korábban beírt súlyadatok (az app már nem naplóz súlyt)
 - **Edzés**: szériánként egy sor: dátum, gyakorlat, hányadik széria, ismétlés, súly, volumen, kész, RIR
 - **Tánc**: dátum, típus, óra típusa, időtartam, intenzitás, hely
 - **Lépés**: dátum, nap, lépésszám

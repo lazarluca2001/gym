@@ -234,11 +234,12 @@ header{flex-wrap:nowrap}
 </head>
 <body>
 <script src="store.js"></script>
+<script src="plan.js"></script>
 <div class="wrap">
   <header>
     <div>
       <h1>Statisztika</h1>
-      <p>Súly, derék, étkezés, edzés és tánc egy helyen</p>
+      <p>Edzés, tánc és lépésszám egy helyen</p>
     </div>
     <div class="status" id="status"><i></i><span>Betöltés…</span></div>
   </header>
@@ -252,10 +253,11 @@ header{flex-wrap:nowrap}
   <div class="tiles" id="tiles"></div>
 
   <div class="charts">
-    <section class="ch"><div class="hd"><h2>Testsúly</h2><div class="lg"><span><i style="background:var(--s-weight);border-radius:50%;opacity:.45"></i>napi</span><span><i class="ln" style="background:var(--s-weight)"></i>7 napos átlag</span><span><i class="ds" style="border-color:var(--s-goal)"></i>cél</span><span><i style="background:var(--s-period)"></i>menstruáció</span></div></div><div class="plot" id="c-weight"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-weight"></div></details></section>
-    <section class="ch"><div class="hd"><h2>Derékbőség</h2><span class="sub">cm</span></div><div class="plot" id="c-waist"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-waist"></div></details></section>
-    <section class="ch"><div class="hd"><h2>Kalória</h2><div class="lg"><span><i style="background:var(--s-kcal)"></i>naponta</span><span><i class="ds" style="border-color:var(--s-goal)"></i><span id="lg-kcal">terv</span></span></div></div><div class="plot" id="c-kcal"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-kcal"></div></details></section>
-    <section class="ch"><div class="hd"><h2>Fehérje</h2><div class="lg"><span><i style="background:var(--s-prot)"></i>g naponta</span><span><i class="ds" style="border-color:var(--s-goal)"></i><span id="lg-prot">cél</span></span></div></div><div class="plot" id="c-prot"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-prot"></div></details></section>
+    <section class="ch" style="grid-column:1/-1"><div class="hd"><h2>Lépésszám</h2><div class="lg"><span><i style="background:var(--s-prot)"></i>naponta</span><span><i class="ln" style="background:var(--s-goal)"></i>napi cél</span></div></div><div class="plot" id="c-steps"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-steps"></div></details></section>
+    <section class="ch" hidden><div class="hd"><h2>Testsúly</h2><div class="lg"><span><i style="background:var(--s-weight);border-radius:50%;opacity:.45"></i>napi</span><span><i class="ln" style="background:var(--s-weight)"></i>7 napos átlag</span><span><i class="ds" style="border-color:var(--s-goal)"></i>cél</span><span><i style="background:var(--s-period)"></i>menstruáció</span></div></div><div class="plot" id="c-weight"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-weight"></div></details></section>
+    <section class="ch" hidden><div class="hd"><h2>Derékbőség</h2><span class="sub">cm</span></div><div class="plot" id="c-waist"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-waist"></div></details></section>
+    <section class="ch" hidden><div class="hd"><h2>Kalória</h2><div class="lg"><span><i style="background:var(--s-kcal)"></i>naponta</span><span><i class="ds" style="border-color:var(--s-goal)"></i><span id="lg-kcal">terv</span></span></div></div><div class="plot" id="c-kcal"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-kcal"></div></details></section>
+    <section class="ch" hidden><div class="hd"><h2>Fehérje</h2><div class="lg"><span><i style="background:var(--s-prot)"></i>g naponta</span><span><i class="ds" style="border-color:var(--s-goal)"></i><span id="lg-prot">cél</span></span></div></div><div class="plot" id="c-prot"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-prot"></div></details></section>
     <section class="ch"><div class="hd"><h2>Edzés és tánc hetente</h2><div class="lg"><span><i style="background:var(--s-gym)"></i>edzés</span><span><i style="background:var(--s-dance)"></i>tánc</span></div></div><div class="plot" id="c-act"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-act"></div></details></section>
     <section class="ch"><div class="hd"><h2>Edzés volumen hetente</h2><span class="sub">kész szériák, kg × ismétlés</span></div><div class="plot" id="c-vol"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-vol"></div></details></section>
     <section class="ch" style="grid-column:1/-1"><div class="hd"><h2>Gyakorlat</h2><select id="exsel" aria-label="Gyakorlat"></select></div><div class="lg"><span><i class="ln" style="background:var(--s-gym)"></i>legnagyobb súly alkalmanként (kg)</span></div><div class="plot" id="c-ex"></div><details class="tbl"><summary>Táblázat</summary><div class="wrapt" id="t-ex"></div></details></section>
@@ -278,7 +280,7 @@ header{flex-wrap:nowrap}
   const hm=m=>Math.floor(m/60)+':'+String(m%60).padStart(2,'0');
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const db=window.LocalDB.db;
-  let weighins=[], workouts=[], dances=[], settings={}, range=28, exSel='';
+  let workouts=[], dances=[], steps=[], settings={}, range=28, exSel='';
 
   const setsOf=it=>Array.isArray(it.setsArr)&&it.setsArr.length?it.setsArr:Array.from({length:isNum(it.sets)&&it.sets>0?it.sets:1},()=>({reps:it.reps,kg:it.kg,done:!!it.done}));
   const itemVol=it=>setsOf(it).reduce((a,s)=>a+(s.done&&isNum(s.reps)&&isNum(s.kg)?s.reps*s.kg:0),0);
@@ -345,31 +347,16 @@ header{flex-wrap:nowrap}
 
   function render(){
     const t=today();
-    const allDates=[...weighins,...workouts,...dances].map(x=>x.date).filter(Boolean).sort();
+    const allDates=[...steps,...workouts,...dances].map(x=>x.date).filter(Boolean).sort();
     const from=range?addDays(t,-range+1):(allDates.length?toD(allDates[0]):addDays(t,-27));
     const to=t, inR=d=>{const x=toD(d);return x>=from&&x<=to};
-    const plan=settings.plan||{}, goal=isNum(plan.goal)?plan.goal:54, intake=isNum(plan.intake)?plan.intake:1396, pT=121;
-
-    // weight
-    const wAll=weighins.filter(e=>isNum(e.kg));
-    const avgAt=d=>{const lo=addDays(d,-6);const xs=wAll.filter(e=>{const x=toD(e.date);return x>=lo&&x<=d}).map(e=>e.kg);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null};
-    const wIn=wAll.filter(e=>inR(e.date));
-    const avgPts=[]; if(wIn.length){for(let d=toD(wIn[0].date);d<=toD(wIn[wIn.length-1].date);d=addDays(d,1)){const a=avgAt(d);if(a!=null)avgPts.push({d,y:a})}}
-    chart({el:'c-weight',label:'Testsúly',from,to,ref:{y:goal,label:'cél '+fmt(goal,0)},bands:weighins.filter(e=>e.period&&inR(e.date)).map(e=>toD(e.date)),
-      series:[{name:'Napi',color:'var(--s-weight)',type:'dots',pts:wIn.map(e=>({d:toD(e.date),y:e.kg})),fmtv:v=>fmt(v)+' kg'},{name:'7 napos átlag',color:'var(--s-weight)',type:'line',pts:avgPts,fmtv:v=>fmt(v)+' kg'}]});
-    table('t-weight',['Dátum','Súly','7 napos átl.'],wIn.map(e=>[huDate(toD(e.date)),fmt(e.kg),fmt(avgAt(toD(e.date)))]));
-
-    const waist=weighins.filter(e=>isNum(e.waist)&&inR(e.date));
-    chart({el:'c-waist',label:'Derékbőség',from,to,series:[{name:'Derék',color:'var(--s-waist)',type:'line',markers:true,pts:waist.map(e=>({d:toD(e.date),y:e.waist})),fmtv:v=>fmt(v)+' cm'}]});
-    table('t-waist',['Dátum','Derék (cm)'],waist.map(e=>[huDate(toD(e.date)),fmt(e.waist)]));
-
-    $('lg-kcal').textContent=`terv (${Math.round(intake)})`; $('lg-prot').textContent=`cél (${pT} g)`;
-    const kc=weighins.filter(e=>isNum(e.kcal)&&inR(e.date));
-    chart({el:'c-kcal',label:'Kalória',from,to,yZero:true,ref:{y:intake},series:[{name:'Kalória',color:'var(--s-kcal)',type:'bars',pts:kc.map(e=>({d:toD(e.date),y:e.kcal})),fmtv:v=>Math.round(v)+' kcal'}]});
-    table('t-kcal',['Dátum','kcal'],kc.map(e=>[huDate(toD(e.date)),Math.round(e.kcal)]));
-    const pr=weighins.filter(e=>isNum(e.p)&&inR(e.date));
-    chart({el:'c-prot',label:'Fehérje',from,to,yZero:true,ref:{y:pT},series:[{name:'Fehérje',color:'var(--s-prot)',type:'bars',pts:pr.map(e=>({d:toD(e.date),y:e.p})),fmtv:v=>Math.round(v)+' g'}]});
-    table('t-prot',['Dátum','Fehérje (g)'],pr.map(e=>[huDate(toD(e.date)),Math.round(e.p)]));
+    // lépés
+    const stIn=steps.filter(e=>isNum(e.n)&&inR(e.date));
+    const tgt=[]; for(let d=new Date(from);d<=to;d=addDays(d,1)) tgt.push({d:new Date(d),y:PLAN.dayPlan(iso(d),settings.program).target});
+    chart({el:'c-steps',label:'Lépésszám',from,to,yZero:true,series:[
+      {name:'Lépés',color:'var(--s-prot)',type:'bars',pts:stIn.map(e=>({d:toD(e.date),y:e.n})),fmtv:v=>Math.round(v).toLocaleString('hu-HU')},
+      {name:'Cél',color:'var(--s-goal)',type:'line',pts:stIn.length?tgt:[],fmtv:v=>Math.round(v).toLocaleString('hu-HU')}]});
+    table('t-steps',['Dátum','Lépés','Cél'],stIn.map(e=>{const t=PLAN.dayPlan(e.date,settings.program);return [huDate(toD(e.date)),e.n.toLocaleString('hu-HU'),t.target.toLocaleString('hu-HU')+(t.plusDance?' + tánc':'')]}));
 
     // weekly activity
     const wks=[]; for(let d=mondayOf(from);d<=to;d=addDays(d,7)) wks.push(d);
@@ -395,26 +382,24 @@ header{flex-wrap:nowrap}
     table('t-ex',['Dátum','Max kg','Szériák'],exPts.map(p=>[huDate(p.d),kgTxt(p.y),sumTxt(p.it)]));
 
     // tiles
-    const aNow=wIn.length?avgAt(toD(wIn[wIn.length-1].date)):null, aStart=wIn.length?avgAt(toD(wIn[0].date)):null;
     const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-    const kAvg=avg(kc.map(e=>e.kcal)), pAvg=avg(pr.map(e=>e.p));
+    const sAvg=avg(stIn.map(e=>e.n)), hit=stIn.filter(e=>e.n>=PLAN.dayPlan(e.date,settings.program).target).length;
     const gN=workouts.filter(x=>inR(x.date)&&(x.items||[]).some(i=>i.done)).length;
     const dz=dances.filter(x=>inR(x.date)), dMin=dz.reduce((a,x)=>a+(x.items||[]).reduce((b,y)=>b+(y.min||0),0),0);
     const tl=(k,v,s)=>`<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s||''}</div></div>`;
     $('tiles').innerHTML=
-      tl('Súly (7 napos átl.)',aNow!=null?`${fmt(aNow)}<small> kg</small>`:'–',aNow!=null&&aStart!=null?`${aNow<=aStart?'−':'+'}${fmt(Math.abs(aNow-aStart))} kg az időszakban`:'')+
-      tl('Átl. kalória',kAvg!=null?`${Math.round(kAvg)}<small> kcal</small>`:'–',kc.length?`${kc.length} naplózott nap`:'')+
-      tl('Átl. fehérje',pAvg!=null?`${Math.round(pAvg)}<small> g</small>`:'–',pAvg!=null?`cél: ${pT} g`:'')+
+      tl('Átl. lépés',sAvg!=null?`${Math.round(sAvg).toLocaleString('hu-HU')}`:'–',stIn.length?`${stIn.length} beírt nap`:'')+
+      tl('Lépéscél megvan',`${hit}<small> nap</small>`,stIn.length?`${stIn.length} napból`:'')+
       tl('Edzés',`${gN}<small> alkalom</small>`,'')+
       tl('Tánc',`${dz.reduce((a,x)=>a+(x.items||[]).length,0)}<small> alkalom</small>`,`${hm(dMin)} óra`);
   }
   $('range').addEventListener('click',ev=>{const b=ev.target.closest('[data-r]');if(!b)return;range=+b.dataset.r;$('range').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render()});
   $('exsel').addEventListener('change',ev=>{exSel=ev.target.value;render()});
   const docs=s=>s.docs.map(d=>d.data()).filter(x=>x&&x.date);
-  db.collection('weighins').orderBy('date').onSnapshot(s=>{weighins=docs(s);render()});
+  db.collection('steps').onSnapshot(s=>{steps=docs(s).sort((a,b)=>a.date<b.date?-1:1);render()});
   db.collection('workouts').orderBy('date').onSnapshot(s=>{workouts=docs(s);render()});
   db.collection('dance').orderBy('date').onSnapshot(s=>{dances=docs(s);render()});
-  db.doc('settings/plan').onSnapshot(s=>{if(s.exists){settings.plan=s.data();render()}});
+  db.doc('settings/program').onSnapshot(s=>{settings.program=s.exists?s.data():{};render()});
   let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(render,150)});
   window.LocalDB.status();
 })();
