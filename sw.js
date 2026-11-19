@@ -1,7 +1,7 @@
 // Offline működés: az app fájljait eltárolja, így internet nélkül is megnyílik.
 // Online mindig a legfrissebb változatot tölti le (verziót nem kell kézzel emelni).
-const CACHE = 'naplo-v3';
-const FILES = ['./', './index.html', './edzes.html', './suly.html', './stats.html', './store.js', './nav.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'naplo-v4';
+const FILES = ['./', './index.html', './edzes.html', './suly.html', './stats.html', './terv.html', './store.js', './plan.js', './nav.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

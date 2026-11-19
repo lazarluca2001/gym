@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heti terv</title>
+<meta name="theme-color" content="#f4f6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Terv">
+
+<style>
+
+:root{
+  --bg:#f4f6f1; --surface:#ffffff; --sunk:#eef1ea; --ink:#1b2320; --muted:#5f6b66; --line:#dde3da;
+  --accent:#0ca678; --accent-ink:#ffffff; --accent-soft:#d3f5e8;
+  --hero1:#ffe8cc; --hero2:#f3e5ff;
+  --m-legs:#f76707; --m-core:#5c940d; --m-upper:#7048e8; --m-back:#1098ad;
+  --t-legs:#fff1e6; --t-core:#f1f8e4; --t-upper:#f1edff; --t-back:#e4f6f9;
+  --dance:#ae3ec9; --t-dance:#f8f0fc;
+  --good:#2b8a3e; --warn:#d9480f; --bad:#e03131;
+  --display:"Sora",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+    --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+    --hero1:#3a2612; --hero2:#2b1f45;
+    --m-legs:#ff922b; --m-core:#94d82d; --m-upper:#9775fa; --m-back:#3bc9db;
+    --t-legs:#2c2016; --t-core:#1f2a16; --t-upper:#221d36; --t-back:#132a2f;
+    --dance:#e599f7; --t-dance:#2a1a30;
+    --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10141a; --surface:#181e26; --sunk:#202833; --ink:#e9eef3; --muted:#9aa6b2; --line:#2c3642;
+  --accent:#38d9a9; --accent-ink:#062a1f; --accent-soft:#12372d;
+  --hero1:#3a2612; --hero2:#2b1f45;
+  --m-legs:#ff922b; --m-core:#94d82d; --m-upper:#9775fa; --m-back:#3bc9db;
+  --t-legs:#2c2016; --t-core:#1f2a16; --t-upper:#221d36; --t-back:#132a2f;
+  --dance:#e599f7; --t-dance:#2a1a30;
+  --good:#69db7c; --warn:#ff922b; --bad:#ff6b6b;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 48px;display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+h1 .a{color:var(--m-legs)} h1 .b{color:var(--dance)}
+h2{font-size:17px;font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+header p{margin:4px 0 0;color:var(--muted)}
+.status{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.ok i{background:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin:0;max-width:72ch}
+.msg{font-size:13px;color:var(--muted)}
+.dirty{color:var(--warn);font-weight:600}
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid transparent;padding:9px 16px}
+.primary{background:var(--accent);color:var(--accent-ink)}
+.primary:disabled{opacity:.45;cursor:default}
+.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.small{padding:6px 10px;font-size:13px}
+section.card,form.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.meal-empty{font-size:13px;color:var(--muted);padding:4px 0}
+
+details summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:15px}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+html,body{margin:0}
+.wrap{padding-top:max(28px,calc(env(safe-area-inset-top) + 12px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom) + 24px))}
+.divider{height:1px;background:var(--line)}
+.filebtn{display:inline-block;cursor:pointer;padding:9px 16px;border:1px solid var(--line);border-radius:8px;font-weight:600;color:var(--ink)}
+header{flex-wrap:nowrap}
+@media (max-width:520px){header{flex-wrap:wrap}}
+:root{--steps:#1c7ed6;--t-steps:#e7f1fc}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--steps:#4dabf7;--t-steps:#14273a}}
+:root[data-theme="dark"]{--steps:#4dabf7;--t-steps:#14273a}
+h1 .s{color:var(--steps)}
+.hero{border-radius:18px;padding:18px;background:linear-gradient(120deg,var(--hero1),var(--hero2));display:flex;flex-direction:column;gap:12px}
+.hero .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hero .what{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.01em;color:var(--c,var(--ink));line-height:1.15}
+.hero .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.hero .go{align-self:flex-start;text-decoration:none;display:inline-flex;align-items:center;gap:6px;background:var(--c);color:#fff;border-radius:10px;padding:10px 14px;font-weight:600}
+.stepbox{background:var(--surface);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.stepbox .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.stepbox .top b{font-family:var(--mono);font-size:24px;font-weight:500}
+.stepbox .top span{font-size:13px;color:var(--muted)}
+.srow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.srow input{font-family:var(--mono);font-size:22px;width:150px;padding:8px 12px;text-align:center}
+.srow .primary{padding:12px 18px}
+.bar{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--steps);transition:width .3s}
+.bar i.full{background:var(--good)}
+.week{display:flex;flex-direction:column;gap:12px}
+.week-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.week-h .nav{display:flex;align-items:center;gap:8px}
+.week-h .nav button{width:36px;height:36px;padding:0;border-radius:50%;background:var(--sunk);color:var(--ink);font-size:16px}
+.week-h .nav .lbl{font-family:var(--display);font-weight:600;min-width:150px;text-align:center}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--sunk);color:var(--c)}
+.chip.ok::before{content:"✓ "}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:var(--sunk);border:2px solid transparent;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;color:var(--ink);font-weight:400;min-width:0}
+.day.sel{border-color:var(--ink)}
+.day.today .dn{color:var(--accent)}
+.day .dn{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.day .dd{font-family:var(--mono);font-size:13px}
+.day .lb{font-size:12px;font-weight:700;color:var(--c);line-height:1.25}
+.day .lb.done::after{content:" ✓"}
+.day .st{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.day .bar{height:6px}
+@media (max-width:640px){
+  .days{grid-template-columns:1fr;gap:6px}
+  .day{display:grid;grid-template-columns:44px 1fr auto;grid-template-areas:"dn lb st" "dd bar bar";align-items:center;gap:2px 10px;padding:8px 10px}
+  .day .dn{grid-area:dn}.day .dd{grid-area:dd}.day .lb{grid-area:lb}.day .st{grid-area:st;text-align:right}.day .bar{grid-area:bar}
+}
+.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:820px){.wgrid{grid-template-columns:1fr}}
+.wcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.wcard h2 small{display:block;font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted)}
+.wcard .go{align-self:flex-start;text-decoration:none;background:var(--c);color:#fff;border-radius:10px;padding:10px 14px;font-weight:600}
+.extbl{width:100%;border-collapse:collapse;font-size:14px}
+.extbl th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.extbl td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.extbl td.n{font-family:var(--mono);white-space:nowrap}
+.extbl td b{font-weight:600}
+.extbl .lst{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.extbl .lst .live{color:var(--c)}
+.extbl tr.extra td{color:var(--muted)}
+@media (max-width:520px){.extbl .hide-s{display:none}}
+.hist{display:flex;flex-direction:column;gap:10px}
+.hrow{display:grid;grid-template-columns:120px 1fr 120px;gap:10px;align-items:center;font-size:13px}
+.hrow .v{font-family:var(--mono);text-align:right}
+.hrow .v small{color:var(--muted)}
+@media (max-width:520px){.hrow{grid-template-columns:96px 1fr 96px}}
+.tips{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.tips b{font-weight:600}
+</style>
+</head>
+<body>
+<script src="store.js"></script>
+<script src="plan.js"></script>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Heti <span class="s">terv</span></h1>
+      <p>2 edzés · 3 tánc · napi lépéscél</p>
+    </div>
+    <div class="status" id="status"><i></i><span>Betöltés…</span></div>
+  </header>
+
+  <div class="hero" id="hero">
+    <span class="k" id="hk"></span>
+    <div>
+      <div class="what" id="hwhat"></div>
+      <div class="sub" id="hsub"></div>
+    </div>
+    <a class="go" id="hgo" hidden></a>
+    <form class="stepbox" id="stepform" autocomplete="off">
+      <div class="top"><span>Lépés</span><span><b id="snow">0</b> / <span id="starget"></span></span></div>
+      <div class="bar"><i id="sbar" style="width:0"></i></div>
+      <div class="srow">
+        <input type="number" id="sin" min="0" max="80000" step="1" inputmode="numeric" placeholder="pl. 7500" aria-label="Lépésszám">
+        <button class="primary" type="submit">Mentés</button>
+        <span class="msg" id="smsg"></span>
+      </div>
+    </form>
+  </div>
+
+  <section class="card week">
+    <div class="week-h">
+      <div class="nav"><button type="button" id="prevw" aria-label="Előző hét">‹</button><span class="lbl" id="wlabel"></span><button type="button" id="nextw" aria-label="Következő hét">›</button></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="days" id="days"></div>
+    <p class="note" id="wnote"></p>
+  </section>
+
+  <div class="wgrid" id="wgrid"></div>
+
+  <section class="card">
+    <h2>Lépésszám hétről hétre</h2>
+    <div class="hist" id="hist"></div>
+    <p class="note">Heti átlag a beírt napokból, a heti átlagos célhoz mérve. Táncnapokon a cél a táncon felüli lépés.</p>
+  </section>
+
+  <section class="card">
+    <h2>Emlékeztető</h2>
+    <ul class="tips">
+      <li><b>RIR 1–2:</b> minden szériában maradjon 1–2 ismétlés tartalék. Ha minden széria RIR 2-vel megy, a következő alkalommal egy fokkal (2,5 kg) nehezebb – az Edzés oldal ezt magától előtölti.</li>
+      <li><b>Lépés:</b> ebédszünetben 15–20 perc séta ≈ 2 000 lépés; óránként 3–5 perc felállás.</li>
+      <li><b>Kalória:</b> 1500–1800 kcal, táncnapokon inkább a sáv teteje (1700–1800).</li>
+      <li><b>Fehérje:</b> kb. 95–100 g naponta.</li>
+      <li>Ha tartósan fáradt vagy, rosszabbul alszol vagy romlik a tánc: túl nagy a deficit, egyél egy kicsit többet.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <details id="setdetails">
+      <summary>Program beállítása</summary>
+      <form class="settings" id="setform">
+        <div class="field"><label for="p-start">A program 1. hetének hétfője</label><input type="date" id="p-start"></div>
+        <div class="field" style="justify-content:flex-end"><button class="primary" type="submit">Mentés</button></div>
+        <p class="note" style="grid-column:1/-1">Ettől számolja a lépéscél emelését (1–2. hét, 3–4. hét, 5. héttől). Mentéskor a heti célokat is beállítja: 2 edzés, 3 tánc.</p>
+      </form>
+    </details>
+  </section>
+</div>
+<script>
+(function(){
+  const P=window.PLAN, db=window.LocalDB.db;
+  const $=id=>document.getElementById(id);
+  const isNum=v=>typeof v==='number'&&isFinite(v);
+  const toD=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+  const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+  const HU=['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+  const huDate=d=>HU[d.getMonth()]+' '+d.getDate()+'.';
+  const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+  const mondayOf=d=>addDays(d,-((d.getDay()+6)%7));
+  const nf=n=>Math.round(n).toLocaleString('hu-HU');
+  const kgTxt=v=>String(v).replace('.',',');
+  const hm=m=>Math.floor(m/60)+':'+String(m%60).padStart(2,'0');
+  const norm=s=>String(s||'').trim().toLowerCase();
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const COL={gym:'var(--m-legs)',dance:'var(--dance)',walk:'var(--steps)',rest:'var(--muted)'};
+  const WCOL={a:'var(--m-legs)',b:'var(--m-upper)'};
+
+  let steps={}, workouts=[], dances=[], prog={}, sel=iso(today()), weekMon=mondayOf(today());
+
+  const stepsOn=d=>steps[d]&&isNum(steps[d].n)?steps[d].n:null;
+  const gymDone=d=>workouts.some(w=>w.date===d&&(w.items||[]).some(x=>x.done));
+  const danceOn=d=>{const x=dances.find(w=>w.date===d);return x?(x.items||[]).reduce((a,y)=>a+(y.min||0),0):0};
+  function lastDone(name){
+    const n=norm(name);
+    for(let i=workouts.length-1;i>=0;i--){const it=(workouts[i].items||[]).find(x=>norm(x.ex)===n&&x.done);if(it)return {date:workouts[i].date,...it}}
+    return null;
+  }
+  function summ(it){
+    const ss=Array.isArray(it.setsArr)&&it.setsArr.length?it.setsArr.filter(s=>s.done):null;
+    if(ss&&ss.length){const kg=Math.max(0,...ss.map(s=>s.kg||0)), reps=ss.map(s=>s.reps).join('/');return `${kg?kgTxt(kg)+' kg · ':''}${reps}`}
+    return `${isNum(it.kg)&&it.kg?kgTxt(it.kg)+' kg · ':''}${it.sets||'?'}×${it.reps||'?'}`;
+  }
+
+  // ---- kiválasztott nap (alapból ma) ----
+  function renderHero(){
+    const dp=P.dayPlan(sel,prog), d=toD(sel), isToday=sel===iso(today());
+    $('hero').style.setProperty('--c',COL[dp.type]);
+    $('hk').textContent=`${isToday?'Ma · ':''}${dp.dn}, ${huDate(d)} · ${dp.week?dp.week+'. hét':'a program előtt'}`;
+    $('hwhat').textContent=dp.label+(dp.workout?` – ${dp.workout.focus.toLowerCase()}`:'');
+    let sub=dp.sub;
+    if(dp.type==='gym'&&gymDone(sel)) sub='✓ Kész, szép munka!';
+    if(dp.type==='dance'){const m=danceOn(sel);if(m)sub=`✓ Beírva: ${hm(m)} tánc · `+dp.sub}
+    $('hsub').textContent=sub;
+    const go=$('hgo');
+    if(dp.workout){go.hidden=false;go.href=gymDone(sel)?'edzes.html':`edzes.html?tpl=${dp.workout.key}`;go.textContent=gymDone(sel)?'Edzés megnyitása':`${dp.workout.name} indítása`}
+    else if(dp.type==='dance'&&!danceOn(sel)&&isToday){go.hidden=false;go.href='edzes.html#tanc';go.textContent='+ Tánc beírása'}
+    else go.hidden=true;
+    const n=stepsOn(sel)||0;
+    $('snow').textContent=nf(n);
+    $('starget').textContent=nf(dp.target)+(dp.plusDance?' + tánc':'');
+    const pct=Math.min(100,n/dp.target*100); $('sbar').style.width=pct+'%'; $('sbar').classList.toggle('full',n>=dp.target);
+    if(document.activeElement!==$('sin')) $('sin').value=stepsOn(sel)??'';
+    $('smsg').textContent=n>=dp.target?'✓ Megvan a mai cél':n?`Még ${nf(dp.target-n)} lépés`:'';
+  }
+  $('stepform').addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const raw=String($('sin').value).replace(/\s/g,'');
+    if(raw===''){ if(steps[sel]){await db.doc('steps/'+sel).delete();$('smsg').textContent='Törölve.'} return }
+    const v=parseInt(raw,10); if(!(v>=0&&v<=80000)){$('smsg').textContent='0 és 80 000 közötti számot írj.';return}
+    await db.doc('steps/'+sel).set({date:sel,n:v}); $('sin').blur(); renderAll();
+  });
+
+  // ---- hét ----
+  function renderWeek(){
+    const mon=weekMon, t=iso(today());
+    const dp0=P.dayPlan(iso(mon),prog);
+    $('wlabel').textContent=`${huDate(mon)} – ${huDate(addDays(mon,6))}`;
+    let gN=0,dN=0,sSum=0,sDays=0,tSum=0;
+    $('days').innerHTML=[0,1,2,3,4,5,6].map(k=>{
+      const d=iso(addDays(mon,k)), dp=P.dayPlan(d,prog), n=stepsOn(d);
+      let done=false;
+      if(dp.type==='gym'&&gymDone(d)){done=true;gN++}
+      if(dp.type!=='gym'&&gymDone(d)) gN++;
+      const dm=danceOn(d); if(dm){dN++; if(dp.type==='dance')done=true}
+      tSum+=dp.target; if(n!=null){sSum+=n;sDays++}
+      const pct=n!=null?Math.min(100,n/dp.target*100):0;
+      return `<button type="button" class="day ${d===sel?'sel':''} ${d===t?'today':''}" data-d="${d}" style="--c:${COL[dp.type]}">
+        <span class="dn">${dp.dn.slice(0,3)}</span><span class="dd">${toD(d).getDate()}.</span>
+        <span class="lb ${done?'done':''}">${dp.label}</span>
+        <span class="st">${n!=null?nf(n):'–'} / ${nf(dp.target)}${dp.plusDance?'+':''}</span>
+        <span class="bar"><i class="${n!=null&&n>=dp.target?'full':''}" style="width:${pct}%"></i></span></button>`;
+    }).join('');
+    const avg=sDays?sSum/sDays:null, tAvg=tSum/7;
+    $('chips').innerHTML=`<span class="chip ${gN>=2?'ok':''}" style="--c:var(--m-legs)">Edzés ${gN}/2</span><span class="chip ${dN>=3?'ok':''}" style="--c:var(--dance)">Tánc ${dN}/3</span><span class="chip ${avg!=null&&avg>=tAvg?'ok':''}" style="--c:var(--steps)">Lépés átlag ${avg!=null?nf(avg):'–'} / ${nf(tAvg)}</span>`;
+    $('wnote').textContent=dp0.week?`${dp0.week}. hét – lépéscélok: ${dp0.phaseName}. A „+” jelű napokon a cél a táncon felül értendő. Kattints egy napra a lépésszám beírásához.`:'A program még nem indult el – a lépéscélok az 1–2. hét szerintiek. Kattints egy napra a lépésszám beírásához.';
+  }
+  $('days').addEventListener('click',ev=>{const b=ev.target.closest('[data-d]');if(!b)return;sel=b.dataset.d;renderAll();$('hero').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('sin').focus({preventScroll:true}),350)});
+  $('prevw').addEventListener('click',()=>{weekMon=addDays(weekMon,-7);renderWeek()});
+  $('nextw').addEventListener('click',()=>{weekMon=addDays(weekMon,7);renderWeek()});
+
+  // ---- edzések ----
+  function renderWorkouts(){
+    $('wgrid').innerHTML=Object.values(P.WORKOUTS).map(w=>{
+      const row=(it,extra)=>{
+        const ld=lastDone(it.ex);
+        const lst=ld?`<span class="live">${huDate(toD(ld.date))}: ${esc(summ(ld))}${isNum(ld.rir)?' · RIR '+ld.rir:''}</span>`:esc(it.last);
+        const kg=it.range?it.range+' kg':isNum(it.start)?kgTxt(it.start)+' kg':'saját testsúly';
+        return `<tr class="${extra?'extra':''}"><td><b>${esc(it.ex)}</b>${extra?' <small>(ha van idő)</small>':''}<div class="lst">${lst}</div></td><td class="n">${it.sets} × ${it.reps}</td><td class="n">${kg}</td></tr>`};
+      return `<section class="wcard" style="--c:${WCOL[w.key]}">
+        <h2>${w.name} · ${w.day}<small>${w.focus} · ${w.when} · ${w.min}</small></h2>
+        <table class="extbl"><thead><tr><th>Gyakorlat · legutóbbi</th><th>Sor. × ism.</th><th>Kezdősúly</th></tr></thead>
+        <tbody>${w.items.map(it=>row(it,false)).join('')}${w.extra.map(it=>row(it,true)).join('')}</tbody></table>
+        <a class="go" href="edzes.html?tpl=${w.key}">${w.name} indítása</a>
+      </section>`}).join('');
+  }
+
+  // ---- lépés történet ----
+  function renderHist(){
+    const mon=mondayOf(today()), rows=[];
+    for(let k=5;k>=0;k--){
+      const m=addDays(mon,-7*k); let s=0,c=0,t=0;
+      for(let j=0;j<7;j++){const d=iso(addDays(m,j)), dp=P.dayPlan(d,prog), n=stepsOn(d); t+=dp.target; if(n!=null){s+=n;c++}}
+      const avg=c?s/c:null, tAvg=t/7;
+      rows.push(`<div class="hrow"><span>${huDate(m)} –</span><span class="bar"><i class="${avg!=null&&avg>=tAvg?'full':''}" style="width:${avg?Math.min(100,avg/tAvg*100):0}%"></i></span><span class="v">${avg!=null?nf(avg):'–'} <small>/ ${nf(tAvg)}</small></span></div>`);
+    }
+    $('hist').innerHTML=rows.join('');
+  }
+
+  // ---- beállítás ----
+  $('setform').addEventListener('submit',async ev=>{
+    ev.preventDefault(); const v=$('p-start').value; if(!v) return;
+    const s=iso(mondayOf(toD(v)));
+    await db.doc('settings/program').set({start:s}); await db.doc('settings/goals').set({...P.GOALS});
+    $('p-start').value=s; $('setdetails').open=false; renderAll();
+  });
+
+  function renderAll(){renderHero();renderWeek();renderWorkouts();renderHist()}
+  const docs=s=>s.docs.map(d=>d.data()).filter(x=>x&&x.date);
+  db.collection('steps').onSnapshot(s=>{steps={};docs(s).forEach(x=>steps[x.date]=x);renderAll()});
+  db.collection('workouts').orderBy('date').onSnapshot(s=>{workouts=docs(s);renderAll()});
+  db.collection('dance').orderBy('date').onSnapshot(s=>{dances=docs(s);renderAll()});
+  db.doc('settings/program').onSnapshot(s=>{prog=s.exists?s.data():{};if(!$('setdetails').open)$('p-start').value=P.startOf(prog);renderAll()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderAll()});
+  window.LocalDB.status();
+  $('p-start').value=P.startOf(prog);
+  renderAll();
+})();
+</script>
+<script src="nav.js"></script>
+<script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>

@@ -194,6 +194,7 @@ header{flex-wrap:nowrap}
 </head>
 <body>
 <script src="store.js"></script>
+<script src="plan.js"></script>
 <div class="wrap">
   <header>
     <div>
@@ -258,9 +259,8 @@ header{flex-wrap:nowrap}
       <form class="settings" id="setform">
         <div class="field"><label for="p-gym">Heti edzés cél (alkalom)</label><input type="number" id="p-gym" step="1" min="0" max="14"></div>
         <div class="field"><label for="p-dance">Heti tánc cél (alkalom)</label><input type="number" id="p-dance" step="1" min="0" max="14"></div>
-        <div class="field"><label for="t-hetfo">Hétfő (soronként egy gyakorlat)</label><textarea id="t-hetfo"></textarea></div>
-        <div class="field"><label for="t-szerda">Szerda</label><textarea id="t-szerda"></textarea></div>
-        <div class="field"><label for="t-pentek">Péntek</label><textarea id="t-pentek"></textarea></div>
+        <div class="field"><label for="t-a">A edzés – hétfő (soronként egy gyakorlat)</label><textarea id="t-a"></textarea></div>
+        <div class="field"><label for="t-b">B edzés – szombat</label><textarea id="t-b"></textarea></div>
         <div class="field" style="justify-content:flex-end"><button class="primary" type="submit">Mentés</button></div>
       </form>
     </details>
@@ -268,7 +268,7 @@ header{flex-wrap:nowrap}
 </div>
 <script>
 (function(){
-  let goals={gym:2,dance:2};
+  let goals={gym:2,dance:3}, prog={};
   let workouts=[], dances=[], db=null;
   let formEx=[], formDance=[], dirty=false, weekMon=null;
 
@@ -445,24 +445,25 @@ header{flex-wrap:nowrap}
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&gymOpen()&&formEx.length)wantWake(true)});
   $('exrows').addEventListener('click',()=>wantWake(true));
   // ---- day templates ----
-  const TPLKEYS=['hetfo','szerda','pentek'], TPLNAME={hetfo:'Hétfő',szerda:'Szerda',pentek:'Péntek'};
+  const TPLKEYS=['a','b'], TPLNAME={a:'A edzés',b:'B edzés'};
   const GNAME={legs:'Láb, far',back:'Hát',upper:'Mell, váll, kar',core:'Has'};
-  const DEF_TPL={
-    hetfo:['Hack guggolás','Leg Press','Leg Extension','Glute drive','Calf Raise','Abdominal Crunch','Leg Raise'],
-    szerda:['Lat Pulldown','Seated Row','Chest Press','Shoulder Press','Biceps Curl','Triceps Extension','Abdominal Crunch'],
-    pentek:['Csípőfeszítés','Glute drive','Outer Thigh','Inner Thigh','Leg curl','Abdominal Crunch','Calf Raise']};
+  const DEF_TPL=window.PLAN.templates();
   let templates=structuredClone(DEF_TPL);
   const stepFor=kg=>kg>=40?5:2.5;
   function prefill(name){
-    const pv=lastDone(name,$('date').value);
+    const pv=lastDone(name,$('date').value), pi=window.PLAN.item(name);
+    // a program kezdete előtti (vagy hiányzó) adatnál a terv kezdősúlyai jönnek
+    if(pi&&(!pv||pv.date<window.PLAN.startOf(prog)))
+      return {ex:name,rir:null,sets:Array.from({length:pi.sets},()=>({reps:pi.reps,kg:isNum(pi.start)?pi.start:null,done:false}))};
     if(!pv) return {ex:name,rir:null,sets:[0,1,2].map(()=>({reps:null,kg:null,done:false}))};
-    const ss=setsOf(pv).map(s=>({reps:s.reps,kg:s.kg,done:false}));
-    if(isNum(pv.rir)){ if(pv.rir>=2) ss.forEach(s=>{if(isNum(s.kg)&&s.kg>0)s.kg+=stepFor(s.kg)}); else if(pv.rir===1) ss.forEach(s=>{if(isNum(s.reps)&&s.reps<15)s.reps+=1}); }
+    let ss=setsOf(pv).map(s=>({reps:s.reps,kg:s.kg,done:false}));
+    if(isNum(pv.rir)){ if(pv.rir>=2) ss.forEach(s=>{if(isNum(s.kg)&&s.kg>0)s.kg+=stepFor(s.kg)}); else if(pv.rir===1) ss.forEach(s=>{if(isNum(s.reps)&&s.reps<(pi?pi.reps+2:15))s.reps+=1}); }
+    if(pi&&ss.length!==pi.sets){const last=ss[ss.length-1]||{reps:pi.reps,kg:pi.start};ss=Array.from({length:pi.sets},(_,k)=>ss[k]||{...last,done:false})}
     return {ex:name,rir:null,sets:ss};
   }
   function renderTplBar(){
-    const col={hetfo:'legs',szerda:'upper',pentek:'back'};
-    $('tplbar').innerHTML='<span class="flabel">Betöltés:</span>'+TPLKEYS.map(k=>`<button type="button" class="tplbtn" data-tpl="${k}" style="--tc:var(--m-${col[k]});--tt:var(--t-${col[k]})">${TPLNAME[k]}<small>${k==='pentek'?'ha belefér · ':''}${(templates[k]||[]).length} gyakorlat</small></button>`).join('');
+    const col={a:'legs',b:'upper'};
+    $('tplbar').innerHTML='<span class="flabel">Betöltés:</span>'+TPLKEYS.map(k=>`<button type="button" class="tplbtn" data-tpl="${k}" style="--tc:var(--m-${col[k]});--tt:var(--t-${col[k]})">${TPLNAME[k]}<small>${window.PLAN.WORKOUTS[k].day} · ${(templates[k]||[]).length} gyakorlat</small></button>`).join('')+'<a class="flabel" href="terv.html" style="margin-left:auto">Heti terv →</a>';
   }
   $('tplbar').addEventListener('click',ev=>{
     const b=ev.target.closest('[data-tpl]'); if(!b) return;
@@ -471,7 +472,7 @@ header{flex-wrap:nowrap}
     if(keepDone){const have=new Set(formEx.map(x=>norm(x.ex)));list.forEach(n=>{if(!have.has(norm(n)))formEx.push(prefill(n))})}
     else formEx=list.map(prefill);
     buildEx(); setDirty(true);
-    $('logmsg').textContent=`${TPLNAME[b.dataset.tpl]} betöltve${keepDone?' (a kipipált gyakorlatok megmaradtak)':''}. A súlyok a legutóbbi alkalomból jönnek; ahol 2+ RIR maradt, eggyel nehezebb.`;
+    $('logmsg').textContent=`${TPLNAME[b.dataset.tpl]} betöltve${keepDone?' (a kipipált gyakorlatok megmaradtak)':''}. A súlyok a legutóbbi alkalomból jönnek (a program első alkalmánál a terv kezdősúlyaiból); ahol 2+ RIR maradt, eggyel nehezebb.`;
   });
   $('addex').addEventListener('change',ev=>{
     const v=ev.target.value; ev.target.value=''; if(!v) return;
@@ -576,7 +577,7 @@ header{flex-wrap:nowrap}
   $('setform').addEventListener('submit',async ev=>{
     ev.preventDefault();
     const g=parseInt($('p-gym').value,10), d=parseInt($('p-dance').value,10);
-    goals={gym:isFinite(g)?g:2,dance:isFinite(d)?d:2};
+    goals={gym:isFinite(g)?g:2,dance:isFinite(d)?d:3};
     TPLKEYS.forEach(k=>templates[k]=$('t-'+k).value.split('\n').map(x=>x.trim()).filter(Boolean));
     renderWeek(); buildEx();
     if(db){try{await db.doc('settings/goals').set(goals);await db.doc('settings/templates').set(templates);$('logmsg').textContent='Beállítások mentve.'}catch(e){$('logmsg').textContent='A beállítások mentése nem sikerült.'}}
@@ -600,7 +601,8 @@ header{flex-wrap:nowrap}
     window.LocalDB.status();
     const fail=()=>setStatus('A kapcsolat megszakadt – töltsd újra az oldalt',false);
     db.doc('settings/templates').onSnapshot(s=>{if(s.exists){templates={...DEF_TPL,...s.data()};if(!$('setdetails').open)fillSettings();renderTplBar();if(!dirty)buildEx()}},()=>{});
-    db.doc('settings/goals').onSnapshot(s=>{if(s.exists){goals={gym:2,dance:2,...s.data()};if(!$('setdetails').open)fillSettings();renderWeek()}},()=>{});
+    db.doc('settings/program').onSnapshot(s=>{prog=s.exists?s.data():{}},()=>{});
+    db.doc('settings/goals').onSnapshot(s=>{if(s.exists){goals={gym:2,dance:3,...s.data()};if(!$('setdetails').open)fillSettings();renderWeek()}},()=>{});
     db.collection('workouts').orderBy('date').onSnapshot(s=>{
       workouts=s.docs.map(d=>d.data()).filter(x=>x&&x.date&&Array.isArray(x.items)).map(x=>({...x}));
       if(!dirty) loadForm(false); renderAll();

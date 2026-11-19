@@ -7,12 +7,12 @@
  * 3. A kapott „Webes alkalmazás URL”-t másold be az appba (Adatok és szinkron).
  *
  * A „_adatok” lapot ne szerkeszd kézzel – ebből dolgozik az app.
- * A „Súly”, „Edzés” és „Tánc” lapok minden mentéskor újragenerálódnak, ezeket nyugodtan nézegetheted.
+ * A „Súly”, „Edzés”, „Tánc” és „Lépés” lapok minden mentéskor újragenerálódnak, ezeket nyugodtan nézegetheted.
  */
 const TOKEN = 'ide-írd-a-titkos-szót';
 
 const DATA_SHEET = '_adatok';
-const COLLECTIONS = ['workouts', 'dance', 'weighins', 'settings'];
+const COLLECTIONS = ['workouts', 'dance', 'weighins', 'steps', 'settings'];
 const DAYS = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
 
 function doPost(e) {
@@ -38,7 +38,7 @@ function doPost(e) {
 }
 
 function doGet() {
-  return out({ ok: true, info: 'A napló szinkron működik (3. verzió).' });
+  return out({ ok: true, info: 'A napló szinkron működik (4. verzió).' });
 }
 
 function out(o) {
@@ -78,10 +78,10 @@ function writeMap(map) {
 }
 
 function toData(map) {
-  const data = { workouts: {}, dance: {}, weighins: {}, settings: {} };
+  const data = { workouts: {}, dance: {}, weighins: {}, steps: {}, settings: {} };
   Object.keys(map).forEach(function (k) {
     const r = map[k];
-    try { data[r[0]][r[1]] = JSON.parse(r[2]); } catch (err) {}
+    try { if (data[r[0]]) data[r[0]][r[1]] = JSON.parse(r[2]); } catch (err) {}
   });
   return data;
 }
@@ -134,6 +134,11 @@ function rebuildViews(map) {
     });
   });
   fill(dance, danceHeader.length, danceRows);
+
+  const stHeader = ['Dátum', 'Nap', 'Lépésszám'];
+  const stSh = sheet('Lépés', stHeader);
+  const stRows = Object.keys(data.steps).sort().map(function (d) { return [huDate(d), dayName(d), num(data.steps[d].n)]; });
+  fill(stSh, stHeader.length, stRows);
 }
 
 function num(v) { return typeof v === 'number' ? v : ''; }

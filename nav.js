@@ -1,10 +1,11 @@
 /* Hamburger menü a lapok között + értesítés, ha új verzió van fent */
 (function(){
   const path=location.pathname;
-  const here=/suly\.html$/.test(path)?'suly':/edzes\.html$/.test(path)?'edzes':/stats\.html$/.test(path)?'stats':'ma';
+  const here=/suly\.html$/.test(path)?'suly':/edzes\.html$/.test(path)?'edzes':/stats\.html$/.test(path)?'stats':/terv\.html$/.test(path)?'terv':'ma';
   const onMa=here==='ma';
   const items=[
     {id:'ma',href:'./',t:'Ma',s:'Mai súly, étkezés, edzés, tánc',c:'#1b2320'},
+    {id:'terv',href:'terv.html',t:'Heti terv',s:'A/B edzés, tánc, lépéscél',c:'#1c7ed6'},
     {id:'suly',href:'suly.html',t:'Súlynapló',s:'Súly, étkezés, derék, ciklus',c:'#0ca678'},
     {id:'edzes',href:'edzes.html',t:'Edzés és tánc',s:'Gyakorlatok szériánként, táncórák',c:'#f76707'},
     {id:'stats',href:'stats.html',t:'Statisztika',s:'Grafikonok: súly, derék, kcal, edzés',c:'#1c7ed6'},
@@ -62,7 +63,7 @@
   if(window.LocalDB) LocalDB.status();
 
   // --- frissítésjelzés: ha a GitHubra új változat kerül, szól ---
-  const WATCH=['./','edzes.html','suly.html','stats.html','store.js','nav.js'];
+  const WATCH=['./','edzes.html','suly.html','stats.html','terv.html','store.js','plan.js','nav.js'];
   async function sig(){
     try{
       const parts=await Promise.all(WATCH.map(u=>fetch(u,{method:'HEAD',cache:'no-store'}).then(r=>r.ok?(r.headers.get('etag')||r.headers.get('last-modified')||''):'')));
