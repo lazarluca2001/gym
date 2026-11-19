@@ -2,7 +2,7 @@
    helyi tárolás a telefonon + opcionális szinkron egy Google Táblázattal. */
 (function(){
   const KEY='edzes-tanc-v1', PKEY='edzes-tanc-v1-pending', CFG='edzes-tanc-sync';
-  const SEED={"workouts": {"2026-09-23": {"date": "2026-09-23", "items": [{"done": true, "ex": "Lat Pulldown", "kg": 13.75, "reps": 10, "rir": 1, "sets": 4}, {"done": true, "ex": "Chest Press", "kg": 20, "reps": 8, "rir": 0, "sets": 2}, {"done": true, "ex": "Triceps Extension", "kg": 12.5, "reps": 8, "rir": 2, "sets": 3}, {"done": true, "ex": "Abdominal Crunch", "kg": 20, "reps": 12, "rir": 4, "sets": 3}, {"done": true, "ex": "Seated Row", "kg": 20, "reps": 10, "rir": 2, "sets": 2}]}}, "dance": {"2026-09-24": {"date": "2026-09-24", "items": [{"intensity": 3, "kind": "ora", "min": 90, "note": "SH - Versenyző óra", "sub": "technika"}]}, "2026-09-22": {"date": "2026-09-22", "items": [{"intensity": 5, "kind": "ora", "min": 90, "note": "SH - Csoportos magánóra", "sub": "gyakorlas"}]}}, "settings": {"goals": {"dance": 3, "gym": 2}, "plan": {"goal": 54, "intake": 1396, "start": 60, "startDate": "2026-09-24", "tdeeA": 2267, "tdeeB": 2000}}, "weighins": {"2026-09-24": {"date": "2026-09-24", "items": {"ebed": [], "nasi": [], "reggeli": [], "vacsora": []}, "kg": 60.4, "period": false, "waist": 85}}};
+  const SEED={"workouts":{},"dance":{},"steps":{},"settings":{"goals":{"gym":2,"dance":3}}};
   const COLS=['workouts','dance','weighins','steps'];
   const clone=o=>JSON.parse(JSON.stringify(o));
   const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
@@ -14,6 +14,12 @@
   st.settings=st.settings||{};
   Object.entries(SEED.settings||{}).forEach(([id,d])=>{ if(!(id in st.settings)){ st.settings[id]=clone(d); seeded.push({op:'set',c:'settings',id,d}) } });
   if(seeded.length){ pending=pending.concat(seeded); write(PKEY,pending) }
+  // 2026 novemberi újrakezdés: a korábbi (november előtti) bejegyzések és a régi beállítások törlése ezen az eszközön
+  const RESET='naplo-reset-2026-11';
+  if(!read(RESET,false)){
+    ['workouts','dance','steps','weighins'].forEach(c=>{const o=st[c]||{};Object.keys(o).forEach(id=>{if(id<'2026-11-01')delete o[id]})});
+    pending=pending.filter(o=>o.c!=='settings'&&!(String(o.id)<'2026-11-01')); write(PKEY,pending); write(RESET,true);
+  }
   write(KEY,st);
 
   const save=()=>write(KEY,st), savePending=()=>write(PKEY,pending);

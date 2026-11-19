@@ -65,7 +65,7 @@ A **Heti terv** oldal (menü → Heti terv) a heti beosztást mutatja:
 | Szombat | B edzés (far + mell/váll + vádli) | 7 000 / 8 000 / 9 000 |
 | Vasárnap | Pihenő, könnyű séta | 8 000 / 9 000 / 10 000 |
 
-- Itt írod be a napi lépésszámot (a napra kattintva korábbi napra is).
+- A lépést, a táncot és az edzést a **Napló** (kezdőlap) napi adatlapján írod be; a hét napjaira koppintva bármelyik napot megnyithatod.
 - Az A és B edzésnél látod a kezdősúlyt és a legutóbbi alkalmat; az „indítása” gomb az Edzés oldalon betölti a gyakorlatokat.
 - A program első alkalmánál a terv kezdősúlyai töltődnek be, utána a megszokott módon a legutóbbi alkalomból (RIR 2+ esetén eggyel nehezebb).
 - A **Program beállítása** részben állíthatod, melyik hétfőn indult a program – ettől számolja a lépéscél emelését.

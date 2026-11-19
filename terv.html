@@ -172,7 +172,7 @@ h1 .s{color:var(--steps)}
       <div class="sub" id="hsub"></div>
     </div>
     <a class="go" id="hgo" hidden></a>
-    <form class="stepbox" id="stepform" autocomplete="off">
+    <form class="stepbox" id="stepform" autocomplete="off" hidden>
       <div class="top"><span>Lépés</span><span><b id="snow">0</b> / <span id="starget"></span></span></div>
       <div class="bar"><i id="sbar" style="width:0"></i></div>
       <div class="srow">
@@ -203,7 +203,7 @@ h1 .s{color:var(--steps)}
   <section class="card">
     <h2>Emlékeztető</h2>
     <ul class="tips">
-      <li><b>RIR 1–2:</b> minden szériában maradjon 1–2 ismétlés tartalék. Ha minden széria RIR 2-vel megy, a következő alkalommal egy fokkal (2,5 kg) nehezebb – az Edzés oldal ezt magától előtölti.</li>
+      <li><b>RIR 1–2:</b> minden szériában maradjon 1–2 ismétlés tartalék. Ha minden széria RIR 2-vel megy, a következő alkalommal egy fokkal (2,5 kg) nehezebb – a Napló ezt magától előtölti.</li>
       <li><b>Lépés:</b> ebédszünetben 15–20 perc séta ≈ 2 000 lépés; óránként 3–5 perc felállás.</li>
       <li><b>Kalória:</b> 1500–1800 kcal, táncnapokon inkább a sáv teteje (1700–1800).</li>
       <li><b>Fehérje:</b> kb. 95–100 g naponta.</li>
@@ -267,10 +267,11 @@ h1 .s{color:var(--steps)}
     let sub=dp.sub;
     if(dp.type==='gym'&&gymDone(sel)) sub='✓ Kész, szép munka!';
     if(dp.type==='dance'){const m=danceOn(sel);if(m)sub=`✓ Beírva: ${hm(m)} tánc · `+dp.sub}
+    const sn=stepsOn(sel); sub+=` · lépés: ${sn!=null?nf(sn):'–'} / ${nf(dp.target)}${dp.plusDance?' + tánc':''}`;
     $('hsub').textContent=sub;
     const go=$('hgo');
-    if(dp.workout){go.hidden=false;go.href=gymDone(sel)?'edzes.html':`edzes.html?tpl=${dp.workout.key}`;go.textContent=gymDone(sel)?'Edzés megnyitása':`${dp.workout.name} indítása`}
-    else if(dp.type==='dance'&&!danceOn(sel)&&isToday){go.hidden=false;go.href='edzes.html#tanc';go.textContent='+ Tánc beírása'}
+    if(dp.workout){go.hidden=false;go.href=gymDone(sel)?`./?d=${sel}`:`./?d=${sel}&tpl=${dp.workout.key}`;go.textContent=gymDone(sel)?'Edzés megnyitása':`${dp.workout.name} indítása`}
+    else if(dp.type==='dance'&&!danceOn(sel)&&isToday){go.hidden=false;go.href=`./?d=${sel}#tanc`;go.textContent='+ Tánc beírása'}
     else go.hidden=true;
     const n=stepsOn(sel)||0;
     $('snow').textContent=nf(n);
@@ -309,9 +310,9 @@ h1 .s{color:var(--steps)}
     }).join('');
     const avg=sDays?sSum/sDays:null, tAvg=tSum/7;
     $('chips').innerHTML=`<span class="chip ${gN>=2?'ok':''}" style="--c:var(--m-legs)">Edzés ${gN}/2</span><span class="chip ${dN>=3?'ok':''}" style="--c:var(--dance)">Tánc ${dN}/3</span><span class="chip ${avg!=null&&avg>=tAvg?'ok':''}" style="--c:var(--steps)">Lépés átlag ${avg!=null?nf(avg):'–'} / ${nf(tAvg)}</span>`;
-    $('wnote').textContent=dp0.week?`${dp0.week}. hét – lépéscélok: ${dp0.phaseName}. A „+” jelű napokon a cél a táncon felül értendő. Kattints egy napra a lépésszám beírásához.`:'A program még nem indult el – a lépéscélok az 1–2. hét szerintiek. Kattints egy napra a lépésszám beírásához.';
+    $('wnote').textContent=dp0.week?`${dp0.week}. hét – lépéscélok: ${dp0.phaseName}. A „+” jelű napokon a cél a táncon felül értendő. Koppints egy napra az adatlapjához.`:'A program még nem indult el – a lépéscélok az 1–2. hét szerintiek. Koppints egy napra az adatlapjához.';
   }
-  $('days').addEventListener('click',ev=>{const b=ev.target.closest('[data-d]');if(!b)return;sel=b.dataset.d;renderAll();$('hero').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('sin').focus({preventScroll:true}),350)});
+  $('days').addEventListener('click',ev=>{const b=ev.target.closest('[data-d]');if(!b)return;location.href='./?d='+b.dataset.d});
   $('prevw').addEventListener('click',()=>{weekMon=addDays(weekMon,-7);renderWeek()});
   $('nextw').addEventListener('click',()=>{weekMon=addDays(weekMon,7);renderWeek()});
 
@@ -327,7 +328,7 @@ h1 .s{color:var(--steps)}
         <h2>${w.name} · ${w.day}<small>${w.focus} · ${w.when} · ${w.min}</small></h2>
         <table class="extbl"><thead><tr><th>Gyakorlat · legutóbbi</th><th>Sor. × ism.</th><th>Kezdősúly</th></tr></thead>
         <tbody>${w.items.map(it=>row(it,false)).join('')}${w.extra.map(it=>row(it,true)).join('')}</tbody></table>
-        <a class="go" href="edzes.html?tpl=${w.key}">${w.name} indítása</a>
+        <a class="go" href="./?tpl=${w.key}">${w.name} indítása</a>
       </section>`}).join('');
   }
 

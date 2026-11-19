@@ -7,14 +7,14 @@
     terv:'<rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
     edzes:'<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
     stats:'<path d="M5 20V11M12 20V5M19 20v-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'};
-  const items=[{id:'ma',href:'./',t:'Ma'},{id:'terv',href:'terv.html',t:'Terv'},{id:'edzes',href:'edzes.html',t:'Edzés'},{id:'stats',href:'stats.html',t:'Statisztika'}];
+  const items=[{id:'ma',href:'./',t:'Napló'},{id:'terv',href:'terv.html',t:'Terv'},{id:'stats',href:'stats.html',t:'Statisztika'}];
   const bar=document.createElement('nav'); bar.className='tabbar'; bar.setAttribute('aria-label','Oldalak');
   bar.innerHTML=items.map(x=>`<a href="${x.href}" class="${x.id===here?'cur':''}" ${x.id===here?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${ic[x.id]}</svg>${x.t}</a>`).join('');
   document.body.appendChild(bar);
   if(window.LocalDB) LocalDB.status();
 
   // --- frissítésjelzés: ha a GitHubra új változat kerül, szól ---
-  const WATCH=['./','edzes.html','stats.html','terv.html','store.js','plan.js','nav.js','theme.css'];
+  const WATCH=['./','stats.html','terv.html','store.js','plan.js','nav.js','theme.css'];
   async function sig(){
     try{
       const parts=await Promise.all(WATCH.map(u=>fetch(u,{method:'HEAD',cache:'no-store'}).then(r=>r.ok?(r.headers.get('etag')||r.headers.get('last-modified')||''):'')));
