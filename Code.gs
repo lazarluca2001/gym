@@ -1,5 +1,5 @@
 /**
- * Súlynapló + Edzés és tánc – Google Táblázat szinkron
+ * Edzés, tánc és lépés napló – Google Táblázat szinkron
  *
  * 1. Írj be egy saját titkos szót a TOKEN-hez (ugyanezt kell majd az appba is beírni).
  * 2. Telepítés → Új telepítés → Típus: Webes alkalmazás
@@ -7,7 +7,7 @@
  * 3. A kapott „Webes alkalmazás URL”-t másold be az appba (Adatok és szinkron).
  *
  * A „_adatok” lapot ne szerkeszd kézzel – ebből dolgozik az app.
- * A „Súly”, „Edzés”, „Tánc” és „Lépés” lapok minden mentéskor újragenerálódnak, ezeket nyugodtan nézegetheted.
+ * Az „Edzés”, „Tánc” és „Lépés” lapok minden mentéskor újragenerálódnak, ezeket nyugodtan nézegetheted.
  */
 const TOKEN = 'ide-írd-a-titkos-szót';
 
@@ -38,7 +38,7 @@ function doPost(e) {
 }
 
 function doGet() {
-  return out({ ok: true, info: 'A napló szinkron működik (4. verzió).' });
+  return out({ ok: true, info: 'A napló szinkron működik (5. verzió).' });
 }
 
 function out(o) {
@@ -98,15 +98,6 @@ function dayName(iso) {
 function rebuildViews(map) {
   const data = toData(map);
 
-  const wHeader = ['Dátum', 'Nap', 'Testsúly (kg)', 'Bevitt kalória (kcal)', 'Fehérje (g)', 'Szénhidrát (g)', 'Zsír (g)', 'Derék (cm)', 'Menstruáció'];
-  const wsh = sheet('Súly', wHeader);
-  const wRows = Object.keys(data.weighins).sort().map(function (d) {
-    const x = data.weighins[d];
-    return [huDate(d), dayName(d), num(x.kg), num(x.kcal), num(x.p), num(x.c), num(x.f), num(x.waist), x.period ? true : false];
-  });
-  fill(wsh, wHeader.length, wRows);
-  if (wRows.length) wsh.getRange(2, 9, wRows.length, 1).insertCheckboxes();
-
   const gymHeader = ['Dátum', 'Nap', 'Gyakorlat', 'Széria (hányadik)', 'Ismétlés', 'Súly (kg)', 'Volumen (kg)', 'Kész', 'RIR (gyakorlat)'];
   const gym = sheet('Edzés', gymHeader);
   const gymRows = [];
@@ -154,3 +145,6 @@ function fill(sh, width, rows) {
     sh.getRange(2, 1, rows.length, width).setValues(rows);
   }
 }
+
+// Egyszer futtasd a szerkesztőből (▶ Futtatás): engedélyt kér, és elkészíti az Edzés, Tánc és Lépés lapot.
+function setup() { rebuildViews(readMap()); }

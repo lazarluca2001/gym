@@ -2,7 +2,7 @@
    helyi tárolás a telefonon + opcionális szinkron egy Google Táblázattal. */
 (function(){
   const KEY='edzes-tanc-v1', PKEY='edzes-tanc-v1-pending', CFG='edzes-tanc-sync';
-  const SEED={"workouts": {"2026-09-23": {"date": "2026-09-23", "items": [{"done": true, "ex": "Lat Pulldown", "kg": 13.75, "reps": 10, "rir": 1, "sets": 4}, {"done": true, "ex": "Chest Press", "kg": 20, "reps": 8, "rir": 0, "sets": 2}, {"done": true, "ex": "Triceps Extension", "kg": 12.5, "reps": 8, "rir": 2, "sets": 3}, {"done": true, "ex": "Abdominal Crunch", "kg": 20, "reps": 12, "rir": 4, "sets": 3}, {"done": true, "ex": "Seated Row", "kg": 20, "reps": 10, "rir": 2, "sets": 2}]}}, "dance": {"2026-09-24": {"date": "2026-09-24", "items": [{"intensity": 3, "kind": "ora", "min": 90, "note": "SH - Versenyző óra", "sub": "technika"}]}, "2026-09-22": {"date": "2026-09-22", "items": [{"intensity": 5, "kind": "ora", "min": 90, "note": "SH - Csoportos magánóra", "sub": "gyakorlas"}]}}, "settings": {"templates": {"hetfo": ["Hack guggolás", "Leg Press", "Leg Extension", "Glute drive", "Calf Raise", "Abdominal Crunch", "Leg Raise"], "pentek": ["Csípőfeszítés", "Glute drive", "Outer Thigh", "Inner Thigh", "Leg curl", "Abdominal Crunch", "Calf Raise"], "szerda": ["Lat Pulldown", "Seated Row", "Chest Press", "Shoulder Press", "Biceps Curl", "Triceps Extension", "Abdominal Crunch"]}, "goals": {"dance": 4, "gym": 2}, "plan": {"goal": 54, "intake": 1396, "start": 60, "startDate": "2026-09-24", "tdeeA": 2267, "tdeeB": 2000}}, "weighins": {"2026-09-24": {"date": "2026-09-24", "items": {"ebed": [], "nasi": [], "reggeli": [], "vacsora": []}, "kg": 60.4, "period": false, "waist": 85}}};
+  const SEED={"workouts": {"2026-09-23": {"date": "2026-09-23", "items": [{"done": true, "ex": "Lat Pulldown", "kg": 13.75, "reps": 10, "rir": 1, "sets": 4}, {"done": true, "ex": "Chest Press", "kg": 20, "reps": 8, "rir": 0, "sets": 2}, {"done": true, "ex": "Triceps Extension", "kg": 12.5, "reps": 8, "rir": 2, "sets": 3}, {"done": true, "ex": "Abdominal Crunch", "kg": 20, "reps": 12, "rir": 4, "sets": 3}, {"done": true, "ex": "Seated Row", "kg": 20, "reps": 10, "rir": 2, "sets": 2}]}}, "dance": {"2026-09-24": {"date": "2026-09-24", "items": [{"intensity": 3, "kind": "ora", "min": 90, "note": "SH - Versenyző óra", "sub": "technika"}]}, "2026-09-22": {"date": "2026-09-22", "items": [{"intensity": 5, "kind": "ora", "min": 90, "note": "SH - Csoportos magánóra", "sub": "gyakorlas"}]}}, "settings": {"goals": {"dance": 3, "gym": 2}, "plan": {"goal": 54, "intake": 1396, "start": 60, "startDate": "2026-09-24", "tdeeA": 2267, "tdeeB": 2000}}, "weighins": {"2026-09-24": {"date": "2026-09-24", "items": {"ebed": [], "nasi": [], "reggeli": [], "vacsora": []}, "kg": 60.4, "period": false, "waist": 85}}};
   const COLS=['workouts','dance','weighins','steps'];
   const clone=o=>JSON.parse(JSON.stringify(o));
   const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
@@ -32,6 +32,10 @@
     doc:p=>{const [c,id]=p.split('/');return docRef(c,id)}
   };
 
+  // egyszeri összekötő link: …/#u=<Apps Script URL>&kulcs=<titkos szó>
+  try{const h=new URLSearchParams(location.hash.slice(1));
+    if(h.get('u')&&h.get('kulcs')&&/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(h.get('u'))){
+      write(CFG,{url:h.get('u'),token:h.get('kulcs')}); history.replaceState(null,'',location.pathname+location.search)}}catch(e){}
   const cfg=()=>read(CFG,{});
   let syncing=false, again=false, lastErr='', lastOk=null;
   function allOps(){const ops=[];Object.keys(st).forEach(c=>Object.entries(st[c]||{}).forEach(([id,d])=>ops.push({op:'set',c,id,d})));return ops}

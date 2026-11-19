@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ma</title>
-<meta name="theme-color" content="#f4f6f1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0c0e0b" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0e0b" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Napló">
 
 <style>
@@ -230,6 +230,7 @@ html,body{margin:0}
 header{flex-wrap:nowrap}
 @media (max-width:520px){header{flex-wrap:wrap}}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <script src="store.js"></script>
@@ -243,6 +244,8 @@ header{flex-wrap:nowrap}
     <div class="status" id="status"><i></i><span>Betöltés…</span></div>
   </header>
 
+  <div class="hero" id="mahero"><span class="k" id="mk"></span><div><div class="what" id="mwhat"></div><div class="sub" id="msub"></div></div></div>
+
   <div class="mgrid">
     <section class="mcard" style="--c:var(--m-legs)">
       <h2><i></i>Edzés</h2>
@@ -253,7 +256,7 @@ header{flex-wrap:nowrap}
       <div id="dance"></div>
       <a class="go" href="edzes.html#tanc">+ Tánc hozzáadása</a>
     </section>
-    <section class="mcard" style="--c:#1c7ed6">
+    <section class="mcard" style="--c:var(--steps,#1c7ed6)">
       <h2><i></i>Lépés</h2>
       <div id="steps"></div>
       <a class="go" href="terv.html">Lépés beírása</a>
@@ -263,7 +266,7 @@ header{flex-wrap:nowrap}
   <section class="card">
     <div class="row" style="justify-content:space-between;align-items:center">
       <h2>Ez a hét</h2>
-      <div class="legend-s"><span><i style="background:var(--m-legs)"></i>edzés</span><span><i style="background:var(--dance)"></i>tánc</span><span><i style="background:#1c7ed6"></i>lépéscél megvan</span></div>
+      <div class="legend-s"><span><i style="background:var(--m-legs)"></i>edzés</span><span><i style="background:var(--dance)"></i>tánc</span><span><i style="background:var(--steps,#1c7ed6)"></i>lépéscél megvan</span></div>
     </div>
     <div class="wstrip" id="wstrip"></div>
   </section>
@@ -330,6 +333,12 @@ header{flex-wrap:nowrap}
     $('dance').innerHTML=`<div class="big2">${n} / ${g} <small>alkalom a héten</small></div>
       <div class="meter"><div class="top"><span>Heti idő</span><span><b>${hm(min)}</b> óra</span></div><div class="bar"><i style="width:${Math.min(100,n/Math.max(1,g)*100)}%"></i></div></div>
       <span class="muted-s">${todayD&&todayD.items.length?'Ma: '+todayD.items.map(x=>(x.kind==='buli'?'buli':'óra')+' '+hm(x.min||0)).join(', '):'Ma még nem volt tánc.'}</span>`;
+    // mai terv
+    const dpp=PLAN.dayPlan(td,settings.program), HC={gym:'var(--m-legs)',dance:'var(--dance)',walk:'var(--steps)',rest:'var(--muted)'};
+    $('mahero').style.setProperty('--c',HC[dpp.type]);
+    $('mk').textContent=`${dpp.week?dpp.week+'. hét · ':''}mai program`;
+    $('mwhat').textContent=dpp.label;
+    $('msub').textContent=`${dpp.sub[0].toUpperCase()+dpp.sub.slice(1)} · lépéscél ${dpp.target.toLocaleString('hu-HU')}${dpp.plusDance?' + tánc':''}`;
     // lépés
     const dp=PLAN.dayPlan(td,settings.program), sn=steps[td]&&isNum(steps[td].n)?steps[td].n:0;
     $('steps').innerHTML=`<div class="meter"><div class="top"><span>Mai cél${dp.plusDance?' (+ tánc)':''}</span><span><b>${sn.toLocaleString('hu-HU')}</b> / ${dp.target.toLocaleString('hu-HU')}</span></div><div class="bar"><i style="width:${Math.min(100,sn/dp.target*100)}%;${sn>=dp.target?'background:var(--good)':''}"></i></div></div>
@@ -337,7 +346,7 @@ header{flex-wrap:nowrap}
     // hét
     $('wstrip').innerHTML=[0,1,2,3,4,5,6].map(k=>{const d=iso(addDays(mon,k));
       const hasW=steps[d]&&isNum(steps[d].n)&&steps[d].n>=PLAN.dayPlan(d,settings.program).target, hasG=workouts.some(x=>x.date===d&&(x.items||[]).some(i=>i.done)), hasD=dances.some(x=>x.date===d&&(x.items||[]).length);
-      return `<div class="wd ${d===td?'today':''}"><span class="dn">${DS[k]}</span><span class="dd">${toD(d).getDate()}.</span><span class="dots">${hasG?'<i style="background:var(--m-legs)" title="edzés"></i>':''}${hasD?'<i style="background:var(--dance)" title="tánc"></i>':''}${hasW?'<i style="background:#1c7ed6" title="lépéscél"></i>':''}</span></div>`}).join('');
+      return `<div class="wd ${d===td?'today':''}"><span class="dn">${DS[k]}</span><span class="dd">${toD(d).getDate()}.</span><span class="dots">${hasG?'<i style="background:var(--m-legs)" title="edzés"></i>':''}${hasD?'<i style="background:var(--dance)" title="tánc"></i>':''}${hasW?'<i style="background:var(--steps,#1c7ed6)" title="lépéscél"></i>':''}</span></div>`}).join('');
   }
   const docs=s=>s.docs.map(d=>d.data()).filter(x=>x&&x.date);
   db.collection('workouts').orderBy('date').onSnapshot(s=>{workouts=docs(s);render()});

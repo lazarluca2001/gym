@@ -1,68 +1,20 @@
-/* Hamburger menü a lapok között + értesítés, ha új verzió van fent */
+/* Alsó menüsor a lapok között + értesítés, ha új verzió van fent */
 (function(){
   const path=location.pathname;
-  const here=/suly\.html$/.test(path)?'suly':/edzes\.html$/.test(path)?'edzes':/stats\.html$/.test(path)?'stats':/terv\.html$/.test(path)?'terv':'ma';
-  const onMa=here==='ma';
-  const items=[
-    {id:'ma',href:'./',t:'Ma',s:'Mai edzés, tánc, lépés',c:'#1b2320'},
-    {id:'terv',href:'terv.html',t:'Heti terv',s:'A/B edzés, tánc, lépéscél',c:'#1c7ed6'},
-    {id:'edzes',href:'edzes.html',t:'Edzés és tánc',s:'Gyakorlatok szériánként, táncórák',c:'#f76707'},
-    {id:'stats',href:'stats.html',t:'Statisztika',s:'Grafikonok: edzés, tánc, lépés',c:'#0ca678'},
-    {id:'sync',href:'./#szinkron',t:'Adatok és szinkron',s:'Google Táblázat, biztonsági mentés',c:'#ae3ec9'}
-  ];
-  const css=`
-  .navwrap{display:flex;align-items:center;gap:12px}
-  .navbtn{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;padding:0;cursor:pointer}
-  .navbtn span{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;box-shadow:0 -6px 0 currentColor,0 6px 0 currentColor}
-  .navov{position:fixed;inset:0;background:rgba(10,14,18,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
-  .navov.open{opacity:1;pointer-events:auto}
-  .drawer{position:fixed;top:0;bottom:0;left:0;width:min(320px,86vw);background:var(--surface);color:var(--ink);z-index:51;transform:translateX(-102%);transition:transform .22s ease;display:flex;flex-direction:column;gap:6px;
-    padding:calc(env(safe-area-inset-top,0px) + 18px) 14px calc(env(safe-area-inset-bottom,0px) + 18px);box-shadow:4px 0 24px rgba(0,0,0,.15)}
-  .drawer.open{transform:none}
-  .drawer .dh{display:flex;justify-content:space-between;align-items:center;padding:0 6px 10px}
-  .drawer .dh b{font-family:var(--display);font-size:18px}
-  .drawer .dh button{background:none;border:none;color:var(--muted);font-size:22px;padding:4px 8px;cursor:pointer}
-  .drawer a{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;text-decoration:none;color:var(--ink)}
-  .drawer a:hover{background:var(--sunk)}
-  .drawer a.cur{background:var(--sunk)}
-  .drawer a i{width:12px;height:12px;border-radius:50%;margin-top:5px;flex:none}
-  .drawer a b{display:block;font-family:var(--display);font-weight:600}
-  .drawer a small{display:block;color:var(--muted);font-size:12px}
-  .drawer .foot{margin-top:auto;padding:10px 12px}
-  .drawer a[data-id="ma"] i{background:var(--ink)!important}
-  .updbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:60;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:14px;max-width:calc(100vw - 32px)}
-  .updbar button{background:var(--accent);color:var(--accent-ink);border:none;border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer}
-  @media (prefers-reduced-motion:reduce){.drawer,.navov{transition:none}}`;
-  const st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
-
-  const ov=document.createElement('div'); ov.className='navov';
-  const dr=document.createElement('nav'); dr.className='drawer'; dr.setAttribute('aria-label','Menü'); dr.setAttribute('aria-hidden','true');
-  dr.innerHTML=`<div class="dh"><b>Menü</b><button type="button" aria-label="Menü bezárása">×</button></div>`+
-    items.map(x=>`<a href="${x.href}" data-id="${x.id}" class="${x.id===here?'cur':''}" tabindex="-1"><i style="background:${x.c}"></i><span><b>${x.t}</b><small>${x.s}</small></span></a>`).join('')+
-    `<div class="foot"><span class="status" data-sync-status><i></i><span></span></span></div>`;
-  document.body.append(ov,dr);
-
-  const btn=document.createElement('button'); btn.type='button'; btn.className='navbtn'; btn.setAttribute('aria-label','Menü'); btn.setAttribute('aria-expanded','false'); btn.innerHTML='<span></span>';
-  const header=document.querySelector('header');
-  if(header){const first=header.firstElementChild;const w=document.createElement('div');w.className='navwrap';header.insertBefore(w,first);w.append(btn,first)}
-  else{btn.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;z-index:40';document.body.appendChild(btn)}
-
-  const links=()=>dr.querySelectorAll('a');
-  function open(){dr.classList.add('open');ov.classList.add('open');dr.setAttribute('aria-hidden','false');btn.setAttribute('aria-expanded','true');links().forEach(a=>a.tabIndex=0);if(window.LocalDB)LocalDB.status();(dr.querySelector('a.cur')||links()[0]).focus()}
-  function close(){dr.classList.remove('open');ov.classList.remove('open');dr.setAttribute('aria-hidden','true');btn.setAttribute('aria-expanded','false');links().forEach(a=>a.tabIndex=-1)}
-  btn.addEventListener('click',open);
-  ov.addEventListener('click',close);
-  dr.querySelector('.dh button').addEventListener('click',()=>{close();btn.focus()});
-  addEventListener('keydown',e=>{if(e.key==='Escape'&&dr.classList.contains('open')){close();btn.focus()}});
-  dr.addEventListener('click',e=>{
-    const a=e.target.closest('a'); if(!a) return;
-    if(a.dataset.id===here){e.preventDefault();close();window.scrollTo({top:0,behavior:'smooth'});return}
-    if(a.dataset.id==='sync'&&onMa){e.preventDefault();close();const d=document.getElementById('syncdetails');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}}
-  });
+  const here=/edzes\.html$/.test(path)?'edzes':/stats\.html$/.test(path)?'stats':/terv\.html$/.test(path)?'terv':'ma';
+  const ic={
+    ma:'<path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    terv:'<rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    edzes:'<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+    stats:'<path d="M5 20V11M12 20V5M19 20v-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'};
+  const items=[{id:'ma',href:'./',t:'Ma'},{id:'terv',href:'terv.html',t:'Terv'},{id:'edzes',href:'edzes.html',t:'Edzés'},{id:'stats',href:'stats.html',t:'Statisztika'}];
+  const bar=document.createElement('nav'); bar.className='tabbar'; bar.setAttribute('aria-label','Oldalak');
+  bar.innerHTML=items.map(x=>`<a href="${x.href}" class="${x.id===here?'cur':''}" ${x.id===here?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${ic[x.id]}</svg>${x.t}</a>`).join('');
+  document.body.appendChild(bar);
   if(window.LocalDB) LocalDB.status();
 
   // --- frissítésjelzés: ha a GitHubra új változat kerül, szól ---
-  const WATCH=['./','edzes.html','stats.html','terv.html','store.js','plan.js','nav.js'];
+  const WATCH=['./','edzes.html','stats.html','terv.html','store.js','plan.js','nav.js','theme.css'];
   async function sig(){
     try{
       const parts=await Promise.all(WATCH.map(u=>fetch(u,{method:'HEAD',cache:'no-store'}).then(r=>r.ok?(r.headers.get('etag')||r.headers.get('last-modified')||''):'')));

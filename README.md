@@ -24,6 +24,9 @@ Ezután mindig az ikonról nyisd meg. iPhone-on a kezdőképernyős app külön 
 
 ## 3. Google Táblázat szinkron (erősen ajánlott)
 
+**Gyors út:** ha kaptál egy összekötő linket (`…github.io/gym/#u=…&kulcs=…`), elég egyszer megnyitni a telefonon a kezdőképernyős appból – az app megjegyzi a címet és a titkos szót, és azonnal szinkronizál. Az alábbi lépések csak akkor kellenek, ha új táblázatot állítasz be.
+
+
 Az adatok alapból csak a telefonon vannak. Ha törlöd az ikont, vagy törlöd a böngésző adatait, elvesznek. A táblázat-szinkron ezt kivédi, és a táblázatban ugyanúgy látod az edzéseidet, mint eddig az Excelben.
 
 1. Hozz létre egy új Google Táblázatot (például „Edzésnapló”).
